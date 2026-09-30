@@ -1,0 +1,39 @@
+name: lexiflow
+description: "LexiFlow - Application d'apprentissage de vocabulaire anglais B1-B2 avec répétition espacée et canvas kinesthésique."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State Management & DI (Riverpod 3)
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
+
+  # Routing
+  go_router: ^18.0.2
+
+  # Database & Persistence (Drift multiplateforme)
+  drift: ^2.35.0
+  drift_flutter: ^0.3.1
+  sqlite3_flutter_libs: ^0.6.0+eol
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # Code generation
+  build_runner: ^2.16.1
+  drift_dev: ^2.35.0
+  riverpod_generator: ^4.0.9
+
+flutter:
+  uses-material-design: true
