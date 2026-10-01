@@ -39,7 +39,8 @@ class MatchingPracticeView extends StatefulWidget {
 }
 
 class _MatchingPracticeViewState extends State<MatchingPracticeView> {
-  late List<MatchingCardItem> _cards;
+  late List<MatchingCardItem> _leftCards;
+  late List<MatchingCardItem> _rightCards;
   MatchingCardItem? _firstSelected;
   bool _isProcessing = false;
   int _matchedPairs = 0;
@@ -54,10 +55,12 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
     final effectiveCount = min(widget.pairCount, widget.words.length);
     final selectedWords = (List<Word>.from(widget.words)..shuffle()).take(effectiveCount).toList();
 
-    _cards = [];
+    _leftCards = [];
+    _rightCards = [];
     int idCounter = 0;
+
     for (final word in selectedWords) {
-      _cards.add(
+      _leftCards.add(
         MatchingCardItem(
           id: idCounter++,
           wordId: word.id,
@@ -65,7 +68,7 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
           type: MatchingCardType.term,
         ),
       );
-      _cards.add(
+      _rightCards.add(
         MatchingCardItem(
           id: idCounter++,
           wordId: word.id,
@@ -74,7 +77,9 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
         ),
       );
     }
-    _cards.shuffle();
+
+    _leftCards.shuffle();
+    _rightCards.shuffle();
     _firstSelected = null;
     _isProcessing = false;
     _matchedPairs = 0;
@@ -107,7 +112,7 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
           _matchedPairs++;
         });
 
-        final targetPairs = _cards.length ~/ 2;
+        final targetPairs = _leftCards.length;
         if (_matchedPairs >= targetPairs) {
           widget.onComplete?.call();
         }
@@ -124,9 +129,68 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
     }
   }
 
+  Widget _buildCardTile(MatchingCardItem card) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Color bgColor;
+    Color textColor;
+    if (card.isMatched) {
+      bgColor = Colors.green.withValues(alpha: 0.2);
+      textColor = Colors.green;
+    } else if (card.isSelected) {
+      bgColor = Theme.of(context).colorScheme.primaryContainer;
+      textColor = Theme.of(context).colorScheme.onPrimaryContainer;
+    } else {
+      bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+      textColor = Theme.of(context).colorScheme.onSurface;
+    }
+
+    return GestureDetector(
+      onTap: () => _handleCardTap(card),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: card.isSelected
+                ? Theme.of(context).colorScheme.primary
+                : (card.isMatched
+                    ? Colors.green
+                    : Theme.of(context).dividerColor.withValues(alpha: 0.3)),
+            width: card.isSelected || card.isMatched ? 2 : 1,
+          ),
+          boxShadow: card.isMatched
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Text(
+          card.text,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+            decoration: card.isMatched ? TextDecoration.lineThrough : null,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final totalPairs = _cards.length ~/ 2;
+    final totalPairs = _leftCards.length;
     return Column(
       children: [
         Padding(
@@ -140,82 +204,81 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
               ),
               IconButton(
                 icon: const Icon(Icons.refresh),
-                tooltip: 'Réinitialiser la grille',
+                tooltip: 'Réinitialiser les colonnes',
                 onPressed: () => setState(_initializeCards),
               ),
             ],
           ),
         ),
+
+        // Headers for Columns
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Anglais',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Français',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12.0),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2.2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _cards.length,
-              itemBuilder: (context, index) {
-                final card = _cards[index];
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-
-                Color bgColor;
-                Color textColor;
-                if (card.isMatched) {
-                  bgColor = Colors.green.withValues(alpha: 0.2);
-                  textColor = Colors.green;
-                } else if (card.isSelected) {
-                  bgColor = Theme.of(context).colorScheme.primaryContainer;
-                  textColor = Theme.of(context).colorScheme.onPrimaryContainer;
-                } else {
-                  bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-                  textColor = Theme.of(context).colorScheme.onSurface;
-                }
-
-                return GestureDetector(
-                  onTap: () => _handleCardTap(card),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: bgColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: card.isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : (card.isMatched
-                                ? Colors.green
-                                : Theme.of(context).dividerColor.withValues(alpha: 0.3)),
-                        width: card.isSelected || card.isMatched ? 2 : 1,
-                      ),
-                      boxShadow: card.isMatched
-                          ? []
-                          : [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                    ),
-                    child: Text(
-                      card.text,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                        decoration: card.isMatched ? TextDecoration.lineThrough : null,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left Column (English Terms)
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _leftCards.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => _buildCardTile(_leftCards[index]),
                   ),
-                );
-              },
+                ),
+                const SizedBox(width: 12),
+                // Right Column (French Translations)
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _rightCards.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => _buildCardTile(_rightCards[index]),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

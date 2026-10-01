@@ -114,6 +114,30 @@ class SessionScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Carte ${completedCards + 1} / $totalCards'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Chip(
+              avatar: Icon(
+                switch (state.currentMode) {
+                  PracticeMode.canvas => Icons.draw,
+                  PracticeMode.cloze => Icons.text_fields,
+                  PracticeMode.matching => Icons.grid_view,
+                },
+                size: 18,
+              ),
+              label: Text(
+                switch (state.currentMode) {
+                  PracticeMode.canvas => 'Canvas',
+                  PracticeMode.cloze => 'Cloze',
+                  PracticeMode.matching => 'Matching',
+                },
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ],
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.go('/'),
@@ -125,34 +149,6 @@ class SessionScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Mode switch bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: SegmentedButton<PracticeMode>(
-              segments: const [
-                ButtonSegment(
-                  value: PracticeMode.canvas,
-                  icon: Icon(Icons.draw),
-                  label: Text('Canvas'),
-                ),
-                ButtonSegment(
-                  value: PracticeMode.cloze,
-                  icon: Icon(Icons.text_fields),
-                  label: Text('Cloze'),
-                ),
-                ButtonSegment(
-                  value: PracticeMode.matching,
-                  icon: Icon(Icons.grid_view),
-                  label: Text('Matching'),
-                ),
-              ],
-              selected: {state.currentMode},
-              onSelectionChanged: (selected) {
-                notifier.switchMode(selected.first);
-              },
-            ),
-          ),
-
           // Exercise View based on mode
           Expanded(
             child: switch (state.currentMode) {

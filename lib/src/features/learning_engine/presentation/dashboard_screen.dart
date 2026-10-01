@@ -87,6 +87,7 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Wrap(
                         spacing: 8,
+                        runSpacing: 8,
                         children: [
                           _buildLevelChip('Niveau B1'),
                           _buildLevelChip('Niveau B2'),
