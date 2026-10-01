@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'vocabulary_controller.dart';
+import 'wiktionary_enrichment_widget.dart';
 
 class CategoryScreen extends ConsumerWidget {
   const CategoryScreen({super.key});
@@ -189,6 +190,7 @@ class CategoryScreen extends ConsumerWidget {
                                 style: const TextStyle(fontSize: 14, height: 1.3),
                               ),
                             ),
+                            WiktionaryEnrichmentWidget(term: word.term),
                           ],
                         ),
                       ),
