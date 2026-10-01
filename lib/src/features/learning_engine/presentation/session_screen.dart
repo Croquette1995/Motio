@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/bauhaus_theme.dart';
 import '../../vocabulary/presentation/vocabulary_controller.dart';
 import '../../practice_canvas/presentation/canvas_view.dart';
 import '../../practice_cloze/presentation/cloze_view.dart';
@@ -15,16 +16,31 @@ class SessionScreen extends ConsumerWidget {
     final state = ref.watch(sessionControllerProvider);
     final notifier = ref.read(sessionControllerProvider.notifier);
     final allWordsAsync = ref.watch(allWordsProvider);
+    final b = context.bauhaus;
+    final t = Theme.of(context).textTheme;
 
     if (state.isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Préparation de votre séance personnalisée...'),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: b.slate,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Préparation de votre séance...',
+                style: t.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: b.slate,
+                ),
+              ),
             ],
           ),
         ),
@@ -35,71 +51,156 @@ class SessionScreen extends ConsumerWidget {
 
     if (session == null || state.isFinished || session.isCompleted) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Séance terminée')),
+        appBar: AppBar(
+          title: const Text(
+            'SÉANCE TERMINÉE',
+            style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+          ),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.stars, color: Colors.amber, size: 80),
-                const SizedBox(height: 16),
-                const Text(
-                  'Félicitations !',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Vous avez complété tous les mots prévus pour cette session.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 24),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: b.pastelYellow,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: b.slate, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: b.slate,
+                          offset: const Offset(3, 3),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.star, color: b.slate, size: 36),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'FÉLICITATIONS !',
+                    style: t.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                      color: b.slate,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Vous avez complété tous les mots prévus pour cette session.',
+                    textAlign: TextAlign.center,
+                    style: t.bodyMedium?.copyWith(
+                      color: b.slate.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: b.cardSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: b.slate, width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: b.slate,
+                          offset: const Offset(3, 3),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Column(
                           children: [
-                            Text(
-                              '${state.correctAnswers}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: b.pastelMint,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: b.slate, width: 1),
+                              ),
+                              child: Text(
+                                '${state.correctAnswers}',
+                                style: t.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: b.slate,
+                                ),
                               ),
                             ),
-                            const Text('Validés du 1er coup'),
+                            const SizedBox(height: 6),
+                            Text(
+                              'VALIDÉS',
+                              style: t.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                                color: b.slate,
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(width: 32),
+                        Container(
+                          width: 1.5,
+                          height: 50,
+                          color: b.lineGrey,
+                        ),
                         Column(
                           children: [
-                            Text(
-                              '${state.failedAnswers}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: b.pastelRed,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: b.slate, width: 1),
+                              ),
+                              child: Text(
+                                '${state.failedAnswers}',
+                                style: t.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: b.slate,
+                                ),
                               ),
                             ),
-                            const Text('Révisés en séance'),
+                            const SizedBox(height: 6),
+                            Text(
+                              'À REVOIR',
+                              style: t.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                                color: b.slate,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                FilledButton.icon(
-                  onPressed: () => context.go('/'),
-                  icon: const Icon(Icons.home),
-                  label: const Text('Retour au tableau de bord'),
-                ),
-              ],
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: b.slate,
+                        foregroundColor: b.cardSurface,
+                        shape: bauhausBorder(radius: 10, color: b.slate),
+                      ),
+                      onPressed: () => context.go('/'),
+                      icon: const Icon(Icons.home, size: 20),
+                      label: const Text(
+                        'RETOUR AU TABLEAU DE BORD',
+                        style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -109,32 +210,51 @@ class SessionScreen extends ConsumerWidget {
     final currentCard = session.currentCard!;
     final totalCards = session.initialCardCount;
     final completedCards = session.completedCount;
-    final progressVal = session.progressRatio;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Carte ${completedCards + 1} / $totalCards'),
+        title: Text(
+          'CARTE ${completedCards + 1} / $totalCards',
+          style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5, fontSize: 16),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Chip(
-              avatar: Icon(
-                switch (state.currentMode) {
-                  PracticeMode.canvas => Icons.draw,
-                  PracticeMode.cloze => Icons.text_fields,
-                  PracticeMode.matching => Icons.grid_view,
-                },
-                size: 18,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: b.pastelYellow,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: b.slate, width: 1.2),
               ),
-              label: Text(
-                switch (state.currentMode) {
-                  PracticeMode.canvas => 'Canvas',
-                  PracticeMode.cloze => 'Cloze',
-                  PracticeMode.matching => 'Matching',
-                },
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    switch (state.currentMode) {
+                      PracticeMode.canvas => Icons.draw,
+                      PracticeMode.cloze => Icons.text_fields,
+                      PracticeMode.matching => Icons.grid_view,
+                    },
+                    size: 14,
+                    color: b.slate,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    switch (state.currentMode) {
+                      PracticeMode.canvas => 'CANVAS',
+                      PracticeMode.cloze => 'CLOZE',
+                      PracticeMode.matching => 'MATCHING',
+                    },
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                      color: b.slate,
+                    ),
+                  ),
+                ],
               ),
-              visualDensity: VisualDensity.compact,
             ),
           ),
         ],
@@ -142,13 +262,21 @@ class SessionScreen extends ConsumerWidget {
           icon: const Icon(Icons.close),
           onPressed: () => context.go('/'),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(6),
-          child: LinearProgressIndicator(value: progressVal),
-        ),
       ),
       body: Column(
         children: [
+          // Modular Bauhaus block progress bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: BauhausProgress(
+              done: completedCards,
+              total: totalCards,
+              height: 7,
+              activeColor: b.pastelBlue,
+              currentColor: b.pastelYellow,
+            ),
+          ),
+
           // Exercise View based on mode
           Expanded(
             child: switch (state.currentMode) {
@@ -165,11 +293,13 @@ class SessionScreen extends ConsumerWidget {
                     word: currentCard.word,
                     availableWords: words,
                     onAnswerSubmitted: (isSuccess) async {
-                      await Future.delayed(const Duration(milliseconds: 900));
+                      await Future.delayed(const Duration(milliseconds: 700));
                       await notifier.submitAnswer(isSuccess);
                     },
                   ),
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => Center(
+                    child: CircularProgressIndicator(color: b.slate),
+                  ),
                   error: (_, __) => const Center(child: Text('Erreur de chargement')),
                 ),
               PracticeMode.matching => allWordsAsync.when(
@@ -180,11 +310,13 @@ class SessionScreen extends ConsumerWidget {
                       ...words.where((w) => w.id != currentCard.word.id).take(5),
                     ],
                     onComplete: () async {
-                      await Future.delayed(const Duration(milliseconds: 600));
+                      await Future.delayed(const Duration(milliseconds: 500));
                       await notifier.submitAnswer(true);
                     },
                   ),
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => Center(
+                    child: CircularProgressIndicator(color: b.slate),
+                  ),
                   error: (_, __) => const Center(child: Text('Erreur de chargement')),
                 ),
             },

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/theme/bauhaus_theme.dart';
 import '../../vocabulary/domain/word.dart';
 
 enum MatchingCardType { term, translation }
@@ -100,7 +101,7 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
       final isMatch = first.wordId == card.wordId && first.type != card.type;
 
       if (isMatch) {
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 250));
         if (!mounted) return;
         setState(() {
           first.isMatched = true;
@@ -117,7 +118,7 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
           widget.onComplete?.call();
         }
       } else {
-        await Future.delayed(const Duration(milliseconds: 800));
+        await Future.delayed(const Duration(milliseconds: 600));
         if (!mounted) return;
         setState(() {
           first.isSelected = false;
@@ -130,53 +131,49 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
   }
 
   Widget _buildCardTile(MatchingCardItem card) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final b = context.bauhaus;
 
     Color bgColor;
     Color textColor;
     if (card.isMatched) {
-      bgColor = Colors.green.withValues(alpha: 0.2);
-      textColor = Colors.green;
+      bgColor = b.pastelMint;
+      textColor = b.slate.withValues(alpha: 0.6);
     } else if (card.isSelected) {
-      bgColor = Theme.of(context).colorScheme.primaryContainer;
-      textColor = Theme.of(context).colorScheme.onPrimaryContainer;
+      bgColor = b.pastelYellow;
+      textColor = b.slate;
     } else {
-      bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-      textColor = Theme.of(context).colorScheme.onSurface;
+      bgColor = b.cardSurface;
+      textColor = b.slate;
     }
 
     return GestureDetector(
       onTap: () => _handleCardTap(card),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 180),
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: card.isSelected
-                ? Theme.of(context).colorScheme.primary
-                : (card.isMatched
-                    ? Colors.green
-                    : Theme.of(context).dividerColor.withValues(alpha: 0.3)),
-            width: card.isSelected || card.isMatched ? 2 : 1,
+            color: b.slate,
+            width: card.isSelected ? 2.0 : 1.2,
           ),
           boxShadow: card.isMatched
               ? []
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    color: b.slate,
+                    offset: const Offset(2, 2),
+                    blurRadius: 0,
                   ),
                 ],
         ),
         child: Text(
           card.text,
           style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
             color: textColor,
             decoration: card.isMatched ? TextDecoration.lineThrough : null,
           ),
@@ -190,7 +187,10 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
 
   @override
   Widget build(BuildContext context) {
+    final b = context.bauhaus;
+    final t = Theme.of(context).textTheme;
     final totalPairs = _leftCards.length;
+
     return Column(
       children: [
         Padding(
@@ -199,12 +199,16 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Paires trouvées : $_matchedPairs / $totalPairs',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                'PAIRES ASSOCIÉES : $_matchedPairs / $totalPairs',
+                style: t.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
+                  color: b.slate,
+                ),
               ),
               IconButton(
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Réinitialiser les colonnes',
+                icon: const Icon(Icons.refresh, size: 20),
+                tooltip: 'Réinitialiser',
                 onPressed: () => setState(_initializeCards),
               ),
             ],
@@ -218,17 +222,20 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    color: b.pastelBlue,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: b.slate, width: 1.2),
                   ),
                   child: Text(
-                    'Anglais',
+                    'ANGLAIS',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                      fontSize: 12,
+                      color: b.slate,
                     ),
                   ),
                 ),
@@ -236,17 +243,20 @@ class _MatchingPracticeViewState extends State<MatchingPracticeView> {
               const SizedBox(width: 12),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                    color: b.pastelYellow,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: b.slate, width: 1.2),
                   ),
                   child: Text(
-                    'Français',
+                    'FRANÇAIS',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                      fontSize: 12,
+                      color: b.slate,
                     ),
                   ),
                 ),

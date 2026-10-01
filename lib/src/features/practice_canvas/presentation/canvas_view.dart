@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/bauhaus_theme.dart';
 import '../../vocabulary/domain/word.dart';
 import 'canvas_controller.dart';
 import 'tracing_painter.dart';
@@ -47,8 +48,9 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    _controller.strokeColor = isDark ? const Color(0xFF60A5FA) : const Color(0xFF1E40AF);
+    final b = context.bauhaus;
+    final t = Theme.of(context).textTheme;
+    _controller.strokeColor = b.slate;
 
     return ListenableBuilder(
       listenable: _controller,
@@ -63,106 +65,128 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
           children: [
             // Header card with prompts
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Chip(
-                            label: Text(
-                              widget.word.category,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                            visualDensity: VisualDensity.compact,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blueAccent.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              widget.word.level,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueAccent,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        state.isRevealed ? widget.word.contextSentence : maskedSentence,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          height: 1.4,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sens en français : ${widget.word.translation}',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontStyle: FontStyle.italic,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      if (state.isRevealed) ...[
-                        const SizedBox(height: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: b.cardSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: b.slate, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: b.slate,
+                      offset: const Offset(3, 3),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
+                            color: b.pastelBlue,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: b.slate, width: 1),
                           ),
                           child: Text(
-                            'Mot cible : ${widget.word.term}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                            widget.word.category.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                              color: b.slate,
                             ),
-                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: b.pastelYellow,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: b.slate, width: 1),
+                          ),
+                          child: Text(
+                            widget.word.level.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                              color: b.slate,
+                            ),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      state.isRevealed ? widget.word.contextSentence : maskedSentence,
+                      style: t.titleMedium?.copyWith(
+                        fontSize: 17,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                        color: b.slate,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sens en français : ${widget.word.translation}',
+                      style: t.bodyMedium?.copyWith(
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                        color: b.slate.withValues(alpha: 0.75),
+                      ),
+                    ),
+                    if (state.isRevealed) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: b.pastelMint,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: b.slate, width: 1.2),
+                        ),
+                        child: Text(
+                          'MOT CIBLE : ${widget.word.term.toUpperCase()}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.0,
+                            color: b.slate,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
 
-            // Canvas drawing surface
+            // Canvas drawing surface with Bauhaus crisp outline & offset shadow
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
-                      width: 2,
-                    ),
+                    color: b.cardSurface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: b.slate, width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: b.slate,
+                        offset: const Offset(3, 3),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10),
                     child: GestureDetector(
                       onPanStart: (details) => _controller.onPanStart(details.localPosition),
                       onPanUpdate: (details) => _controller.onPanUpdate(details.localPosition),
@@ -173,12 +197,8 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
                           currentStroke: state.currentStroke,
                           watermarkWord: widget.word.term,
                           showWatermark: state.showWatermark,
-                          watermarkColor: isDark
-                              ? const Color(0x33FFFFFF)
-                              : const Color(0x2A000000),
-                          lineColor: isDark
-                              ? const Color(0x22FFFFFF)
-                              : const Color(0x1F000000),
+                          watermarkColor: b.slate.withValues(alpha: 0.15),
+                          lineColor: b.lineGrey,
                         ),
                         size: Size.infinite,
                       ),
@@ -197,22 +217,36 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: b.slate, width: 1.2),
+                          foregroundColor: b.slate,
+                        ),
                         onPressed: _controller.clearCanvas,
-                        icon: const Icon(Icons.clear),
-                        label: const Text('Effacer'),
+                        icon: const Icon(Icons.clear, size: 18),
+                        label: const Text('EFFACER'),
                       ),
                       OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: b.slate, width: 1.2),
+                          foregroundColor: b.slate,
+                        ),
                         onPressed: _controller.toggleWatermark,
                         icon: Icon(
                           state.showWatermark ? Icons.visibility_off : Icons.visibility,
+                          size: 18,
                         ),
-                        label: Text(state.showWatermark ? 'Masquer calque' : 'Calque estompé'),
+                        label: Text(state.showWatermark ? 'MASQUER' : 'CALQUE'),
                       ),
                       if (!state.isRevealed)
                         FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: b.slate,
+                            foregroundColor: b.cardSurface,
+                            shape: bauhausBorder(radius: 8, color: b.slate),
+                          ),
                           onPressed: _controller.revealAnswer,
-                          icon: const Icon(Icons.check_circle_outline),
-                          label: const Text('Révéler'),
+                          icon: const Icon(Icons.check_circle_outline, size: 18),
+                          label: const Text('RÉVÉLER'),
                         ),
                     ],
                   ),
@@ -221,28 +255,38 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
                     Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red.shade600,
-                              foregroundColor: Colors.white,
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: b.pastelRed,
+                              foregroundColor: b.slate,
+                              side: BorderSide(color: b.slate, width: 1.5),
+                              shape: bauhausBorder(radius: 8, color: b.slate),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () => widget.onSelfEvaluation?.call(false),
-                            icon: const Icon(Icons.close),
-                            label: const Text('Échec (À revoir)'),
+                            icon: const Icon(Icons.close, size: 20),
+                            label: const Text(
+                              'À REVOIR',
+                              style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 14),
                         Expanded(
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green.shade600,
-                              foregroundColor: Colors.white,
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: b.pastelMint,
+                              foregroundColor: b.slate,
+                              side: BorderSide(color: b.slate, width: 1.5),
+                              shape: bauhausBorder(radius: 8, color: b.slate),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             onPressed: () => widget.onSelfEvaluation?.call(true),
-                            icon: const Icon(Icons.check),
-                            label: const Text('Succès (Mémorisé)'),
+                            icon: const Icon(Icons.check, size: 20),
+                            label: const Text(
+                              'MÉMORISÉ',
+                              style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                            ),
                           ),
                         ),
                       ],

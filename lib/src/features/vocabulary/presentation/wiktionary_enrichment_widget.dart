@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/bauhaus_theme.dart';
 import '../data/wiktionary_provider.dart';
 import '../domain/word_details.dart';
 
@@ -22,14 +23,16 @@ class _WiktionaryEnrichmentWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final b = context.bauhaus;
+
     return Container(
       margin: const EdgeInsets.only(top: 10.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(10),
+        color: b.chalk,
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 0.8,
+          color: b.slate,
+          width: 1.0,
         ),
       ),
       child: Theme(
@@ -40,53 +43,55 @@ class _WiktionaryEnrichmentWidgetState
           collapsedShape: const Border(),
           backgroundColor: Colors.transparent,
           collapsedBackgroundColor: Colors.transparent,
-            title: Row(
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Enrichissement linguistique',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            onExpansionChanged: (expanded) {
-              setState(() {
-                _isExpanded = expanded;
-              });
-            },
+          title: Row(
             children: [
-              if (_isExpanded) _buildDetailsContent(context),
+              Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: b.slate,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Enrichissement linguistique',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                  color: b.slate,
+                ),
+              ),
             ],
           ),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _isExpanded = expanded;
+            });
+          },
+          children: [
+            if (_isExpanded) _buildDetailsContent(context),
+          ],
         ),
+      ),
     );
   }
 
   Widget _buildDetailsContent(BuildContext context) {
     final detailsAsync = ref.watch(wordDetailsProvider(widget.term));
+    final b = context.bauhaus;
 
     return detailsAsync.when(
       data: (details) {
         if (details.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               'Aucune donnée complémentaire disponible sur Wiktionnaire.',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontStyle: FontStyle.italic,
-                color: Colors.grey,
+                color: b.slate.withValues(alpha: 0.6),
               ),
             ),
           );
@@ -106,7 +111,7 @@ class _WiktionaryEnrichmentWidgetState
               const SizedBox(height: 4),
               const Text(
                 'Définitions :',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
               const SizedBox(height: 4),
               ...groupedDefs.entries.map((entry) {
@@ -118,42 +123,45 @@ class _WiktionaryEnrichmentWidgetState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        pos,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.secondary,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: b.pastelYellow,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: b.slate, width: 0.8),
+                        ),
+                        child: Text(
+                          pos,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.4,
+                            color: b.slate,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       ...defs.map((d) => Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, bottom: 4.0),
+                            padding: const EdgeInsets.only(left: 6.0, bottom: 4.0),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('• ',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         d.text,
-                                        style: const TextStyle(
-                                            fontSize: 13, height: 1.2),
+                                        style: const TextStyle(fontSize: 13, height: 1.2),
                                       ),
-                                      if (d.example != null &&
-                                          d.example!.isNotEmpty)
+                                      if (d.example != null && d.example!.isNotEmpty)
                                         Text(
                                           'Ex. "${d.example}"',
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontStyle: FontStyle.italic,
-                                            color: Colors.grey.shade700,
+                                            color: b.slate.withValues(alpha: 0.7),
                                           ),
                                         ),
                                     ],
@@ -173,7 +181,7 @@ class _WiktionaryEnrichmentWidgetState
               const SizedBox(height: 6),
               const Text(
                 'Synonymes :',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
               const SizedBox(height: 4),
               Wrap(
@@ -183,12 +191,10 @@ class _WiktionaryEnrichmentWidgetState
                     .map((syn) => Chip(
                           label: Text(syn, style: const TextStyle(fontSize: 11)),
                           padding: EdgeInsets.zero,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           visualDensity: VisualDensity.compact,
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHigh,
+                          backgroundColor: b.cardSurface,
+                          side: BorderSide(color: b.slate, width: 1.0),
                         ))
                     .toList(),
               ),
@@ -199,7 +205,7 @@ class _WiktionaryEnrichmentWidgetState
               const SizedBox(height: 8),
               const Text(
                 'Traductions :',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
               const SizedBox(height: 4),
               Wrap(
@@ -212,33 +218,31 @@ class _WiktionaryEnrichmentWidgetState
                             style: const TextStyle(fontSize: 11),
                           ),
                           padding: EdgeInsets.zero,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           visualDensity: VisualDensity.compact,
-                          backgroundColor: Colors.blue.shade50,
-                          side: BorderSide(color: Colors.blue.shade200),
+                          backgroundColor: b.pastelBlue.withValues(alpha: 0.25),
+                          side: BorderSide(color: b.slate, width: 1.0),
                         ))
                     .toList(),
               ),
             ],
 
             // Etymology
-            if (details.etymology != null &&
-                details.etymology!.trim().isNotEmpty) ...[
+            if (details.etymology != null && details.etymology!.trim().isNotEmpty) ...[
               const SizedBox(height: 8),
-              const Divider(height: 12, thickness: 0.5),
+              Divider(height: 12, thickness: 1, color: b.lineGrey),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.history_edu, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
+                  Icon(Icons.history_edu, size: 14, color: b.slate),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Étymologie : ${details.etymology}',
                       style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
-                        color: Colors.grey.shade700,
+                        color: b.slate.withValues(alpha: 0.75),
                       ),
                     ),
                   ),
@@ -248,34 +252,34 @@ class _WiktionaryEnrichmentWidgetState
           ],
         );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0),
+      loading: () => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         child: Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2, color: b.slate),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 'Chargement depuis Wiktionnaire...',
-                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: b.slate),
               ),
             ],
           ),
         ),
       ),
-      error: (_, __) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.0),
+      error: (_, __) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
           'Erreur lors du chargement des données complémentaires.',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontStyle: FontStyle.italic,
-            color: Colors.redAccent,
+            color: b.pastelRed,
           ),
         ),
       ),
