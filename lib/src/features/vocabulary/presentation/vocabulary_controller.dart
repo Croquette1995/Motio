@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/word.dart';
+import '../domain/word_progress.dart';
 import '../../../core/database/database_providers.dart';
 
 final allWordsProvider = FutureProvider<List<Word>>((ref) async {
