@@ -16,6 +16,59 @@ void main() {
       expect(clean, contains('resiliēns'));
       expect(clean, contains('rebounding'));
     });
+
+    test('extractEnglishSection isolates English section and ignores foreign language blocks', () {
+      const wikitext = '''
+==English==
+===Etymology===
+From Middle English word.
+====Synonyms====
+* {{l|en|term1}}
+
+==Finnish==
+===Etymology===
+Finnish etymology
+====Synonyms====
+* {{l|fi|kalmanviiva}}
+''';
+      final enSection = WiktionaryService.extractEnglishSection(wikitext);
+      expect(enSection, contains('From Middle English word.'));
+      expect(enSection, contains('term1'));
+      expect(enSection, isNot(contains('Finnish etymology')));
+      expect(enSection, isNot(contains('kalmanviiva')));
+    });
+
+    test('parseEtymology extracts and cleans compound, back-formation, ety, and multi-etymology sections', () {
+      const wikitext = '''
+===Etymology 1===
+{{back-formation|en|troubleshooter}}; {{surf|en|trouble|shoot|nocap=1}}.<ref>A citation note</ref>
+===Etymology 2===
+{{ety|en|:af|la:resiliō<t:to spring back>|-ence|text=+|tree=1}}
+''';
+      final etym = WiktionaryService.parseEtymology(wikitext);
+      expect(etym, contains('back-formation from troubleshooter'));
+      expect(etym, contains('trouble + shoot'));
+      expect(etym, contains('resiliō + -ence'));
+      expect(etym, isNot(contains('<ref>')));
+    });
+
+    test('parseSynonyms extracts inline {{syn|en|...}} and section bullet points without qualifiers', () {
+      const wikitext = '''
+# A definition.
+#: {{syn|en|closing date|time limit}}
+#: {{nearsyn|en|deadline#Noun|cutoff<qq:informal>}}
+====Synonyms====
+* {{l|en|target date}}
+* [[checkpoint]]
+''';
+      final syns = WiktionaryService.parseSynonyms(wikitext);
+      expect(syns, contains('closing date'));
+      expect(syns, contains('time limit'));
+      expect(syns, contains('deadline'));
+      expect(syns, contains('cutoff'));
+      expect(syns, contains('target date'));
+      expect(syns, contains('checkpoint'));
+    });
   });
 
   group('WiktionaryService API and Cache', () {
