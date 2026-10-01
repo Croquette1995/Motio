@@ -110,6 +110,11 @@ class DashboardScreen extends ConsumerWidget {
                         value: '$dueCount',
                         icon: Icons.alarm,
                         color: Colors.orange,
+                        onTap: () {
+                          ref.read(selectedStatusFilterProvider.notifier).select('À réviser');
+                          ref.read(selectedCategoryProvider.notifier).select(null);
+                          context.push('/vocabulary');
+                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -120,6 +125,11 @@ class DashboardScreen extends ConsumerWidget {
                         value: '$newCount',
                         icon: Icons.fiber_new,
                         color: Colors.blue,
+                        onTap: () {
+                          ref.read(selectedStatusFilterProvider.notifier).select('Nouveau');
+                          ref.read(selectedCategoryProvider.notifier).select(null);
+                          context.push('/vocabulary');
+                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -134,6 +144,11 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                         icon: Icons.school,
                         color: Colors.teal,
+                        onTap: () {
+                          ref.read(selectedStatusFilterProvider.notifier).select(null);
+                          ref.read(selectedCategoryProvider.notifier).select(null);
+                          context.push('/vocabulary');
+                        },
                       ),
                     ),
                   ],
@@ -213,9 +228,11 @@ class DashboardScreen extends ConsumerWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   icon: const Icon(Icons.play_arrow, size: 28),
-                  label: const Text(
-                    'Lancer une séance d\'apprentissage',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  label: Text(
+                    dueCount > 0
+                        ? 'Lancer une séance ($dueCount à réviser)'
+                        : 'Lancer une séance d\'apprentissage',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () async {
                     await ref.read(sessionControllerProvider.notifier).startSession(
@@ -255,11 +272,15 @@ class DashboardScreen extends ConsumerWidget {
     required String value,
     required IconData icon,
     required Color color,
+    VoidCallback? onTap,
   }) {
     return Card(
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
         padding: const EdgeInsets.all(14.0),
         child: Column(
           children: [
@@ -279,6 +300,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

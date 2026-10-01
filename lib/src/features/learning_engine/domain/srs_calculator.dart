@@ -52,7 +52,7 @@ class SrsCalculator {
       );
     } else {
       // Failure rules:
-      // step = 1, intervalDays = 1, nextReviewAt = now + 1 jour, easeFactor = max(1.3, easeFactor - 0.2)
+      // step = 1, intervalDays = 1, nextReviewAt = now (due immediately for review), easeFactor = max(1.3, easeFactor - 0.2), status = review
       final updatedEaseFactor = math.max(minEaseFactor, current.easeFactor - easeFactorPenalty);
       final roundedEase = double.parse(updatedEaseFactor.toStringAsFixed(2));
 
@@ -60,10 +60,10 @@ class SrsCalculator {
         step: 1,
         intervalDays: 1,
         easeFactor: roundedEase,
-        status: WordStatus.learning,
+        status: WordStatus.review,
         consecutiveSuccesses: 0,
         lastReviewedAt: referenceTime,
-        nextReviewAt: referenceTime.add(const Duration(days: 1)),
+        nextReviewAt: referenceTime,
       );
     }
   }

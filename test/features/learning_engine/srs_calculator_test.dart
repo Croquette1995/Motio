@@ -126,9 +126,10 @@ void main() {
       expect(next.step, 1);
       expect(next.intervalDays, 1);
       expect(next.easeFactor, 2.3);
-      expect(next.status, WordStatus.learning);
+      expect(next.status, WordStatus.review);
       expect(next.consecutiveSuccesses, 0);
-      expect(next.nextReviewAt, now.add(const Duration(days: 1)));
+      expect(next.nextReviewAt, now);
+      expect(next.isDue(now), isTrue);
     });
 
     test('EaseFactor ne descend jamais sous le plancher de 1.3', () {

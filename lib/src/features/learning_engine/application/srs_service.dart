@@ -36,8 +36,12 @@ class SrsService {
 
       final WordProgress updatedProgress;
       if (currentCard.hasFailedOnce) {
-        // Already recorded as failed in DB (J+1 interval); keep that scheduled progress
-        updatedProgress = currentCard.progress;
+        // Re-validated after failure in this session: schedule next review for J+1
+        updatedProgress = currentCard.progress.copyWith(
+          nextReviewAt: referenceTime.add(const Duration(days: 1)),
+          lastReviewedAt: referenceTime,
+        );
+        await progressRepository.saveProgress(updatedProgress);
       } else {
         // Standard success progression
         updatedProgress = SrsCalculator.calculateNextReview(

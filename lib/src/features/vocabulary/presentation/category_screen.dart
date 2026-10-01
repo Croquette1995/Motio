@@ -8,6 +8,7 @@ class CategoryScreen extends ConsumerWidget {
 
   Widget _buildStatusBadge(String status) {
     final (Color bg, Color fg) = switch (status) {
+      'À réviser' => (Colors.red.shade100, Colors.red.shade900),
       'Maîtrisé' => (Colors.green.shade100, Colors.green.shade800),
       'En révision' => (Colors.purple.shade100, Colors.purple.shade800),
       'En apprentissage' => (Colors.orange.shade100, Colors.orange.shade800),
@@ -36,6 +37,7 @@ class CategoryScreen extends ConsumerWidget {
     final filteredWordsAsync = ref.watch(filteredWordsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedStatus = ref.watch(selectedStatusFilterProvider);
     final progressMapAsync = ref.watch(wordProgressMapProvider);
 
     return Scaffold(
@@ -99,6 +101,44 @@ class CategoryScreen extends ConsumerWidget {
             ),
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
+          ),
+
+          const SizedBox(height: 6),
+
+          // Status Filter Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+            child: Row(
+              children: [
+                FilterChip(
+                  label: const Text('Tous statuts'),
+                  selected: selectedStatus == null,
+                  onSelected: (_) {
+                    ref.read(selectedStatusFilterProvider.notifier).select(null);
+                  },
+                ),
+                const SizedBox(width: 8),
+                ...['À réviser', 'En apprentissage', 'En révision', 'Maîtrisé', 'Nouveau'].map((st) {
+                  final isSelected = selectedStatus == st;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: FilterChip(
+                      avatar: st == 'À réviser'
+                          ? const Icon(Icons.alarm, size: 16, color: Colors.redAccent)
+                          : null,
+                      label: Text(st),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        ref.read(selectedStatusFilterProvider.notifier).select(
+                              selected ? st : null,
+                            );
+                      },
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
 
           const SizedBox(height: 8),
