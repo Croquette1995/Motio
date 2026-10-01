@@ -30,6 +30,26 @@ class SearchQueryNotifier extends Notifier<String> {
 final vocabularySearchQueryProvider =
     NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
 
+final wordProgressMapProvider = FutureProvider<Map<int, String>>((ref) async {
+  final repo = ref.watch(progressRepositoryProvider);
+  final wordsAsync = await ref.watch(allWordsProvider.future);
+  final Map<int, String> map = {};
+  for (final word in wordsAsync) {
+    final prog = await repo.getProgressByWordId(word.id);
+    if (prog == null || prog.lastReviewedAt == null) {
+      map[word.id] = 'Nouveau';
+    } else {
+      map[word.id] = switch (prog.status) {
+        WordStatus.newWord => 'Nouveau',
+        WordStatus.learning => 'En apprentissage',
+        WordStatus.review => 'En révision',
+        WordStatus.mastered => 'Maîtrisé',
+      };
+    }
+  }
+  return map;
+});
+
 final filteredWordsProvider = Provider<AsyncValue<List<Word>>>((ref) {
   final wordsAsync = ref.watch(allWordsProvider);
   final selectedCat = ref.watch(selectedCategoryProvider);

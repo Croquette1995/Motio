@@ -5,11 +5,37 @@ import 'vocabulary_controller.dart';
 class CategoryScreen extends ConsumerWidget {
   const CategoryScreen({super.key});
 
+  Widget _buildStatusBadge(String status) {
+    final (Color bg, Color fg) = switch (status) {
+      'Maîtrisé' => (Colors.green.shade100, Colors.green.shade800),
+      'En révision' => (Colors.purple.shade100, Colors.purple.shade800),
+      'En apprentissage' => (Colors.orange.shade100, Colors.orange.shade800),
+      _ => (Colors.grey.shade200, Colors.grey.shade800),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: fg,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filteredWordsAsync = ref.watch(filteredWordsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final progressMapAsync = ref.watch(wordProgressMapProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -112,23 +138,33 @@ class CategoryScreen extends ConsumerWidget {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    word.level,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blueAccent,
-                                      fontSize: 12,
+                                Row(
+                                  children: [
+                                    if (progressMapAsync.hasValue) ...[
+                                      _buildStatusBadge(
+                                        progressMapAsync.value![word.id] ?? 'Nouveau',
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blueAccent.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        word.level,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blueAccent,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),

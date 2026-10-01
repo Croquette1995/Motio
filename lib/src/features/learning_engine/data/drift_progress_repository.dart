@@ -30,7 +30,7 @@ class DriftProgressRepository {
 
   Future<List<WordProgress>> getNewProgresses({int limit = 5}) async {
     final query = db.select(db.wordProgressTable)
-      ..where((tbl) => tbl.status.equals('new') | tbl.step.equals(0))
+      ..where((tbl) => (tbl.status.equals('new') | tbl.step.equals(0)) & tbl.lastReviewedAt.isNull())
       ..limit(limit);
 
     final entries = await query.get();
