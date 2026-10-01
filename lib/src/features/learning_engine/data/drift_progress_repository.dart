@@ -39,6 +39,12 @@ class DriftProgressRepository {
 
   Future<void> saveProgress(WordProgress progress) async {
     final companion = progress.toCompanion();
-    await db.into(db.wordProgressTable).insertOnConflictUpdate(companion);
+    final existing = await getProgressByWordId(progress.wordId);
+    if (existing != null && existing.id != null) {
+      await (db.update(db.wordProgressTable)..where((tbl) => tbl.wordId.equals(progress.wordId)))
+          .write(companion.copyWith(id: Value(existing.id!)));
+    } else {
+      await db.into(db.wordProgressTable).insertOnConflictUpdate(companion);
+    }
   }
 }

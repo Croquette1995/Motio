@@ -49,6 +49,7 @@ class WordDetails {
   final String? etymology;
   final List<String> synonyms;
   final List<WordTranslation> translations;
+  final String? frenchBridge;
 
   const WordDetails({
     required this.term,
@@ -56,13 +57,15 @@ class WordDetails {
     this.etymology,
     this.synonyms = const [],
     this.translations = const [],
+    this.frenchBridge,
   });
 
   bool get isEmpty =>
       definitions.isEmpty &&
       (etymology == null || etymology!.trim().isEmpty) &&
       synonyms.isEmpty &&
-      translations.isEmpty;
+      translations.isEmpty &&
+      (frenchBridge == null || frenchBridge!.trim().isEmpty);
 
   @override
   bool operator ==(Object other) =>
@@ -70,8 +73,9 @@ class WordDetails {
       other is WordDetails &&
           runtimeType == other.runtimeType &&
           term == other.term &&
-          etymology == other.etymology;
+          etymology == other.etymology &&
+          frenchBridge == other.frenchBridge;
 
   @override
-  int get hashCode => term.hashCode ^ etymology.hashCode;
+  int get hashCode => term.hashCode ^ etymology.hashCode ^ (frenchBridge?.hashCode ?? 0);
 }

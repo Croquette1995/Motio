@@ -106,6 +106,49 @@ class _WiktionaryEnrichmentWidgetState
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // French Cognitive Bridge / Pont Linguistique
+            if (details.frenchBridge != null && details.frenchBridge!.isNotEmpty) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 12.0),
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: b.pastelBlue.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: b.slate, width: 1.2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.hub, size: 16, color: b.slate),
+                        const SizedBox(width: 6),
+                        Text(
+                          'PONT LINGUISTIQUE (FRANÇAIS)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                            color: b.slate,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      details.frenchBridge!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                        color: b.slate,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Definitions group
             if (groupedDefs.isNotEmpty) ...[
               const SizedBox(height: 4),

@@ -13,6 +13,8 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allWordsAsync = ref.watch(allWordsProvider);
     final progressRepo = ref.watch(progressRepositoryProvider);
+    // Watch wordProgressMapProvider so the dashboard refreshes automatically on progress updates
+    ref.watch(wordProgressMapProvider);
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
 

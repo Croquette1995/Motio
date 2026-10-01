@@ -36,10 +36,13 @@ class SrsService {
 
       final WordProgress updatedProgress;
       if (currentCard.hasFailedOnce) {
-        // Re-validated after failure in this session: schedule next review for J+1
+        // Re-validated after failure in this session:
+        // Keep it due for review (status: review, nextReviewAt: referenceTime)
+        // so the learner sees it as "À réviser" and it is prioritized in subsequent sessions.
         updatedProgress = currentCard.progress.copyWith(
-          nextReviewAt: referenceTime.add(const Duration(days: 1)),
+          nextReviewAt: referenceTime,
           lastReviewedAt: referenceTime,
+          status: WordStatus.review,
         );
         await progressRepository.saveProgress(updatedProgress);
       } else {

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_providers.dart';
+import '../../vocabulary/presentation/vocabulary_controller.dart';
 import '../domain/study_session.dart';
 
 enum PracticeMode {
@@ -81,6 +82,8 @@ class SessionNotifier extends Notifier<SessionState> {
 
     final srs = ref.read(srsServiceProvider);
     await srs.submitAnswer(session: session, isSuccess: isSuccess);
+
+    ref.invalidate(wordProgressMapProvider);
 
     state = state.copyWith(
       studySession: session,

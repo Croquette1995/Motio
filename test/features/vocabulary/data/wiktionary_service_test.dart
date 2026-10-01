@@ -172,5 +172,16 @@ Finnish etymology
       expect(details.term, equals('unknownwordxyz'));
       expect(details.isEmpty, isTrue);
     });
+
+    test('extractFrenchBridge returns curated or heuristic French correlation', () {
+      final curated = WiktionaryService.extractFrenchBridge('deadline', '');
+      expect(curated, contains('ligne de mort'));
+
+      final fromFrench = WiktionaryService.extractFrenchBridge('randomword', 'From Old French desployer.');
+      expect(fromFrench, contains('desployer'));
+
+      final compound = WiktionaryService.extractFrenchBridge('anotherword', '{{compound|en|break|through}}');
+      expect(compound, contains('break'));
+    });
   });
 }

@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import '../domain/word_details.dart';
+import 'french_linguistic_bridges.dart';
 
 class WiktionaryService {
   final Dio _dio;
   final Map<String, WordDetails> _cache = {};
 
   static const String defaultUserAgent = 'LexiFlow/1.0 (contact@lexiflow.app)';
-  static const String baseRestUrl = 'https://en.wiktionary.org/api/rest_v1/';
+  static const String baseRestUrl = 'https://en.wiktionary.org/api/rest_v1';
   static const String actionApiUrl = 'https://en.wiktionary.org/w/api.php';
 
   WiktionaryService({Dio? dio})
@@ -292,6 +293,8 @@ class WiktionaryService {
     }
 
     // 2. Fetch Wikitext via Action API for Etymology, Synonyms & Translations
+    String? frenchBridge = frenchLinguisticBridges[word];
+
     try {
       final actionResponse = await _dio.get(
         actionApiUrl,
@@ -300,6 +303,7 @@ class WiktionaryService {
           'page': word,
           'prop': 'wikitext',
           'format': 'json',
+          'origin': '*',
         },
       );
 
@@ -321,6 +325,9 @@ class WiktionaryService {
             // Parse French Translations
             translations = parseTranslations(enWikitext);
 
+            // Deduce French correlation bridge if not in curated dictionary
+            frenchBridge ??= extractFrenchBridge(word, enWikitext);
+
             // 3. Fallback for inflected forms (e.g. plural of accommodation)
             if (definitions.isEmpty) {
               final pluralMatch = RegExp(r'\{\{(?:plural of|en-plural of|inflection of)\|en\|([a-zA-Z\-]+)')
@@ -341,7 +348,7 @@ class WiktionaryService {
         }
       }
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404 && definitions.isEmpty) {
+      if (e.response?.statusCode == 404 && definitions.isEmpty && frenchBridge == null) {
         final emptyDetails = WordDetails(term: word);
         _cache[word] = emptyDetails;
         return emptyDetails;
@@ -356,10 +363,57 @@ class WiktionaryService {
       etymology: etymology,
       synonyms: synonyms,
       translations: translations,
+      frenchBridge: frenchBridge,
     );
 
-    _cache[word] = result;
+    if (!result.isEmpty) {
+      _cache[word] = result;
+    }
     return result;
+  }
+
+  /// Extracts or deduces a French correlation bridge from Wikitext and known terms.
+  static String? extractFrenchBridge(String term, String enWikitext) {
+    final normalized = term.trim().toLowerCase();
+    if (frenchLinguisticBridges.containsKey(normalized)) {
+      return frenchLinguisticBridges[normalized];
+    }
+
+    // Heuristic 1: French derivation in Wikitext
+    final frDerivMatch = RegExp(
+      r'(?:From|borrowed from|cognate with)\s+(?:Old\s+|Middle\s+|Anglo-Norman\s+)?French\s+([a-zA-Z\-]+)',
+      caseSensitive: false,
+    ).firstMatch(enWikitext);
+    if (frDerivMatch != null) {
+      final src = frDerivMatch.group(1);
+      return 'Parenté ou emprunt direct au français « $src ».';
+    }
+
+    final frTemplateMatch = RegExp(
+      r'\{\{(?:der|bor|inh|cog)\|en\|(?:fro|frm|fr)\|([^\|\}]+)',
+      caseSensitive: false,
+    ).firstMatch(enWikitext);
+    if (frTemplateMatch != null) {
+      final src = frTemplateMatch.group(1)?.split(':').last;
+      if (src != null && src.isNotEmpty) {
+        return 'Issu de l\'ancien/moyen français « $src ».';
+      }
+    }
+
+    // Heuristic 2: Compound words
+    final compoundMatch = RegExp(
+      r'\{\{(?:compound|surf)\|[a-zA-Z\-]+\|([^\|\}]+)\|([^\|\}]+)',
+      caseSensitive: false,
+    ).firstMatch(enWikitext);
+    if (compoundMatch != null) {
+      final w1 = compoundMatch.group(1);
+      final w2 = compoundMatch.group(2);
+      if (w1 != null && w2 != null) {
+        return 'Mot composé de « $w1 » + « $w2 ».';
+      }
+    }
+
+    return null;
   }
 
   /// Get cached word details if available.
