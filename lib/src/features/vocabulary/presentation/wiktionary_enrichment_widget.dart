@@ -36,36 +36,40 @@ class _WiktionaryEnrichmentWidgetState
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           key: PageStorageKey('wiktionary_${widget.term}'),
-          title: Row(
-            children: [
-              Icon(
-                Icons.auto_awesome,
-                size: 18,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Enrichissement linguistique',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+          shape: const Border(),
+          collapsedShape: const Border(),
+          backgroundColor: Colors.transparent,
+          collapsedBackgroundColor: Colors.transparent,
+            title: Row(
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  size: 18,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  'Enrichissement linguistique',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            onExpansionChanged: (expanded) {
+              setState(() {
+                _isExpanded = expanded;
+              });
+            },
+            children: [
+              if (_isExpanded) _buildDetailsContent(context),
             ],
           ),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          onExpansionChanged: (expanded) {
-            setState(() {
-              _isExpanded = expanded;
-            });
-          },
-          children: [
-            if (_isExpanded) _buildDetailsContent(context),
-          ],
         ),
-      ),
     );
   }
 
