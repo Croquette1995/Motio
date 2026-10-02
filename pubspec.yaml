@@ -18,6 +18,9 @@ dependencies:
   # Routing
   go_router: ^14.0.0
 
+  # ML Kit Digital Ink Recognition
+  google_mlkit_digital_ink_recognition: ^0.13.0
+
   # Network & REST API
   dio: ^5.8.0
 
