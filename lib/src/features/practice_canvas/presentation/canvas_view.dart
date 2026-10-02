@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import '../../vocabulary/domain/word.dart';
 import 'canvas_controller.dart';
+import 'digital_ink_providers.dart';
 import 'tracing_painter.dart';
 
-class CanvasPracticeView extends StatefulWidget {
+class CanvasPracticeView extends ConsumerStatefulWidget {
   final Word word;
   final ValueChanged<bool>? onSelfEvaluation;
 
@@ -15,10 +17,10 @@ class CanvasPracticeView extends StatefulWidget {
   });
 
   @override
-  State<CanvasPracticeView> createState() => _CanvasPracticeViewState();
+  ConsumerState<CanvasPracticeView> createState() => _CanvasPracticeViewState();
 }
 
-class _CanvasPracticeViewState extends State<CanvasPracticeView> {
+class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
   late final CanvasController _controller;
 
   @override
@@ -50,6 +52,7 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
   Widget build(BuildContext context) {
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
+    final inkService = ref.watch(digitalInkServiceProvider);
     _controller.strokeColor = b.slate;
 
     return ListenableBuilder(
@@ -208,13 +211,83 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
               ),
             ),
 
+            // Recognition Result Feedback Banner
+            if (state.isRecognizing) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: b.pastelYellow.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: b.slate, width: 1.2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: b.slate),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Analyse de l\'écriture manuscrite ML Kit...',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: b.slate,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else if (state.isMatch != null) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: state.isMatch! ? b.pastelMint : b.pastelRed.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: b.slate, width: 1.2),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        state.isMatch! ? Icons.check_circle : Icons.cancel,
+                        color: b.slate,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          state.isMatch!
+                              ? 'Reconnu : "${state.recognizedText}" ✓ Correspond au mot ciblé !'
+                              : 'Reconnu : "${(state.recognizedText ?? '').isEmpty ? 'Non reconnu' : state.recognizedText}" ✗ (Attendu : ${widget.word.term})',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: b.slate,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
             // Bottom toolbar and actions
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
@@ -237,6 +310,23 @@ class _CanvasPracticeViewState extends State<CanvasPracticeView> {
                         ),
                         label: Text(state.showWatermark ? 'MASQUER' : 'CALQUE'),
                       ),
+                      if (inkService.isPlatformSupported)
+                        OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: b.pastelYellow,
+                            side: BorderSide(color: b.slate, width: 1.2),
+                            foregroundColor: b.slate,
+                          ),
+                          onPressed: state.strokes.isEmpty
+                              ? null
+                              : () => _controller.recognizeHandwriting(
+                                    inkService,
+                                    widget.word.term,
+                                    languageCode: 'en',
+                                  ),
+                          icon: const Icon(Icons.draw, size: 18),
+                          label: const Text('VÉRIFIER'),
+                        ),
                       if (!state.isRevealed)
                         FilledButton.icon(
                           style: FilledButton.styleFrom(

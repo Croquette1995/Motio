@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/learning_engine/presentation/dashboard_screen.dart';
 import '../features/learning_engine/presentation/session_screen.dart';
+import '../features/practice_canvas/presentation/digital_ink_init_screen.dart';
 import '../features/vocabulary/presentation/category_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -12,6 +13,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/',
         name: 'dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/init',
+        name: 'init',
+        builder: (context, state) => const DigitalInkInitScreen(),
       ),
       GoRoute(
         path: '/vocabulary',
