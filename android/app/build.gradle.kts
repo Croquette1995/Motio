@@ -26,6 +26,14 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            
+            // Activation de R8 et liaison des règles ProGuard
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
