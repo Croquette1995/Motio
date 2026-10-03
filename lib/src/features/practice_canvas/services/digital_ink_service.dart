@@ -8,6 +8,18 @@ class DigitalInkRecognitionService {
   /// Supported languages for LexiFlow handwriting recognition
   static const List<String> requiredLanguages = ['en', 'fr'];
 
+  /// ML Kit expects BCP-47 tags (e.g. 'en-US'); bare 'en' is not a valid model id.
+  static String toModelTag(String code) {
+    switch (code.toLowerCase()) {
+      case 'en':
+        return 'en-US';
+      case 'fr':
+        return 'fr-FR';
+      default:
+        return code;
+    }
+  }
+
   /// Check if the current platform supports ML Kit Digital Ink Recognition
   bool get isPlatformSupported {
     if (kIsWeb) return false;
@@ -21,7 +33,7 @@ class DigitalInkRecognitionService {
 
     try {
       for (final lang in requiredLanguages) {
-        final isDownloaded = await _modelManager.isModelDownloaded(lang);
+        final isDownloaded = await _modelManager.isModelDownloaded(toModelTag(lang));
         if (!isDownloaded) return false;
       }
       return true;
@@ -40,11 +52,11 @@ class DigitalInkRecognitionService {
     try {
       for (int i = 0; i < requiredLanguages.length; i++) {
         final lang = requiredLanguages[i];
-        final isDownloaded = await _modelManager.isModelDownloaded(lang);
+        final isDownloaded = await _modelManager.isModelDownloaded(toModelTag(lang));
 
         if (!isDownloaded) {
           onProgress?.call(lang, i / requiredLanguages.length);
-          final success = await _modelManager.downloadModel(lang);
+          final success = await _modelManager.downloadModel(toModelTag(lang));
           if (!success) {
             debugPrint('Failed to download ML Kit model for $lang');
             return false;
@@ -68,7 +80,11 @@ class DigitalInkRecognitionService {
 
     DigitalInkRecognizer? recognizer;
     try {
-      recognizer = DigitalInkRecognizer(languageCode: languageCode);
+      final tag = toModelTag(languageCode);
+      if (!await _modelManager.isModelDownloaded(tag)) {
+        await _modelManager.downloadModel(tag);
+      }
+      recognizer = DigitalInkRecognizer(languageCode: tag);
       final candidates = await recognizer.recognize(ink);
       return candidates;
     } catch (e) {
