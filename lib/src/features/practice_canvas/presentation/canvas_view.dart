@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
@@ -22,23 +23,46 @@ class CanvasPracticeView extends ConsumerStatefulWidget {
 
 class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
   late final CanvasController _controller;
+  Timer? _autoAdvanceTimer;
+  bool _hasValidated = false;
 
   @override
   void initState() {
     super.initState();
     _controller = CanvasController();
+    _controller.addListener(_handleStateChange);
+  }
+
+  void _handleStateChange() {
+    final state = _controller.state;
+    if (state.isMatch == true && !_hasValidated) {
+      _hasValidated = true;
+      debugPrint('[CanvasPracticeView] isMatch is true for "${widget.word.term}". Revealing card and auto-advancing in 1200ms...');
+      _controller.revealAnswer();
+      _autoAdvanceTimer?.cancel();
+      _autoAdvanceTimer = Timer(const Duration(milliseconds: 1200), () {
+        if (mounted) {
+          debugPrint('[CanvasPracticeView] Auto-advancing via onSelfEvaluation(true)...');
+          widget.onSelfEvaluation?.call(true);
+        }
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant CanvasPracticeView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.word.id != widget.word.id) {
+      _autoAdvanceTimer?.cancel();
+      _hasValidated = false;
       _controller.resetForNewCard();
     }
   }
 
   @override
   void dispose() {
+    _autoAdvanceTimer?.cancel();
+    _controller.removeListener(_handleStateChange);
     _controller.dispose();
     super.dispose();
   }
@@ -216,9 +240,9 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: b.pastelYellow.withValues(alpha: 0.3),
+                    color: b.pastelYellow.withValues(alpha: 0.35),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: b.slate, width: 1.2),
                   ),
@@ -226,11 +250,11 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: b.slate),
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2.2, color: b.slate),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Text(
                         'Analyse de l\'écriture manuscrite ML Kit...',
                         style: TextStyle(
@@ -247,32 +271,88 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: state.isMatch! ? b.pastelMint : b.pastelRed.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: b.slate, width: 1.2),
+                    border: Border.all(color: b.slate, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: b.slate,
+                        offset: const Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       Icon(
                         state.isMatch! ? Icons.check_circle : Icons.cancel,
                         color: b.slate,
-                        size: 20,
+                        size: 24,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          state.isMatch!
-                              ? 'Reconnu : "${state.recognizedText}" ✓ Correspond au mot ciblé !'
-                              : 'Reconnu : "${(state.recognizedText ?? '').isEmpty ? 'Non reconnu' : state.recognizedText}" ✗ (Attendu : ${widget.word.term})',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: b.slate,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              state.isMatch!
+                                  ? 'Reconnu : "${state.recognizedText}" ✓ Mot validé !'
+                                  : 'Reconnu : "${(state.recognizedText ?? '').isEmpty ? 'Non reconnu' : state.recognizedText}" ✗',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: b.slate,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              state.isMatch!
+                                  ? 'Passage automatique à la suite...'
+                                  : 'Attendu : "${widget.word.term}". Effacez pour réessayer ou cliquez sur RÉVÉLER.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: b.slate.withValues(alpha: 0.85),
+                              ),
+                            ),
+                            if (!state.isMatch! && state.candidates.length > 1) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Candidats ML Kit : [${state.candidates.take(3).join(', ')}]',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                  color: b.slate.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
+                      if (state.isMatch!)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: b.slate,
+                              foregroundColor: b.cardSurface,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () {
+                              _autoAdvanceTimer?.cancel();
+                              widget.onSelfEvaluation?.call(true);
+                            },
+                            child: const Text(
+                              'CONTINUER',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -294,7 +374,11 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
                           side: BorderSide(color: b.slate, width: 1.2),
                           foregroundColor: b.slate,
                         ),
-                        onPressed: _controller.clearCanvas,
+                        onPressed: () {
+                          _autoAdvanceTimer?.cancel();
+                          _hasValidated = false;
+                          _controller.clearCanvas();
+                        },
                         icon: const Icon(Icons.clear, size: 18),
                         label: const Text('EFFACER'),
                       ),
@@ -317,15 +401,27 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
                             side: BorderSide(color: b.slate, width: 1.2),
                             foregroundColor: b.slate,
                           ),
-                          onPressed: state.strokes.isEmpty
+                          onPressed: (state.strokes.isEmpty || state.isRecognizing)
                               ? null
-                              : () => _controller.recognizeHandwriting(
+                              : () {
+                                  debugPrint('[CanvasPracticeView] User tapped VÉRIFIER for "${widget.word.term}"');
+                                  _controller.recognizeHandwriting(
                                     inkService,
                                     widget.word.term,
                                     languageCode: 'en',
+                                  );
+                                },
+                          icon: state.isRecognizing
+                              ? SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: b.slate,
                                   ),
-                          icon: const Icon(Icons.draw, size: 18),
-                          label: const Text('VÉRIFIER'),
+                                )
+                              : const Icon(Icons.draw, size: 18),
+                          label: Text(state.isRecognizing ? 'ANALYSE...' : 'VÉRIFIER'),
                         ),
                       if (!state.isRevealed)
                         FilledButton.icon(

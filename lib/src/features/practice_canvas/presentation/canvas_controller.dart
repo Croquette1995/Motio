@@ -59,7 +59,13 @@ class CanvasController extends ChangeNotifier {
 
   void onPanStart(Offset position) {
     final stroke = DrawingStroke(
-      points: [StrokePoint(position)],
+      points: [
+        StrokePoint(
+          position,
+          1.0,
+          DateTime.now().millisecondsSinceEpoch,
+        ),
+      ],
       color: strokeColor,
       strokeWidth: strokeWidth,
     );
@@ -70,7 +76,13 @@ class CanvasController extends ChangeNotifier {
   void onPanUpdate(Offset position) {
     if (_state.currentStroke == null) return;
     final updatedPoints = List<StrokePoint>.from(_state.currentStroke!.points)
-      ..add(StrokePoint(position));
+      ..add(
+        StrokePoint(
+          position,
+          1.0,
+          DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
     final updatedStroke = DrawingStroke(
       points: updatedPoints,
       color: _state.currentStroke!.color,
@@ -116,21 +128,23 @@ class CanvasController extends ChangeNotifier {
 
   /// Converts internal [DrawingStroke] list to ML Kit [mlkit.Ink]
   mlkit.Ink convertStrokesToInk(List<DrawingStroke> strokes) {
-    int pointTime = 0;
+    int fallbackTime = 0;
     final ink = mlkit.Ink();
 
     for (final stroke in strokes) {
       final inkStroke = mlkit.Stroke();
       for (final pt in stroke.points) {
+        final t = pt.timestamp > 0 ? pt.timestamp : (fallbackTime += 10);
         inkStroke.points.add(
           mlkit.StrokePoint(
             x: pt.offset.dx,
             y: pt.offset.dy,
-            t: pointTime += 10,
+            t: t,
           ),
         );
       }
       ink.strokes.add(inkStroke);
+      fallbackTime += 100;
     }
 
     return ink;
@@ -142,7 +156,13 @@ class CanvasController extends ChangeNotifier {
     String targetWord, {
     String languageCode = 'en',
   }) async {
-    if (_state.strokes.isEmpty) return;
+    if (_state.strokes.isEmpty) {
+      debugPrint('[CanvasController] recognizeHandwriting: strokes is empty, ignoring call.');
+      return;
+    }
+
+    final totalPoints = _state.strokes.fold<int>(0, (sum, s) => sum + s.points.length);
+    debugPrint('[CanvasController] recognizeHandwriting started for target: "$targetWord", strokes: ${_state.strokes.length}, totalPoints: $totalPoints, lang: $languageCode');
 
     _state = _state.copyWith(isRecognizing: true);
     notifyListeners();
@@ -150,25 +170,32 @@ class CanvasController extends ChangeNotifier {
     try {
       final ink = convertStrokesToInk(_state.strokes);
       final results = await service.recognizeInk(ink, languageCode: languageCode);
+      debugPrint('[CanvasController] Recognition returned ${results.length} candidate(s)');
 
-      final candidateTexts = results.map((c) => c.text).toList();
-      final topCandidate = candidateTexts.isNotEmpty ? candidateTexts.first : '';
-      final isMatch = DigitalInkRecognitionService.isWordMatch(results, targetWord);
+      final matchResult = DigitalInkRecognitionService.matchWord(results, targetWord);
+      final topCandidate = results.isNotEmpty ? results.first.text.trim() : '';
+      final displayText = matchResult.isMatch
+          ? (matchResult.matchedText ?? topCandidate)
+          : topCandidate;
+
+      debugPrint('[CanvasController] matchResult: isMatch=${matchResult.isMatch}, displayText="$displayText", candidates=${matchResult.allCandidates}');
 
       _state = _state.copyWith(
         isRecognizing: false,
-        isMatch: isMatch,
-        recognizedText: topCandidate,
-        candidates: candidateTexts,
+        isMatch: matchResult.isMatch,
+        recognizedText: displayText,
+        candidates: matchResult.allCandidates,
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[CanvasController ERROR] recognizeHandwriting failed: $e\n$st');
       _state = _state.copyWith(
         isRecognizing: false,
         isMatch: false,
         recognizedText: null,
         candidates: const [],
       );
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 }

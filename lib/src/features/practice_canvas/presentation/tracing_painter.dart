@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 class StrokePoint {
   final Offset offset;
   final double pressure;
+  final int timestamp;
 
-  const StrokePoint(this.offset, [this.pressure = 1.0]);
+  const StrokePoint(this.offset, [this.pressure = 1.0, int? timestamp])
+      : timestamp = timestamp ?? 0;
 }
 
 class DrawingStroke {

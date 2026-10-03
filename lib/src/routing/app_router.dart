@@ -8,7 +8,7 @@ import '../features/vocabulary/presentation/category_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/init',
     routes: [
       GoRoute(
         path: '/',

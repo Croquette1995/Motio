@@ -11,16 +11,51 @@ import 'package:lexiflow/src/features/vocabulary/domain/word.dart';
 
 void main() {
   group('DigitalInkRecognitionService Unit Tests', () {
-    test('isWordMatch performs case-insensitive and trimmed string matching', () {
+    test('normalizeWord correctly lowercases, strips accents, punctuation and whitespace', () {
+      expect(DigitalInkRecognitionService.normalizeWord('  DEADLINE  '), equals('deadline'));
+      expect(DigitalInkRecognitionService.normalizeWord('deadline.'), equals('deadline'));
+      expect(DigitalInkRecognitionService.normalizeWord('«deadline»'), equals('deadline'));
+      expect(DigitalInkRecognitionService.normalizeWord('résumé'), equals('resume'));
+      expect(DigitalInkRecognitionService.normalizeWord('façade'), equals('facade'));
+      expect(DigitalInkRecognitionService.normalizeWord('take   off'), equals('take off'));
+      expect(DigitalInkRecognitionService.normalizeWord('well-being', removePunctuation: true), equals('wellbeing'));
+    });
+
+    test('isWordMatch performs tolerant normalization matching', () {
       final candidates = [
-        mlkit.RecognitionCandidate(text: '  Hello ', score: 0.9),
-        mlkit.RecognitionCandidate(text: 'World', score: 0.5),
+        mlkit.RecognitionCandidate(text: '  Hello. ', score: 0.9),
+        mlkit.RecognitionCandidate(text: 'WORLD', score: 0.5),
       ];
 
       expect(DigitalInkRecognitionService.isWordMatch(candidates, 'hello'), isTrue);
       expect(DigitalInkRecognitionService.isWordMatch(candidates, 'HELLO'), isTrue);
       expect(DigitalInkRecognitionService.isWordMatch(candidates, 'world'), isTrue);
       expect(DigitalInkRecognitionService.isWordMatch(candidates, 'other'), isFalse);
+    });
+
+    test('matchWord finds match on non-first candidate and returns WordMatchResult', () {
+      final candidates = [
+        mlkit.RecognitionCandidate(text: '.', score: 2190.51),
+        mlkit.RecognitionCandidate(text: 'deadline', score: 562.73),
+      ];
+
+      final result = DigitalInkRecognitionService.matchWord(candidates, 'deadline');
+      expect(result.isMatch, isTrue);
+      expect(result.matchedText, equals('deadline'));
+      expect(result.matchedCandidate?.score, equals(562.73));
+      expect(result.cleanTarget, equals('deadline'));
+    });
+
+    test('matchWord handles space-tolerant and punctuation differences', () {
+      final candidates = [
+        mlkit.RecognitionCandidate(text: 'dead line', score: 100),
+      ];
+      expect(DigitalInkRecognitionService.isWordMatch(candidates, 'deadline'), isTrue);
+
+      final candidatesPunct = [
+        mlkit.RecognitionCandidate(text: 'well-being', score: 100),
+      ];
+      expect(DigitalInkRecognitionService.isWordMatch(candidatesPunct, 'wellbeing'), isTrue);
     });
 
     test('isWordMatch returns false for empty input or empty candidates', () {
@@ -62,6 +97,33 @@ void main() {
       expect(ink.strokes.first.points.length, equals(2));
       expect(ink.strokes.first.points.first.x, equals(10.0));
       expect(ink.strokes.first.points.first.y, equals(20.0));
+      expect(ink.strokes.first.points.first.t, equals(10));
+    });
+
+    test('convertStrokesToInk preserves explicit timestamp when provided', () {
+      final strokes = [
+        DrawingStroke(
+          points: [
+            const StrokePoint(Offset(10, 20), 1.0, 1000),
+            const StrokePoint(Offset(15, 25), 1.0, 1050),
+          ],
+          color: Colors.black,
+        ),
+      ];
+
+      final ink = controller.convertStrokesToInk(strokes);
+      expect(ink.strokes.first.points[0].t, equals(1000));
+      expect(ink.strokes.first.points[1].t, equals(1050));
+    });
+
+    test('onPanStart and onPanUpdate assign positive timestamps', () {
+      controller.onPanStart(const Offset(5, 5));
+      controller.onPanUpdate(const Offset(10, 10));
+      final stroke = controller.state.currentStroke;
+      expect(stroke, isNotNull);
+      expect(stroke!.points.length, equals(2));
+      expect(stroke.points[0].timestamp, greaterThan(0));
+      expect(stroke.points[1].timestamp, greaterThanOrEqualTo(stroke.points[0].timestamp));
     });
 
     test('clearCanvas resets strokes and recognition state', () {
