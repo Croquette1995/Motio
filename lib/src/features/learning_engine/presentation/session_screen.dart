@@ -6,6 +6,7 @@ import '../../vocabulary/presentation/vocabulary_controller.dart';
 import '../../practice_canvas/presentation/canvas_view.dart';
 import '../../practice_cloze/presentation/cloze_view.dart';
 import '../../practice_matching/presentation/matching_view.dart';
+import '../../settings/application/voice_settings_controller.dart';
 import 'session_controller.dart';
 
 class SessionScreen extends ConsumerWidget {
@@ -16,6 +17,8 @@ class SessionScreen extends ConsumerWidget {
     final state = ref.watch(sessionControllerProvider);
     final notifier = ref.read(sessionControllerProvider.notifier);
     final allWordsAsync = ref.watch(allWordsProvider);
+    final voice = ref.watch(voiceSettingsProvider);
+    final voiceNotifier = ref.read(voiceSettingsProvider.notifier);
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
 
@@ -211,6 +214,15 @@ class SessionScreen extends ConsumerWidget {
     final totalCards = session.initialCardCount;
     final completedCards = session.completedCount;
 
+    // Lecture de la phrase uniquement une fois le mot validé (réussi ou échoué),
+    // avant de passer à la carte suivante.
+    Future<void> validate(bool isSuccess) async {
+      if (voice.autoPlay) {
+        await voiceNotifier.speak(currentCard.word.contextSentence);
+      }
+      await notifier.submitAnswer(isSuccess);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -218,6 +230,13 @@ class SessionScreen extends ConsumerWidget {
           style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5, fontSize: 16),
         ),
         actions: [
+          IconButton(
+            tooltip: voice.autoPlay
+                ? 'Désactiver la lecture vocale'
+                : 'Activer la lecture vocale',
+            icon: Icon(voice.autoPlay ? Icons.volume_up : Icons.volume_off),
+            onPressed: () => voiceNotifier.setAutoPlay(!voice.autoPlay),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Container(
@@ -283,9 +302,7 @@ class SessionScreen extends ConsumerWidget {
               PracticeMode.canvas => CanvasPracticeView(
                   key: ValueKey(currentCard.word.id),
                   word: currentCard.word,
-                  onSelfEvaluation: (isSuccess) async {
-                    await notifier.submitAnswer(isSuccess);
-                  },
+                  onSelfEvaluation: validate,
                 ),
               PracticeMode.cloze => allWordsAsync.when(
                   data: (words) => ClozePracticeView(
@@ -294,7 +311,7 @@ class SessionScreen extends ConsumerWidget {
                     availableWords: words,
                     onAnswerSubmitted: (isSuccess) async {
                       await Future.delayed(const Duration(milliseconds: 700));
-                      await notifier.submitAnswer(isSuccess);
+                      await validate(isSuccess);
                     },
                   ),
                   loading: () => Center(
@@ -311,7 +328,7 @@ class SessionScreen extends ConsumerWidget {
                     ],
                     onComplete: () async {
                       await Future.delayed(const Duration(milliseconds: 500));
-                      await notifier.submitAnswer(true);
+                      await validate(true);
                     },
                   ),
                   loading: () => Center(

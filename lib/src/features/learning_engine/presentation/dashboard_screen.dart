@@ -44,6 +44,11 @@ class DashboardScreen extends ConsumerWidget {
             tooltip: 'Catalogue du Vocabulaire',
             onPressed: () => context.push('/vocabulary'),
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Paramètres',
+            onPressed: () => context.push('/settings'),
+          ),
         ],
       ),
       body: FutureBuilder(
