@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_providers.dart';
+import '../../settings/application/user_level_controller.dart';
 import '../../vocabulary/presentation/vocabulary_controller.dart';
 import '../domain/study_session.dart';
 
@@ -59,13 +60,15 @@ class SessionNotifier extends Notifier<SessionState> {
     return const SessionState();
   }
 
-  Future<void> startSession({int maxCards = 20, int maxNewCards = 5}) async {
+  Future<void> startSession({int maxCards = 20, int maxNewCards = 5, String? overrideLevel}) async {
     state = state.copyWith(isLoading: true, isFinished: false);
 
+    final currentLevel = ref.read(userLevelProvider);
     final scheduler = ref.read(sessionSchedulerServiceProvider);
     final session = await scheduler.createSession(
       maxSessionCards: maxCards,
       maxNewCards: maxNewCards,
+      targetLevel: overrideLevel ?? currentLevel.code,
     );
 
     state = SessionState(

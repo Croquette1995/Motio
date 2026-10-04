@@ -40,6 +40,15 @@ class SelectedStatusFilterNotifier extends Notifier<String?> {
 final selectedStatusFilterProvider =
     NotifierProvider<SelectedStatusFilterNotifier, String?>(SelectedStatusFilterNotifier.new);
 
+class SelectedLevelFilterNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+  void select(String? level) => state = level;
+}
+
+final selectedLevelFilterProvider =
+    NotifierProvider<SelectedLevelFilterNotifier, String?>(SelectedLevelFilterNotifier.new);
+
 final wordProgressMapProvider = FutureProvider<Map<int, String>>((ref) async {
   final repo = ref.watch(progressRepositoryProvider);
   final wordsAsync = await ref.watch(allWordsProvider.future);
@@ -67,6 +76,7 @@ final filteredWordsProvider = Provider<AsyncValue<List<Word>>>((ref) {
   final wordsAsync = ref.watch(allWordsProvider);
   final selectedCat = ref.watch(selectedCategoryProvider);
   final selectedStatus = ref.watch(selectedStatusFilterProvider);
+  final selectedLevel = ref.watch(selectedLevelFilterProvider);
   final progressMap = ref.watch(wordProgressMapProvider).valueOrNull;
   final query = ref.watch(vocabularySearchQueryProvider).trim().toLowerCase();
 
@@ -75,10 +85,13 @@ final filteredWordsProvider = Provider<AsyncValue<List<Word>>>((ref) {
       final matchesCategory = selectedCat == null || w.category == selectedCat;
       final matchesStatus = selectedStatus == null ||
           (progressMap != null && progressMap[w.id] == selectedStatus);
+      final matchesLevel = selectedLevel == null ||
+          w.level.toUpperCase() == selectedLevel.toUpperCase();
       final matchesQuery = query.isEmpty ||
           w.term.toLowerCase().contains(query) ||
           w.translation.toLowerCase().contains(query);
-      return matchesCategory && matchesStatus && matchesQuery;
+      return matchesCategory && matchesStatus && matchesLevel && matchesQuery;
     }).toList();
   });
 });
+

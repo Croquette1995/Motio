@@ -142,5 +142,41 @@ void main() {
       expect(session.completedCount, 1);
       expect(session.progressRatio, 1.0);
     });
+
+    test('Filtrage par targetLevel isole uniquement les cartes du niveau ciblé', () {
+      final wordA1 = Word(
+        id: 1,
+        term: 'water',
+        translation: 'eau',
+        contextSentence: 'Drink water',
+        category: 'Food',
+        level: 'A1',
+        createdAt: DateTime(2026, 1, 1),
+      );
+      final wordB2 = Word(
+        id: 2,
+        term: 'milestone',
+        translation: 'jalon',
+        contextSentence: 'A milestone',
+        category: 'Work',
+        level: 'B2',
+        createdAt: DateTime(2026, 1, 1),
+      );
+
+      final dueItems = [
+        (wordA1, const WordProgress(wordId: 1, step: 1)),
+        (wordB2, const WordProgress(wordId: 2, step: 2)),
+      ];
+
+      final sessionA1 = SessionSchedulerService.composeSessionList(
+        dueItems: dueItems,
+        newItems: [],
+        targetLevel: 'A1',
+      );
+
+      expect(sessionA1.length, 1);
+      expect(sessionA1.first.word.term, 'water');
+      expect(sessionA1.first.word.level, 'A1');
+    });
   });
 }

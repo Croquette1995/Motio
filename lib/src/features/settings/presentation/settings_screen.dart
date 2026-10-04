@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
+import '../application/user_level_controller.dart';
+import '../domain/cefr_level.dart';
 import '../application/voice_settings_controller.dart';
 import '../domain/voice_settings.dart';
 
@@ -13,6 +15,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(voiceSettingsProvider);
     final n = ref.read(voiceSettingsProvider.notifier);
+    final currentLevel = ref.watch(userLevelProvider);
+    final levelNotifier = ref.read(userLevelProvider.notifier);
     final voicesAsync = ref.watch(availableVoicesProvider(s.languageCode));
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
@@ -62,6 +66,18 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             children: [
+              section('NIVEAU D\'APPRENTISSAGE (CECRL)'),
+              for (final lvl in CefrLevel.values)
+                RadioListTile<CefrLevel>(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(lvl.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                  subtitle: Text(lvl.description, style: TextStyle(fontSize: 12, color: b.slate.withValues(alpha: 0.7))),
+                  value: lvl,
+                  groupValue: currentLevel,
+                  onChanged: (val) {
+                    if (val != null) levelNotifier.setLevel(val);
+                  },
+                ),
               section('VOIX'),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
