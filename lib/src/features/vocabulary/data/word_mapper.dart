@@ -10,6 +10,11 @@ extension WordEntryMapper on WordEntry {
       contextSentence: contextSentence,
       category: category,
       level: level,
+      language: language,
+      targetLanguage: targetLanguage,
+      pos: pos,
+      frequencyScore: frequencyScore,
+      lemma: lemma,
       createdAt: createdAt,
     );
   }

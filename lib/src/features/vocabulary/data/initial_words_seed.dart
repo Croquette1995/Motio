@@ -4,6 +4,9 @@ class SeedWord {
   final String contextSentence;
   final String category;
   final String level;
+  final String pos;
+  final String language;
+  final double frequencyScore;
 
   const SeedWord({
     required this.term,
@@ -11,10 +14,46 @@ class SeedWord {
     required this.contextSentence,
     required this.category,
     required this.level,
+    this.pos = 'noun',
+    this.language = 'en',
+    this.frequencyScore = 4.0,
   });
 }
 
 const List<SeedWord> initialWordsSeed = [
+  // --- Category: Basics & Greetings (A1) ---
+  SeedWord(term: 'hello', translation: 'bonjour', contextSentence: 'Hello, my name is Alex.', category: 'Basics & Greetings', level: 'A1', pos: 'noun', frequencyScore: 6.5),
+  SeedWord(term: 'welcome', translation: 'bienvenue / accueillir', contextSentence: 'Welcome to our home!', category: 'Basics & Greetings', level: 'A1', pos: 'verb', frequencyScore: 5.7),
+  SeedWord(term: 'name', translation: 'nom', contextSentence: 'What is your first name?', category: 'Basics & Greetings', level: 'A1', pos: 'noun', frequencyScore: 5.7),
+  SeedWord(term: 'family', translation: 'famille', contextSentence: 'I live with my family in a quiet town.', category: 'Basics & Greetings', level: 'A1', pos: 'noun', frequencyScore: 5.7),
+  SeedWord(term: 'friend', translation: 'ami(e)', contextSentence: 'A good friend always listens to you.', category: 'Basics & Greetings', level: 'A1', pos: 'noun', frequencyScore: 5.7),
+  SeedWord(term: 'water', translation: 'eau', contextSentence: 'Drink a glass of cold water.', category: 'Food & Drink', level: 'A1', pos: 'noun', frequencyScore: 5.8),
+  SeedWord(term: 'bread', translation: 'pain', contextSentence: 'We buy fresh bread every morning.', category: 'Food & Drink', level: 'A1', pos: 'noun', frequencyScore: 5.5),
+  SeedWord(term: 'apple', translation: 'pomme', contextSentence: 'She eats an apple after lunch.', category: 'Food & Drink', level: 'A1', pos: 'noun', frequencyScore: 5.5),
+  SeedWord(term: 'coffee', translation: 'café', contextSentence: 'He enjoys hot coffee with milk.', category: 'Food & Drink', level: 'A1', pos: 'noun', frequencyScore: 5.6),
+  SeedWord(term: 'eat', translation: 'manger', contextSentence: 'We eat dinner together at seven.', category: 'Food & Drink', level: 'A1', pos: 'verb', frequencyScore: 5.6),
+  SeedWord(term: 'drink', translation: 'boire', contextSentence: 'You should drink more water during summer.', category: 'Food & Drink', level: 'A1', pos: 'verb', frequencyScore: 5.5),
+  SeedWord(term: 'house', translation: 'maison', contextSentence: 'They bought a charming wooden house.', category: 'Daily Life', level: 'A1', pos: 'noun', frequencyScore: 5.7),
+  SeedWord(term: 'city', translation: 'ville', contextSentence: 'London is a vibrant and historical city.', category: 'Daily Life', level: 'A1', pos: 'noun', frequencyScore: 5.6),
+  SeedWord(term: 'school', translation: 'école', contextSentence: 'Children walk to school together.', category: 'Daily Life', level: 'A1', pos: 'noun', frequencyScore: 5.6),
+  SeedWord(term: 'book', translation: 'livre', contextSentence: 'She reads a captivating book every night.', category: 'Daily Life', level: 'A1', pos: 'noun', frequencyScore: 5.6),
+  SeedWord(term: 'sleep', translation: 'dormir', contextSentence: 'Getting enough sleep is vital for your health.', category: 'Daily Life', level: 'A1', pos: 'verb', frequencyScore: 5.5),
+  SeedWord(term: 'speak', translation: 'parler', contextSentence: 'Can you speak English fluently?', category: 'Daily Life', level: 'A1', pos: 'verb', frequencyScore: 5.5),
+  SeedWord(term: 'read', translation: 'lire', contextSentence: 'I like to read the morning news.', category: 'Daily Life', level: 'A1', pos: 'verb', frequencyScore: 5.6),
+  SeedWord(term: 'write', translation: 'écrire', contextSentence: 'Please write your answer clearly on the paper.', category: 'Daily Life', level: 'A1', pos: 'verb', frequencyScore: 5.5),
+  SeedWord(term: 'happy', translation: 'heureux / content', contextSentence: 'They were truly happy to see each other.', category: 'Basics & Greetings', level: 'A1', pos: 'adjective', frequencyScore: 5.5),
+
+  // --- Category: Travel & Places (A2) ---
+  SeedWord(term: 'travel', translation: 'voyager / voyage', contextSentence: 'We love to travel across foreign countries.', category: 'Daily Life & Travel', level: 'A2', pos: 'verb', frequencyScore: 4.9),
+  SeedWord(term: 'station', translation: 'gare / station', contextSentence: 'Meet me at the central train station.', category: 'Daily Life & Travel', level: 'A2', pos: 'noun', frequencyScore: 4.8),
+  SeedWord(term: 'airport', translation: 'aéroport', contextSentence: 'The bus will take you directly to the international airport.', category: 'Daily Life & Travel', level: 'A2', pos: 'noun', frequencyScore: 4.6),
+  SeedWord(term: 'weather', translation: 'météo / temps', contextSentence: 'The weather will be sunny tomorrow morning.', category: 'Daily Life & Travel', level: 'A2', pos: 'noun', frequencyScore: 4.9),
+  SeedWord(term: 'kitchen', translation: 'cuisine', contextSentence: 'Delicious aromas came from the spacious kitchen.', category: 'Daily Life', level: 'A2', pos: 'noun', frequencyScore: 4.7),
+  SeedWord(term: 'restaurant', translation: 'restaurant', contextSentence: 'We had a lovely family dinner at the corner restaurant.', category: 'Food & Drink', level: 'A2', pos: 'noun', frequencyScore: 4.9),
+  SeedWord(term: 'clean', translation: 'propre / nettoyer', contextSentence: 'Keep your workspace tidy and clean.', category: 'Daily Life', level: 'A2', pos: 'adjective', frequencyScore: 4.9),
+  SeedWord(term: 'dangerous', translation: 'dangereux', contextSentence: 'It is dangerous to walk alone in the dark forest.', category: 'Daily Life', level: 'A2', pos: 'adjective', frequencyScore: 4.5),
+  SeedWord(term: 'remember', translation: 'se souvenir / se rappeler', contextSentence: 'Always remember to lock the front door.', category: 'Social & Abstract', level: 'A2', pos: 'verb', frequencyScore: 5.1),
+  SeedWord(term: 'forget', translation: 'oublier', contextSentence: 'Do not forget your passport before boarding.', category: 'Social & Abstract', level: 'A2', pos: 'verb', frequencyScore: 4.8),
   // --- Category: Work & Tech (10 words) ---
   SeedWord(
     term: 'deadline',

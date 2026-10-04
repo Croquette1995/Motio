@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import 'vocabulary_controller.dart';
 import 'wiktionary_enrichment_widget.dart';
@@ -43,45 +44,53 @@ class CategoryScreen extends ConsumerWidget {
     final filteredWordsAsync = ref.watch(filteredWordsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedLevel = ref.watch(selectedLevelFilterProvider);
     final selectedStatus = ref.watch(selectedStatusFilterProvider);
     final progressMapAsync = ref.watch(wordProgressMapProvider);
 
     return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: b.pastelBlue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: b.slate, width: 1),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'CATALOGUE DE VOCABULAIRE',
-                  style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5, fontSize: 16),
-                ),
-              ],
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: b.pastelBlue,
+                shape: BoxShape.circle,
+                border: Border.all(color: b.slate, width: 1),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'CATALOGUE DE VOCABULAIRE',
+              style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5, fontSize: 16),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.travel_explore),
+            tooltip: 'Explorer Tatoeba (Zéro Clé API)',
+            onPressed: () => context.push('/tatoeba'),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search TextField
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Rechercher un mot ou une traduction...',
+                prefixIcon: Icon(Icons.search, color: b.slate),
+              ),
+              onChanged: (val) {
+                ref.read(vocabularySearchQueryProvider.notifier).update(val);
+              },
             ),
           ),
-          body: Column(
-            children: [
-              // Search TextField
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher un mot ou une traduction...',
-                    prefixIcon: Icon(Icons.search, color: b.slate),
-                  ),
-                  onChanged: (val) {
-                    ref.read(vocabularySearchQueryProvider.notifier).update(val);
-                  },
-                ),
-              ),
 
               // Category Chips
               categoriesAsync.when(
@@ -120,6 +129,48 @@ class CategoryScreen extends ConsumerWidget {
                 ),
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
+              ),
+
+              // Level Filter Chips (A1, A2, B1, B2)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+                child: Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('TOUS NIVEAUX'),
+                      selected: selectedLevel == null,
+                      selectedColor: b.pastelMint,
+                      onSelected: (_) {
+                        ref.read(selectedLevelFilterProvider.notifier).select(null);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ...['A1', 'A2', 'B1', 'B2'].map((lvl) {
+                      final isSelected = selectedLevel?.toUpperCase() == lvl;
+                      final chipColor = switch (lvl) {
+                        'A1' => b.pastelMint,
+                        'A2' => b.pastelBlue,
+                        'B1' => b.pastelYellow,
+                        _ => b.pastelRed,
+                      };
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ChoiceChip(
+                          label: Text('NIVEAU $lvl'),
+                          selected: isSelected,
+                          selectedColor: chipColor,
+                          onSelected: (selected) {
+                            ref.read(selectedLevelFilterProvider.notifier).select(
+                                  selected ? lvl : null,
+                                );
+                          },
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 4),
@@ -229,28 +280,49 @@ class CategoryScreen extends ConsumerWidget {
                                           ),
                                           const SizedBox(width: 8),
                                         ],
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 3,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: b.cardSurface,
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: b.slate, width: 1),
-                                          ),
-                                          child: Text(
-                                            word.level.toUpperCase(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              color: b.slate,
-                                              fontSize: 10,
-                                              letterSpacing: 0.5,
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: b.cardSurface,
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(color: b.slate, width: 1),
+                                            ),
+                                            child: Text(
+                                              word.level.toUpperCase(),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                color: b.slate,
+                                                fontSize: 10,
+                                                letterSpacing: 0.5,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: b.chalk,
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(color: b.lineGrey, width: 1),
+                                            ),
+                                            child: Text(
+                                              word.pos.toUpperCase(),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: b.slate.withValues(alpha: 0.7),
+                                                fontSize: 9,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: 6),

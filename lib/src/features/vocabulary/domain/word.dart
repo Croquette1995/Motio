@@ -4,7 +4,12 @@ class Word {
   final String translation;
   final String contextSentence;
   final String category;
-  final String level; // 'B1' or 'B2'
+  final String level; // 'A1', 'A2', 'B1' or 'B2'
+  final String language;
+  final String targetLanguage;
+  final String pos; // 'noun', 'verb', 'adjective', 'adverb'...
+  final double frequencyScore;
+  final String? lemma;
   final DateTime createdAt;
 
   const Word({
@@ -14,6 +19,11 @@ class Word {
     required this.contextSentence,
     required this.category,
     required this.level,
+    this.language = 'en',
+    this.targetLanguage = 'fr',
+    this.pos = 'noun',
+    this.frequencyScore = 4.0,
+    this.lemma,
     required this.createdAt,
   });
 
@@ -24,6 +34,11 @@ class Word {
     String? contextSentence,
     String? category,
     String? level,
+    String? language,
+    String? targetLanguage,
+    String? pos,
+    double? frequencyScore,
+    String? lemma,
     DateTime? createdAt,
   }) {
     return Word(
@@ -33,6 +48,11 @@ class Word {
       contextSentence: contextSentence ?? this.contextSentence,
       category: category ?? this.category,
       level: level ?? this.level,
+      language: language ?? this.language,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+      pos: pos ?? this.pos,
+      frequencyScore: frequencyScore ?? this.frequencyScore,
+      lemma: lemma ?? this.lemma,
       createdAt: createdAt ?? this.createdAt,
     );
   }
