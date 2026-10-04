@@ -5,6 +5,7 @@ import '../features/learning_engine/presentation/session_screen.dart';
 import '../features/practice_canvas/presentation/digital_ink_init_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/vocabulary/presentation/category_screen.dart';
+import '../features/vocabulary/presentation/tatoeba_explorer_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -24,6 +25,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/vocabulary',
         name: 'vocabulary',
         builder: (context, state) => const CategoryScreen(),
+      ),
+      GoRoute(
+        path: '/tatoeba',
+        name: 'tatoeba',
+        builder: (context, state) => const TatoebaExplorerScreen(),
       ),
       GoRoute(
         path: '/settings',
