@@ -48,6 +48,11 @@ class DashboardScreen extends ConsumerWidget {
             onPressed: () => context.push('/tatoeba'),
           ),
           IconButton(
+            icon: const Icon(Icons.auto_stories),
+            tooltip: 'Domaines & Progression',
+            onPressed: () => context.push('/domains'),
+          ),
+          IconButton(
             icon: const Icon(Icons.list_alt),
             tooltip: 'Catalogue du Vocabulaire',
             onPressed: () => context.push('/vocabulary'),
@@ -257,6 +262,69 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Carte d'accès direct aux Domaines & Évolution de la catégorie
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: b.cardSurface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: b.slate, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: b.slate,
+                        offset: const Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: b.pastelMint,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: b.slate, width: 1.2),
+                        ),
+                        child: Icon(Icons.pie_chart, color: b.slate, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DOMAINES & ÉVOLUTION',
+                              style: t.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.0,
+                                color: b.slate.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Explorer les catégories du niveau ${userLevel.code}',
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: b.slate,
+                          foregroundColor: b.cardSurface,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                        ),
+                        onPressed: () => context.push('/domains'),
+                        child: const Text('VOIR'),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const Padding(

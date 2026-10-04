@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import 'vocabulary_controller.dart';
+import 'widgets/tatoeba_examples_sheet.dart';
 import 'wiktionary_enrichment_widget.dart';
 
 class CategoryScreen extends ConsumerWidget {
@@ -69,6 +70,11 @@ class CategoryScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_stories),
+            tooltip: 'Domaines & Progression',
+            onPressed: () => context.push('/domains'),
+          ),
           IconButton(
             icon: const Icon(Icons.travel_explore),
             tooltip: 'Explorer Tatoeba (Zéro Clé API)',
@@ -349,6 +355,29 @@ class CategoryScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 WiktionaryEnrichmentWidget(term: word.term),
+                                const SizedBox(height: 6),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    icon: Icon(Icons.library_books, size: 14, color: b.slate),
+                                    label: Text(
+                                      'Autres phrases Tatoeba',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: b.slate,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      TatoebaExamplesSheet.show(context, word);
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
                           ),
