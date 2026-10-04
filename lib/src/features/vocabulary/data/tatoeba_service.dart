@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import '../domain/i_word_repository.dart';
 import '../domain/tatoeba_sentence.dart';
+import '../domain/word_categorizer_service.dart';
 import '../domain/word_frequency_service.dart';
 
 class TatoebaService {
   final Dio _dio;
   final WordFrequencyService _frequencyService;
+  final WordCategorizerService _categorizerService;
 
   static const String baseUrl = 'https://tatoeba.org/en/api_v0';
   static const String userAgent = 'LexiFlow/1.0 (https://github.com/cchiodo/Motio)';
@@ -32,6 +34,7 @@ class TatoebaService {
   TatoebaService({
     Dio? dio,
     WordFrequencyService frequencyService = const WordFrequencyService(),
+    WordCategorizerService categorizerService = const WordCategorizerService(),
   })  : _dio = dio ??
             Dio(
               BaseOptions(
@@ -41,7 +44,8 @@ class TatoebaService {
                 headers: {'User-Agent': userAgent},
               ),
             ),
-        _frequencyService = frequencyService;
+        _frequencyService = frequencyService,
+        _categorizerService = categorizerService;
 
   /// Recherche des phrases bilingues sur Tatoeba (sans clé API)
   Future<List<TatoebaSentence>> searchSentences({
@@ -122,6 +126,28 @@ class TatoebaService {
     }
   }
 
+  /// Recherche des phrases d'exemples spécifiques pour un mot donné sur Tatoeba (Zero Clé API)
+  Future<List<TatoebaSentence>> getExamplesForWord({
+    required String word,
+    String from = 'eng',
+    String to = 'fra',
+    int limit = 10,
+    bool random = false,
+  }) async {
+    final clean = word.trim();
+    if (clean.isEmpty) return [];
+
+    return searchSentences(
+      from: from,
+      to: to,
+      query: clean,
+      random: random,
+      pageSize: limit,
+      wordCountMin: 3,
+      wordCountMax: 20,
+    );
+  }
+
   /// Découpe une phrase en mots candidats uniques en ignorant les stopwords
   List<String> extractCandidateTokens(String sentence) {
     if (sentence.isEmpty) return [];
@@ -147,8 +173,8 @@ class TatoebaService {
     return candidates;
   }
 
-  /// Analyse les mots de la phrase, vérifie l'existence dans la base Drift
-  /// et estime leur niveau CECRL par fréquence Zipf.
+  /// Analyse les mots de la phrase, vérifie l'existence dans la base Drift,
+  /// estime leur niveau CECRL par fréquence Zipf et infère la catégorie sémantique.
   Future<List<ExtractedCandidateWord>> analyzeSentenceWords({
     required String sentence,
     required IWordRepository wordRepository,
@@ -161,6 +187,7 @@ class TatoebaService {
       final inDb = await wordRepository.wordExists(token, language: language);
       final score = _frequencyService.getFrequencyScore(token, language: language);
       final level = _frequencyService.determineLevel(token, language: language);
+      final category = _categorizerService.categorizeWord(token, contextSentence: sentence);
 
       candidates.add(
         ExtractedCandidateWord(
@@ -168,6 +195,7 @@ class TatoebaService {
           frequencyScore: score,
           estimatedLevel: level,
           isAlreadyInDb: inDb,
+          suggestedCategory: category,
         ),
       );
     }

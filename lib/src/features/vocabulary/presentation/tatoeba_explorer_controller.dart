@@ -126,7 +126,7 @@ class TatoebaExplorerNotifier extends Notifier<TatoebaExplorerState> {
     // Si la traduction n'est pas renseignée, chercher via Wiktionary
     String translation = customTranslation ?? candidate.translation ?? '';
     String pos = candidate.pos ?? 'noun';
-    String finalCategory = category ?? 'Général';
+    String finalCategory = category ?? candidate.suggestedCategory ?? 'Daily Life & Home';
 
     if (translation.isEmpty) {
       final details = await wiktionary.fetchWordDetails(candidate.term);

@@ -23,6 +23,7 @@ class ExtractedCandidateWord {
   final bool isAlreadyInDb;
   final String? pos;
   final String? translation;
+  final String? suggestedCategory;
 
   const ExtractedCandidateWord({
     required this.term,
@@ -31,6 +32,7 @@ class ExtractedCandidateWord {
     required this.isAlreadyInDb,
     this.pos,
     this.translation,
+    this.suggestedCategory,
   });
 
   ExtractedCandidateWord copyWith({
@@ -40,6 +42,7 @@ class ExtractedCandidateWord {
     bool? isAlreadyInDb,
     String? pos,
     String? translation,
+    String? suggestedCategory,
   }) {
     return ExtractedCandidateWord(
       term: term ?? this.term,
@@ -48,6 +51,8 @@ class ExtractedCandidateWord {
       isAlreadyInDb: isAlreadyInDb ?? this.isAlreadyInDb,
       pos: pos ?? this.pos,
       translation: translation ?? this.translation,
+      suggestedCategory: suggestedCategory ?? this.suggestedCategory,
     );
   }
 }
+

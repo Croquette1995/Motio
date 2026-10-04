@@ -390,6 +390,25 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                           ),
                         ),
                       ),
+                    if (candidate.suggestedCategory != null) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: b.pastelYellow,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: b.slate, width: 1),
+                        ),
+                        child: Text(
+                          candidate.suggestedCategory!.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: b.slate,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
