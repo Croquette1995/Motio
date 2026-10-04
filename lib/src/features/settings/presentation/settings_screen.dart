@@ -67,17 +67,23 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             children: [
               section('NIVEAU D\'APPRENTISSAGE (CECRL)'),
-              for (final lvl in CefrLevel.values)
-                RadioListTile<CefrLevel>(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(lvl.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                  subtitle: Text(lvl.description, style: TextStyle(fontSize: 12, color: b.slate.withValues(alpha: 0.7))),
-                  value: lvl,
-                  groupValue: currentLevel,
-                  onChanged: (val) {
-                    if (val != null) levelNotifier.setLevel(val);
-                  },
+              RadioGroup<CefrLevel>(
+                groupValue: currentLevel,
+                onChanged: (val) {
+                  if (val != null) levelNotifier.setLevel(val);
+                },
+                child: Column(
+                  children: [
+                    for (final lvl in CefrLevel.values)
+                      RadioListTile<CefrLevel>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(lvl.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                        subtitle: Text(lvl.description, style: TextStyle(fontSize: 12, color: b.slate.withValues(alpha: 0.7))),
+                        value: lvl,
+                      ),
+                  ],
                 ),
+              ),
               section('VOIX'),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -89,7 +95,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: s.languageCode,
+                key: ValueKey(s.languageCode),
+                initialValue: s.languageCode,
                 decoration: const InputDecoration(labelText: 'Langue apprise'),
                 items: [
                   for (final l in LearningLanguage.all)
@@ -111,40 +118,47 @@ class SettingsScreen extends ConsumerWidget {
                     return const Text(
                         'Aucune voix détectée pour cette langue. La voix par défaut du système sera utilisée.');
                   }
-                  return Column(
-                    children: [
-                      RadioListTile<String?>(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Voix par défaut du système'),
-                        value: null,
-                        groupValue: s.voiceName,
-                        onChanged: (_) => n.setVoice(null),
-                      ),
-                      for (final v in voices)
-                        RadioListTile<String?>(
+                  return RadioGroup<String>(
+                    groupValue: s.voiceName ?? '',
+                    onChanged: (selectedVal) {
+                      if (selectedVal == null || selectedVal.isEmpty) {
+                        n.setVoice(null);
+                      } else {
+                        final v = voices.firstWhere((x) => x.name == selectedVal);
+                        n.setVoice(v);
+                      }
+                    },
+                    child: Column(
+                      children: [
+                        const RadioListTile<String>(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(v.name),
-                          subtitle: Text(
-                            '${v.locale} · ${switch (v.gender) {
-                              VoiceGender.female => 'voix féminine',
-                              VoiceGender.male => 'voix masculine',
-                              VoiceGender.unknown => 'genre non précisé',
-                            }}',
-                          ),
-                          value: v.name,
-                          groupValue: s.voiceName,
-                          secondary: IconButton(
-                            icon: const Icon(Icons.play_circle_outline),
-                            tooltip: 'Écouter cette voix',
-                            onPressed: () => n.speak(
-                              _sample,
-                              override: s.copyWith(
-                                  voiceName: v.name, voiceLocale: v.locale),
+                          title: Text('Voix par défaut du système'),
+                          value: '',
+                        ),
+                        for (final v in voices)
+                          RadioListTile<String>(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(v.name),
+                            subtitle: Text(
+                              '${v.locale} · ${switch (v.gender) {
+                                VoiceGender.female => 'voix féminine',
+                                VoiceGender.male => 'voix masculine',
+                                VoiceGender.unknown => 'genre non précisé',
+                              }}',
+                            ),
+                            value: v.name,
+                            secondary: IconButton(
+                              icon: const Icon(Icons.play_circle_outline),
+                              tooltip: 'Écouter cette voix',
+                              onPressed: () => n.speak(
+                                _sample,
+                                override: s.copyWith(
+                                    voiceName: v.name, voiceLocale: v.locale),
+                              ),
                             ),
                           ),
-                          onChanged: (_) => n.setVoice(v),
-                        ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               ),

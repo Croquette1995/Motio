@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_providers.dart';
-import '../../settings/domain/cefr_level.dart';
 import '../data/tatoeba_service.dart';
 import '../data/wiktionary_provider.dart';
+
 import '../domain/tatoeba_sentence.dart';
 import 'vocabulary_controller.dart';
 

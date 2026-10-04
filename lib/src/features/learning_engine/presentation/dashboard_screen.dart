@@ -420,27 +420,6 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLevelChip(BuildContext context, String label, Color pastelBg) {
-    final b = context.bauhaus;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: pastelBg,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: b.slate, width: 1.0),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: b.slate,
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-
   Widget _buildMetricCard({
     required BuildContext context,
     required String title,

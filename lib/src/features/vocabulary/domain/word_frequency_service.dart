@@ -44,7 +44,7 @@ class WordFrequencyService {
     'dangerous': 4.5, 'safe': 4.9, 'direction': 4.8, 'discount': 4.5,
     'emergency': 4.7, 'guidebook': 4.5, 'habit': 4.6, 'lifestyle': 4.7,
     'neighborhood': 4.7, 'passenger': 4.8, 'passport': 4.6, 'routine': 4.7,
-    'schedule': 4.8, 'souvenir': 4.5, 'ticket': 4.8, 'tourism': 4.7,
+    'schedule': 4.8, 'souvenir': 4.5, 'tourism': 4.7,
     'vehicle': 4.8, 'attitude': 4.8, 'belief': 4.8, 'community': 5.0,
     'culture': 5.0, 'emotion': 4.8, 'freedom': 4.9, 'impression': 4.8,
     'knowledge': 5.0, 'opinion': 4.9, 'relation': 4.8, 'respect': 4.9,
