@@ -52,7 +52,7 @@ class _WiktionaryEnrichmentWidgetState
               ),
               const SizedBox(width: 8),
               Text(
-                'Enrichissement linguistique',
+                'Définitions et détails',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -124,7 +124,7 @@ class _WiktionaryEnrichmentWidgetState
                         Icon(Icons.hub, size: 16, color: b.slate),
                         const SizedBox(width: 6),
                         Text(
-                          'PONT LINGUISTIQUE (FRANÇAIS)',
+                          'LIEN AVEC LE FRANÇAIS',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,

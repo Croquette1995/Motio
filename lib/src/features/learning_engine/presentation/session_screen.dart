@@ -197,7 +197,7 @@ class SessionScreen extends ConsumerWidget {
                       onPressed: () => context.go('/'),
                       icon: const Icon(Icons.home, size: 20),
                       label: const Text(
-                        'RETOUR AU TABLEAU DE BORD',
+                        'RETOUR À L\'ACCUEIL',
                         style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5),
                       ),
                     ),
@@ -261,9 +261,9 @@ class SessionScreen extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Text(
                     switch (state.currentMode) {
-                      PracticeMode.canvas => 'CANVAS',
-                      PracticeMode.cloze => 'CLOZE',
-                      PracticeMode.matching => 'MATCHING',
+                      PracticeMode.canvas => 'ÉCRITURE',
+                      PracticeMode.cloze => 'PHRASES À TROUS',
+                      PracticeMode.matching => 'ASSOCIATION',
                     },
                     style: TextStyle(
                       fontSize: 11,

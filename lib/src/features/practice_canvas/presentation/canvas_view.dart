@@ -256,7 +256,7 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Analyse de l\'écriture manuscrite ML Kit...',
+                        'Analyse de l\'écriture en cours...',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -321,7 +321,7 @@ class _CanvasPracticeViewState extends ConsumerState<CanvasPracticeView> {
                             if (!state.isMatch! && state.candidates.length > 1) ...[
                               const SizedBox(height: 4),
                               Text(
-                                'Candidats ML Kit : [${state.candidates.take(3).join(', ')}]',
+                                'Suggestions : [${state.candidates.take(3).join(', ')}]',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontStyle: FontStyle.italic,

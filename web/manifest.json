@@ -1,11 +1,11 @@
 {
-    "name": "lexiflow",
-    "short_name": "lexiflow",
+    "name": "Motio",
+    "short_name": "Motio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Application d'apprentissage du vocabulaire anglais.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

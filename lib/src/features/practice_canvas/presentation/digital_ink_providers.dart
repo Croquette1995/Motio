@@ -100,7 +100,7 @@ class DigitalInkModelNotifier extends StateNotifier<ModelInitState> {
     } else {
       state = state.copyWith(
         status: ModelInitStatus.error,
-        errorMessage: 'Échec du téléchargement des modèles ML Kit.',
+        errorMessage: 'Échec du téléchargement des modèles de langue.',
       );
     }
   }

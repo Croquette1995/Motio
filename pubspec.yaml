@@ -1,5 +1,5 @@
 name: lexiflow
-description: "LexiFlow - Application d'apprentissage de vocabulaire anglais B1-B2 avec répétition espacée et canvas kinesthésique."
+description: "Motio - Application d'apprentissage de vocabulaire anglais (A1-B2) avec répétition espacée et écriture manuscrite."
 publish_to: 'none'
 version: 1.0.0+1
 

@@ -158,7 +158,7 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                         CircularProgressIndicator(color: b.slate),
                         const SizedBox(height: 12),
                         Text(
-                          'Interrogation de Tatoeba & Analyse lexicale en cours...',
+                          'Chargement des phrases Tatoeba...',
                           style: t.bodySmall?.copyWith(color: b.slate.withValues(alpha: 0.7)),
                         ),
                       ],
@@ -272,7 +272,7 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    'MOTS EXTRAITS & ANALYSÉS',
+                                    'MOTS DE LA PHRASE',
                                     style: t.labelSmall?.copyWith(
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: 1.2,
@@ -296,7 +296,7 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                                 const Center(
                                   child: Padding(
                                     padding: EdgeInsets.all(20.0),
-                                    child: Text('Tous les mots de cette phrase sont des mots grammaticaux vides.'),
+                                    child: Text('Aucun mot de vocabulaire extrait de cette phrase.'),
                                   ),
                                 ),
 
@@ -415,7 +415,7 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                 Row(
                   children: [
                     Text(
-                      'Score Zipf : ${candidate.frequencyScore.toStringAsFixed(1)}',
+                      'Fréquence : ${candidate.frequencyScore.toStringAsFixed(1)}',
                       style: TextStyle(
                         fontSize: 11,
                         color: b.slate.withValues(alpha: 0.6),
@@ -432,7 +432,7 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                           border: Border.all(color: b.pastelMint, width: 1),
                         ),
                         child: Text(
-                          'DÉJÀ EN BASE',
+                          'DÉJÀ AJOUTÉ',
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,

@@ -64,7 +64,7 @@ class CategoryScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             const Text(
-              'CATALOGUE DE VOCABULAIRE',
+              'VOCABULAIRE',
               style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5, fontSize: 16),
             ),
           ],
@@ -77,7 +77,7 @@ class CategoryScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.travel_explore),
-            tooltip: 'Explorer Tatoeba (Zéro Clé API)',
+            tooltip: 'Explorer Tatoeba',
             onPressed: () => context.push('/tatoeba'),
           ),
         ],

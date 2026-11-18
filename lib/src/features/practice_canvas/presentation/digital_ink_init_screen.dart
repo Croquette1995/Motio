@@ -80,7 +80,7 @@ class _DigitalInkInitScreenState extends ConsumerState<DigitalInkInitScreen> {
 
                   // Title
                   Text(
-                    'LexiFlow Canvas',
+                    'Motio',
                     style: t.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: b.slate,
@@ -90,7 +90,7 @@ class _DigitalInkInitScreenState extends ConsumerState<DigitalInkInitScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Reconnaissance Manuscrite ML Kit',
+                    'Reconnaissance d\'écriture manuscrite',
                     style: t.titleMedium?.copyWith(
                       color: b.pastelBlue,
                       fontWeight: FontWeight.w700,

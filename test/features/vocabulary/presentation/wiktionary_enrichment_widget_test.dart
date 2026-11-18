@@ -41,11 +41,11 @@ void main() {
     );
 
     // Should display tile title
-    expect(find.text('Enrichissement linguistique'), findsOneWidget);
+    expect(find.text('Définitions et détails'), findsOneWidget);
     expect(find.text('Définitions :'), findsNothing);
 
     // Tap to expand tile
-    await tester.tap(find.text('Enrichissement linguistique'));
+    await tester.tap(find.text('Définitions et détails'));
     await tester.pumpAndSettle();
 
     // Now expanded details should be visible
@@ -81,7 +81,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Enrichissement linguistique'));
+    await tester.tap(find.text('Définitions et détails'));
     await tester.pumpAndSettle();
 
     expect(

@@ -16,7 +16,13 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 2;
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'lexiflow');
+    return driftDatabase(
+      name: 'lexiflow',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    );
   }
 
   @override

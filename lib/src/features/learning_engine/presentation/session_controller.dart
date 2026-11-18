@@ -5,9 +5,9 @@ import '../../vocabulary/presentation/vocabulary_controller.dart';
 import '../domain/study_session.dart';
 
 enum PracticeMode {
-  canvas('Kinesthésique (Écriture)'),
-  cloze('Rappel en Contexte (Cloze)'),
-  matching('Association (Cartes)');
+  canvas('Écriture manuscrite'),
+  cloze('Phrases à trous'),
+  matching('Association');
 
   final String label;
   const PracticeMode(this.label);

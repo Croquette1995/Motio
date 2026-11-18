@@ -55,12 +55,12 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.travel_explore),
-            tooltip: 'Explorer Tatoeba (Zéro Clé API)',
+            tooltip: 'Explorer Tatoeba',
             onPressed: () => context.push('/tatoeba'),
           ),
           IconButton(
             icon: const Icon(Icons.list_alt),
-            tooltip: 'Catalogue global',
+            tooltip: 'Vocabulaire',
             onPressed: () => context.push('/vocabulary'),
           ),
         ],
@@ -155,7 +155,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                     Row(
                       children: [
                         Text(
-                          'DOMAINES D\'APPRENTISSAGE (${data.categories.length})',
+                          'DOMAINES (${data.categories.length})',
                           style: t.labelSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.2,
@@ -434,7 +434,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                         ),
                       ),
                       Text(
-                        '${cat.totalCount - cat.newCount} exploré(s)',
+                        '${cat.totalCount - cat.newCount} étudié(s)',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,

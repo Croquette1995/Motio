@@ -36,7 +36,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             const Text(
-              'LexiFlow',
+              'Motio',
               style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2),
             ),
           ],
@@ -44,7 +44,7 @@ class DashboardScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.travel_explore),
-            tooltip: 'Explorer Tatoeba (Zéro Clé API)',
+            tooltip: 'Explorer Tatoeba',
             onPressed: () => context.push('/tatoeba'),
           ),
           IconButton(
@@ -54,7 +54,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.list_alt),
-            tooltip: 'Catalogue du Vocabulaire',
+            tooltip: 'Vocabulaire',
             onPressed: () => context.push('/vocabulary'),
           ),
           IconButton(
@@ -106,7 +106,7 @@ class DashboardScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'VOTRE NIVEAU ACTIF',
+                            'NIVEAU ACTUEL',
                             style: t.labelSmall?.copyWith(
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.8,
@@ -298,7 +298,7 @@ class DashboardScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'DOMAINES & ÉVOLUTION',
+                              'DOMAINES & PROGRESSION',
                               style: t.labelSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.0,
@@ -334,7 +334,7 @@ class DashboardScreen extends ConsumerWidget {
 
                 // Choose practice mode before launch
                 Text(
-                  'MODALITÉ D\'EXERCICE',
+                  'EXERCICES',
                   style: t.labelSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
@@ -342,7 +342,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('Sélectionnez votre atelier', style: t.headlineSmall),
+                Text('Choisissez un mode d\'exercice', style: t.headlineSmall),
                 const SizedBox(height: 12),
 
                 Consumer(
@@ -411,9 +411,9 @@ class DashboardScreen extends ConsumerWidget {
                                         const SizedBox(height: 2),
                                         Text(
                                           switch (mode) {
-                                            PracticeMode.canvas => 'Tracé tactile/souris sur Canvas + auto-évaluation',
-                                            PracticeMode.cloze => 'Phrase à trou en contexte réel B1-B2',
-                                            PracticeMode.matching => 'Grille interactive de cartes anglais <-> français',
+                                            PracticeMode.canvas => 'Écrire le mot à la main et vérifier',
+                                            PracticeMode.cloze => 'Compléter une phrase avec le bon mot',
+                                            PracticeMode.matching => 'Associer chaque mot anglais à sa traduction',
                                           },
                                           style: TextStyle(
                                             fontSize: 12,
@@ -461,8 +461,8 @@ class DashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.play_arrow, size: 24),
                   label: Text(
                     dueCount > 0
-                        ? 'LANCER UNE SÉANCE ($dueCount À RÉVISER)'
-                        : 'LANCER UNE SÉANCE D\'APPRENTISSAGE',
+                        ? 'LANCER LA SÉANCE ($dueCount À RÉVISER)'
+                        : 'LANCER UNE SÉANCE',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,

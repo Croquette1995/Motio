@@ -21,8 +21,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('LexiFlow'), findsOneWidget);
-    expect(find.text('VOTRE NIVEAU ACTIF'), findsOneWidget);
+    expect(find.text('Motio'), findsOneWidget);
+    expect(find.text('NIVEAU ACTUEL'), findsOneWidget);
     expect(find.text('Niveau A1 · Débutant'), findsOneWidget);
 
     await testDb.close();
