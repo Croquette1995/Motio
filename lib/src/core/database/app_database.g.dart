@@ -2194,6 +2194,3185 @@ class GrammarRulesTableCompanion extends UpdateCompanion<GrammarRuleEntry> {
   }
 }
 
+class $LanguagesTableTable extends LanguagesTable
+    with TableInfo<$LanguagesTableTable, LanguageEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LanguagesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 2,
+      maxTextLength: 10,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _nameL10nJsonMeta = const VerificationMeta(
+    'nameL10nJson',
+  );
+  @override
+  late final GeneratedColumn<String> nameL10nJson = GeneratedColumn<String>(
+    'name_l10n_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isNonLatinMeta = const VerificationMeta(
+    'isNonLatin',
+  );
+  @override
+  late final GeneratedColumn<bool> isNonLatin = GeneratedColumn<bool>(
+    'is_non_latin',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_non_latin" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _grammarProfileJsonMeta =
+      const VerificationMeta('grammarProfileJson');
+  @override
+  late final GeneratedColumn<String> grammarProfileJson =
+      GeneratedColumn<String>(
+        'grammar_profile_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    code,
+    nameL10nJson,
+    isNonLatin,
+    grammarProfileJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'languages_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LanguageEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name_l10n_json')) {
+      context.handle(
+        _nameL10nJsonMeta,
+        nameL10nJson.isAcceptableOrUnknown(
+          data['name_l10n_json']!,
+          _nameL10nJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_nameL10nJsonMeta);
+    }
+    if (data.containsKey('is_non_latin')) {
+      context.handle(
+        _isNonLatinMeta,
+        isNonLatin.isAcceptableOrUnknown(
+          data['is_non_latin']!,
+          _isNonLatinMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammar_profile_json')) {
+      context.handle(
+        _grammarProfileJsonMeta,
+        grammarProfileJson.isAcceptableOrUnknown(
+          data['grammar_profile_json']!,
+          _grammarProfileJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_grammarProfileJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LanguageEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LanguageEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      nameL10nJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_l10n_json'],
+      )!,
+      isNonLatin: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_non_latin'],
+      )!,
+      grammarProfileJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammar_profile_json'],
+      )!,
+    );
+  }
+
+  @override
+  $LanguagesTableTable createAlias(String alias) {
+    return $LanguagesTableTable(attachedDatabase, alias);
+  }
+}
+
+class LanguageEntry extends DataClass implements Insertable<LanguageEntry> {
+  final int id;
+  final String code;
+  final String nameL10nJson;
+  final bool isNonLatin;
+  final String grammarProfileJson;
+  const LanguageEntry({
+    required this.id,
+    required this.code,
+    required this.nameL10nJson,
+    required this.isNonLatin,
+    required this.grammarProfileJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['code'] = Variable<String>(code);
+    map['name_l10n_json'] = Variable<String>(nameL10nJson);
+    map['is_non_latin'] = Variable<bool>(isNonLatin);
+    map['grammar_profile_json'] = Variable<String>(grammarProfileJson);
+    return map;
+  }
+
+  LanguagesTableCompanion toCompanion(bool nullToAbsent) {
+    return LanguagesTableCompanion(
+      id: Value(id),
+      code: Value(code),
+      nameL10nJson: Value(nameL10nJson),
+      isNonLatin: Value(isNonLatin),
+      grammarProfileJson: Value(grammarProfileJson),
+    );
+  }
+
+  factory LanguageEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LanguageEntry(
+      id: serializer.fromJson<int>(json['id']),
+      code: serializer.fromJson<String>(json['code']),
+      nameL10nJson: serializer.fromJson<String>(json['nameL10nJson']),
+      isNonLatin: serializer.fromJson<bool>(json['isNonLatin']),
+      grammarProfileJson: serializer.fromJson<String>(
+        json['grammarProfileJson'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'code': serializer.toJson<String>(code),
+      'nameL10nJson': serializer.toJson<String>(nameL10nJson),
+      'isNonLatin': serializer.toJson<bool>(isNonLatin),
+      'grammarProfileJson': serializer.toJson<String>(grammarProfileJson),
+    };
+  }
+
+  LanguageEntry copyWith({
+    int? id,
+    String? code,
+    String? nameL10nJson,
+    bool? isNonLatin,
+    String? grammarProfileJson,
+  }) => LanguageEntry(
+    id: id ?? this.id,
+    code: code ?? this.code,
+    nameL10nJson: nameL10nJson ?? this.nameL10nJson,
+    isNonLatin: isNonLatin ?? this.isNonLatin,
+    grammarProfileJson: grammarProfileJson ?? this.grammarProfileJson,
+  );
+  LanguageEntry copyWithCompanion(LanguagesTableCompanion data) {
+    return LanguageEntry(
+      id: data.id.present ? data.id.value : this.id,
+      code: data.code.present ? data.code.value : this.code,
+      nameL10nJson: data.nameL10nJson.present
+          ? data.nameL10nJson.value
+          : this.nameL10nJson,
+      isNonLatin: data.isNonLatin.present
+          ? data.isNonLatin.value
+          : this.isNonLatin,
+      grammarProfileJson: data.grammarProfileJson.present
+          ? data.grammarProfileJson.value
+          : this.grammarProfileJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LanguageEntry(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('nameL10nJson: $nameL10nJson, ')
+          ..write('isNonLatin: $isNonLatin, ')
+          ..write('grammarProfileJson: $grammarProfileJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, code, nameL10nJson, isNonLatin, grammarProfileJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LanguageEntry &&
+          other.id == this.id &&
+          other.code == this.code &&
+          other.nameL10nJson == this.nameL10nJson &&
+          other.isNonLatin == this.isNonLatin &&
+          other.grammarProfileJson == this.grammarProfileJson);
+}
+
+class LanguagesTableCompanion extends UpdateCompanion<LanguageEntry> {
+  final Value<int> id;
+  final Value<String> code;
+  final Value<String> nameL10nJson;
+  final Value<bool> isNonLatin;
+  final Value<String> grammarProfileJson;
+  const LanguagesTableCompanion({
+    this.id = const Value.absent(),
+    this.code = const Value.absent(),
+    this.nameL10nJson = const Value.absent(),
+    this.isNonLatin = const Value.absent(),
+    this.grammarProfileJson = const Value.absent(),
+  });
+  LanguagesTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String code,
+    required String nameL10nJson,
+    this.isNonLatin = const Value.absent(),
+    required String grammarProfileJson,
+  }) : code = Value(code),
+       nameL10nJson = Value(nameL10nJson),
+       grammarProfileJson = Value(grammarProfileJson);
+  static Insertable<LanguageEntry> custom({
+    Expression<int>? id,
+    Expression<String>? code,
+    Expression<String>? nameL10nJson,
+    Expression<bool>? isNonLatin,
+    Expression<String>? grammarProfileJson,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (code != null) 'code': code,
+      if (nameL10nJson != null) 'name_l10n_json': nameL10nJson,
+      if (isNonLatin != null) 'is_non_latin': isNonLatin,
+      if (grammarProfileJson != null)
+        'grammar_profile_json': grammarProfileJson,
+    });
+  }
+
+  LanguagesTableCompanion copyWith({
+    Value<int>? id,
+    Value<String>? code,
+    Value<String>? nameL10nJson,
+    Value<bool>? isNonLatin,
+    Value<String>? grammarProfileJson,
+  }) {
+    return LanguagesTableCompanion(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      nameL10nJson: nameL10nJson ?? this.nameL10nJson,
+      isNonLatin: isNonLatin ?? this.isNonLatin,
+      grammarProfileJson: grammarProfileJson ?? this.grammarProfileJson,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (nameL10nJson.present) {
+      map['name_l10n_json'] = Variable<String>(nameL10nJson.value);
+    }
+    if (isNonLatin.present) {
+      map['is_non_latin'] = Variable<bool>(isNonLatin.value);
+    }
+    if (grammarProfileJson.present) {
+      map['grammar_profile_json'] = Variable<String>(grammarProfileJson.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LanguagesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('code: $code, ')
+          ..write('nameL10nJson: $nameL10nJson, ')
+          ..write('isNonLatin: $isNonLatin, ')
+          ..write('grammarProfileJson: $grammarProfileJson')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ConjugationsTableTable extends ConjugationsTable
+    with TableInfo<$ConjugationsTableTable, ConjugationEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConjugationsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _langIdMeta = const VerificationMeta('langId');
+  @override
+  late final GeneratedColumn<int> langId = GeneratedColumn<int>(
+    'lang_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lemmaMeta = const VerificationMeta('lemma');
+  @override
+  late final GeneratedColumn<String> lemma = GeneratedColumn<String>(
+    'lemma',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 150,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _verbGroupMeta = const VerificationMeta(
+    'verbGroup',
+  );
+  @override
+  late final GeneratedColumn<String> verbGroup = GeneratedColumn<String>(
+    'verb_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _auxiliariesJsonMeta = const VerificationMeta(
+    'auxiliariesJson',
+  );
+  @override
+  late final GeneratedColumn<String> auxiliariesJson = GeneratedColumn<String>(
+    'auxiliaries_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _isPronominalMeta = const VerificationMeta(
+    'isPronominal',
+  );
+  @override
+  late final GeneratedColumn<bool> isPronominal = GeneratedColumn<bool>(
+    'is_pronominal',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_pronominal" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reflexiveCaseMeta = const VerificationMeta(
+    'reflexiveCase',
+  );
+  @override
+  late final GeneratedColumn<String> reflexiveCase = GeneratedColumn<String>(
+    'reflexive_case',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isIrregularMeta = const VerificationMeta(
+    'isIrregular',
+  );
+  @override
+  late final GeneratedColumn<bool> isIrregular = GeneratedColumn<bool>(
+    'is_irregular',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_irregular" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isDefectiveMeta = const VerificationMeta(
+    'isDefective',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefective = GeneratedColumn<bool>(
+    'is_defective',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_defective" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _generalNoteJsonMeta = const VerificationMeta(
+    'generalNoteJson',
+  );
+  @override
+  late final GeneratedColumn<String> generalNoteJson = GeneratedColumn<String>(
+    'general_note_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _formsJsonMeta = const VerificationMeta(
+    'formsJson',
+  );
+  @override
+  late final GeneratedColumn<String> formsJson = GeneratedColumn<String>(
+    'forms_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('manual'),
+  );
+  static const VerificationMeta _isPublishedMeta = const VerificationMeta(
+    'isPublished',
+  );
+  @override
+  late final GeneratedColumn<bool> isPublished = GeneratedColumn<bool>(
+    'is_published',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_published" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    langId,
+    lemma,
+    verbGroup,
+    auxiliariesJson,
+    isPronominal,
+    reflexiveCase,
+    isIrregular,
+    isDefective,
+    generalNoteJson,
+    formsJson,
+    source,
+    isPublished,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conjugations_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ConjugationEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('lang_id')) {
+      context.handle(
+        _langIdMeta,
+        langId.isAcceptableOrUnknown(data['lang_id']!, _langIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_langIdMeta);
+    }
+    if (data.containsKey('lemma')) {
+      context.handle(
+        _lemmaMeta,
+        lemma.isAcceptableOrUnknown(data['lemma']!, _lemmaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lemmaMeta);
+    }
+    if (data.containsKey('verb_group')) {
+      context.handle(
+        _verbGroupMeta,
+        verbGroup.isAcceptableOrUnknown(data['verb_group']!, _verbGroupMeta),
+      );
+    }
+    if (data.containsKey('auxiliaries_json')) {
+      context.handle(
+        _auxiliariesJsonMeta,
+        auxiliariesJson.isAcceptableOrUnknown(
+          data['auxiliaries_json']!,
+          _auxiliariesJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_pronominal')) {
+      context.handle(
+        _isPronominalMeta,
+        isPronominal.isAcceptableOrUnknown(
+          data['is_pronominal']!,
+          _isPronominalMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reflexive_case')) {
+      context.handle(
+        _reflexiveCaseMeta,
+        reflexiveCase.isAcceptableOrUnknown(
+          data['reflexive_case']!,
+          _reflexiveCaseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_irregular')) {
+      context.handle(
+        _isIrregularMeta,
+        isIrregular.isAcceptableOrUnknown(
+          data['is_irregular']!,
+          _isIrregularMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_defective')) {
+      context.handle(
+        _isDefectiveMeta,
+        isDefective.isAcceptableOrUnknown(
+          data['is_defective']!,
+          _isDefectiveMeta,
+        ),
+      );
+    }
+    if (data.containsKey('general_note_json')) {
+      context.handle(
+        _generalNoteJsonMeta,
+        generalNoteJson.isAcceptableOrUnknown(
+          data['general_note_json']!,
+          _generalNoteJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('forms_json')) {
+      context.handle(
+        _formsJsonMeta,
+        formsJson.isAcceptableOrUnknown(data['forms_json']!, _formsJsonMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('is_published')) {
+      context.handle(
+        _isPublishedMeta,
+        isPublished.isAcceptableOrUnknown(
+          data['is_published']!,
+          _isPublishedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {langId, lemma},
+  ];
+  @override
+  ConjugationEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConjugationEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      langId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lang_id'],
+      )!,
+      lemma: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lemma'],
+      )!,
+      verbGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}verb_group'],
+      ),
+      auxiliariesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}auxiliaries_json'],
+      )!,
+      isPronominal: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_pronominal'],
+      )!,
+      reflexiveCase: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reflexive_case'],
+      ),
+      isIrregular: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_irregular'],
+      )!,
+      isDefective: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_defective'],
+      )!,
+      generalNoteJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}general_note_json'],
+      )!,
+      formsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}forms_json'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      isPublished: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_published'],
+      )!,
+    );
+  }
+
+  @override
+  $ConjugationsTableTable createAlias(String alias) {
+    return $ConjugationsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ConjugationEntry extends DataClass
+    implements Insertable<ConjugationEntry> {
+  final int id;
+  final int langId;
+  final String lemma;
+  final String? verbGroup;
+  final String auxiliariesJson;
+  final bool isPronominal;
+  final String? reflexiveCase;
+  final bool isIrregular;
+  final bool isDefective;
+  final String generalNoteJson;
+  final String formsJson;
+  final String source;
+  final bool isPublished;
+  const ConjugationEntry({
+    required this.id,
+    required this.langId,
+    required this.lemma,
+    this.verbGroup,
+    required this.auxiliariesJson,
+    required this.isPronominal,
+    this.reflexiveCase,
+    required this.isIrregular,
+    required this.isDefective,
+    required this.generalNoteJson,
+    required this.formsJson,
+    required this.source,
+    required this.isPublished,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['lang_id'] = Variable<int>(langId);
+    map['lemma'] = Variable<String>(lemma);
+    if (!nullToAbsent || verbGroup != null) {
+      map['verb_group'] = Variable<String>(verbGroup);
+    }
+    map['auxiliaries_json'] = Variable<String>(auxiliariesJson);
+    map['is_pronominal'] = Variable<bool>(isPronominal);
+    if (!nullToAbsent || reflexiveCase != null) {
+      map['reflexive_case'] = Variable<String>(reflexiveCase);
+    }
+    map['is_irregular'] = Variable<bool>(isIrregular);
+    map['is_defective'] = Variable<bool>(isDefective);
+    map['general_note_json'] = Variable<String>(generalNoteJson);
+    map['forms_json'] = Variable<String>(formsJson);
+    map['source'] = Variable<String>(source);
+    map['is_published'] = Variable<bool>(isPublished);
+    return map;
+  }
+
+  ConjugationsTableCompanion toCompanion(bool nullToAbsent) {
+    return ConjugationsTableCompanion(
+      id: Value(id),
+      langId: Value(langId),
+      lemma: Value(lemma),
+      verbGroup: verbGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verbGroup),
+      auxiliariesJson: Value(auxiliariesJson),
+      isPronominal: Value(isPronominal),
+      reflexiveCase: reflexiveCase == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reflexiveCase),
+      isIrregular: Value(isIrregular),
+      isDefective: Value(isDefective),
+      generalNoteJson: Value(generalNoteJson),
+      formsJson: Value(formsJson),
+      source: Value(source),
+      isPublished: Value(isPublished),
+    );
+  }
+
+  factory ConjugationEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConjugationEntry(
+      id: serializer.fromJson<int>(json['id']),
+      langId: serializer.fromJson<int>(json['langId']),
+      lemma: serializer.fromJson<String>(json['lemma']),
+      verbGroup: serializer.fromJson<String?>(json['verbGroup']),
+      auxiliariesJson: serializer.fromJson<String>(json['auxiliariesJson']),
+      isPronominal: serializer.fromJson<bool>(json['isPronominal']),
+      reflexiveCase: serializer.fromJson<String?>(json['reflexiveCase']),
+      isIrregular: serializer.fromJson<bool>(json['isIrregular']),
+      isDefective: serializer.fromJson<bool>(json['isDefective']),
+      generalNoteJson: serializer.fromJson<String>(json['generalNoteJson']),
+      formsJson: serializer.fromJson<String>(json['formsJson']),
+      source: serializer.fromJson<String>(json['source']),
+      isPublished: serializer.fromJson<bool>(json['isPublished']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'langId': serializer.toJson<int>(langId),
+      'lemma': serializer.toJson<String>(lemma),
+      'verbGroup': serializer.toJson<String?>(verbGroup),
+      'auxiliariesJson': serializer.toJson<String>(auxiliariesJson),
+      'isPronominal': serializer.toJson<bool>(isPronominal),
+      'reflexiveCase': serializer.toJson<String?>(reflexiveCase),
+      'isIrregular': serializer.toJson<bool>(isIrregular),
+      'isDefective': serializer.toJson<bool>(isDefective),
+      'generalNoteJson': serializer.toJson<String>(generalNoteJson),
+      'formsJson': serializer.toJson<String>(formsJson),
+      'source': serializer.toJson<String>(source),
+      'isPublished': serializer.toJson<bool>(isPublished),
+    };
+  }
+
+  ConjugationEntry copyWith({
+    int? id,
+    int? langId,
+    String? lemma,
+    Value<String?> verbGroup = const Value.absent(),
+    String? auxiliariesJson,
+    bool? isPronominal,
+    Value<String?> reflexiveCase = const Value.absent(),
+    bool? isIrregular,
+    bool? isDefective,
+    String? generalNoteJson,
+    String? formsJson,
+    String? source,
+    bool? isPublished,
+  }) => ConjugationEntry(
+    id: id ?? this.id,
+    langId: langId ?? this.langId,
+    lemma: lemma ?? this.lemma,
+    verbGroup: verbGroup.present ? verbGroup.value : this.verbGroup,
+    auxiliariesJson: auxiliariesJson ?? this.auxiliariesJson,
+    isPronominal: isPronominal ?? this.isPronominal,
+    reflexiveCase: reflexiveCase.present
+        ? reflexiveCase.value
+        : this.reflexiveCase,
+    isIrregular: isIrregular ?? this.isIrregular,
+    isDefective: isDefective ?? this.isDefective,
+    generalNoteJson: generalNoteJson ?? this.generalNoteJson,
+    formsJson: formsJson ?? this.formsJson,
+    source: source ?? this.source,
+    isPublished: isPublished ?? this.isPublished,
+  );
+  ConjugationEntry copyWithCompanion(ConjugationsTableCompanion data) {
+    return ConjugationEntry(
+      id: data.id.present ? data.id.value : this.id,
+      langId: data.langId.present ? data.langId.value : this.langId,
+      lemma: data.lemma.present ? data.lemma.value : this.lemma,
+      verbGroup: data.verbGroup.present ? data.verbGroup.value : this.verbGroup,
+      auxiliariesJson: data.auxiliariesJson.present
+          ? data.auxiliariesJson.value
+          : this.auxiliariesJson,
+      isPronominal: data.isPronominal.present
+          ? data.isPronominal.value
+          : this.isPronominal,
+      reflexiveCase: data.reflexiveCase.present
+          ? data.reflexiveCase.value
+          : this.reflexiveCase,
+      isIrregular: data.isIrregular.present
+          ? data.isIrregular.value
+          : this.isIrregular,
+      isDefective: data.isDefective.present
+          ? data.isDefective.value
+          : this.isDefective,
+      generalNoteJson: data.generalNoteJson.present
+          ? data.generalNoteJson.value
+          : this.generalNoteJson,
+      formsJson: data.formsJson.present ? data.formsJson.value : this.formsJson,
+      source: data.source.present ? data.source.value : this.source,
+      isPublished: data.isPublished.present
+          ? data.isPublished.value
+          : this.isPublished,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConjugationEntry(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('lemma: $lemma, ')
+          ..write('verbGroup: $verbGroup, ')
+          ..write('auxiliariesJson: $auxiliariesJson, ')
+          ..write('isPronominal: $isPronominal, ')
+          ..write('reflexiveCase: $reflexiveCase, ')
+          ..write('isIrregular: $isIrregular, ')
+          ..write('isDefective: $isDefective, ')
+          ..write('generalNoteJson: $generalNoteJson, ')
+          ..write('formsJson: $formsJson, ')
+          ..write('source: $source, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    langId,
+    lemma,
+    verbGroup,
+    auxiliariesJson,
+    isPronominal,
+    reflexiveCase,
+    isIrregular,
+    isDefective,
+    generalNoteJson,
+    formsJson,
+    source,
+    isPublished,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConjugationEntry &&
+          other.id == this.id &&
+          other.langId == this.langId &&
+          other.lemma == this.lemma &&
+          other.verbGroup == this.verbGroup &&
+          other.auxiliariesJson == this.auxiliariesJson &&
+          other.isPronominal == this.isPronominal &&
+          other.reflexiveCase == this.reflexiveCase &&
+          other.isIrregular == this.isIrregular &&
+          other.isDefective == this.isDefective &&
+          other.generalNoteJson == this.generalNoteJson &&
+          other.formsJson == this.formsJson &&
+          other.source == this.source &&
+          other.isPublished == this.isPublished);
+}
+
+class ConjugationsTableCompanion extends UpdateCompanion<ConjugationEntry> {
+  final Value<int> id;
+  final Value<int> langId;
+  final Value<String> lemma;
+  final Value<String?> verbGroup;
+  final Value<String> auxiliariesJson;
+  final Value<bool> isPronominal;
+  final Value<String?> reflexiveCase;
+  final Value<bool> isIrregular;
+  final Value<bool> isDefective;
+  final Value<String> generalNoteJson;
+  final Value<String> formsJson;
+  final Value<String> source;
+  final Value<bool> isPublished;
+  const ConjugationsTableCompanion({
+    this.id = const Value.absent(),
+    this.langId = const Value.absent(),
+    this.lemma = const Value.absent(),
+    this.verbGroup = const Value.absent(),
+    this.auxiliariesJson = const Value.absent(),
+    this.isPronominal = const Value.absent(),
+    this.reflexiveCase = const Value.absent(),
+    this.isIrregular = const Value.absent(),
+    this.isDefective = const Value.absent(),
+    this.generalNoteJson = const Value.absent(),
+    this.formsJson = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  });
+  ConjugationsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int langId,
+    required String lemma,
+    this.verbGroup = const Value.absent(),
+    this.auxiliariesJson = const Value.absent(),
+    this.isPronominal = const Value.absent(),
+    this.reflexiveCase = const Value.absent(),
+    this.isIrregular = const Value.absent(),
+    this.isDefective = const Value.absent(),
+    this.generalNoteJson = const Value.absent(),
+    this.formsJson = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  }) : langId = Value(langId),
+       lemma = Value(lemma);
+  static Insertable<ConjugationEntry> custom({
+    Expression<int>? id,
+    Expression<int>? langId,
+    Expression<String>? lemma,
+    Expression<String>? verbGroup,
+    Expression<String>? auxiliariesJson,
+    Expression<bool>? isPronominal,
+    Expression<String>? reflexiveCase,
+    Expression<bool>? isIrregular,
+    Expression<bool>? isDefective,
+    Expression<String>? generalNoteJson,
+    Expression<String>? formsJson,
+    Expression<String>? source,
+    Expression<bool>? isPublished,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (langId != null) 'lang_id': langId,
+      if (lemma != null) 'lemma': lemma,
+      if (verbGroup != null) 'verb_group': verbGroup,
+      if (auxiliariesJson != null) 'auxiliaries_json': auxiliariesJson,
+      if (isPronominal != null) 'is_pronominal': isPronominal,
+      if (reflexiveCase != null) 'reflexive_case': reflexiveCase,
+      if (isIrregular != null) 'is_irregular': isIrregular,
+      if (isDefective != null) 'is_defective': isDefective,
+      if (generalNoteJson != null) 'general_note_json': generalNoteJson,
+      if (formsJson != null) 'forms_json': formsJson,
+      if (source != null) 'source': source,
+      if (isPublished != null) 'is_published': isPublished,
+    });
+  }
+
+  ConjugationsTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? langId,
+    Value<String>? lemma,
+    Value<String?>? verbGroup,
+    Value<String>? auxiliariesJson,
+    Value<bool>? isPronominal,
+    Value<String?>? reflexiveCase,
+    Value<bool>? isIrregular,
+    Value<bool>? isDefective,
+    Value<String>? generalNoteJson,
+    Value<String>? formsJson,
+    Value<String>? source,
+    Value<bool>? isPublished,
+  }) {
+    return ConjugationsTableCompanion(
+      id: id ?? this.id,
+      langId: langId ?? this.langId,
+      lemma: lemma ?? this.lemma,
+      verbGroup: verbGroup ?? this.verbGroup,
+      auxiliariesJson: auxiliariesJson ?? this.auxiliariesJson,
+      isPronominal: isPronominal ?? this.isPronominal,
+      reflexiveCase: reflexiveCase ?? this.reflexiveCase,
+      isIrregular: isIrregular ?? this.isIrregular,
+      isDefective: isDefective ?? this.isDefective,
+      generalNoteJson: generalNoteJson ?? this.generalNoteJson,
+      formsJson: formsJson ?? this.formsJson,
+      source: source ?? this.source,
+      isPublished: isPublished ?? this.isPublished,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (langId.present) {
+      map['lang_id'] = Variable<int>(langId.value);
+    }
+    if (lemma.present) {
+      map['lemma'] = Variable<String>(lemma.value);
+    }
+    if (verbGroup.present) {
+      map['verb_group'] = Variable<String>(verbGroup.value);
+    }
+    if (auxiliariesJson.present) {
+      map['auxiliaries_json'] = Variable<String>(auxiliariesJson.value);
+    }
+    if (isPronominal.present) {
+      map['is_pronominal'] = Variable<bool>(isPronominal.value);
+    }
+    if (reflexiveCase.present) {
+      map['reflexive_case'] = Variable<String>(reflexiveCase.value);
+    }
+    if (isIrregular.present) {
+      map['is_irregular'] = Variable<bool>(isIrregular.value);
+    }
+    if (isDefective.present) {
+      map['is_defective'] = Variable<bool>(isDefective.value);
+    }
+    if (generalNoteJson.present) {
+      map['general_note_json'] = Variable<String>(generalNoteJson.value);
+    }
+    if (formsJson.present) {
+      map['forms_json'] = Variable<String>(formsJson.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (isPublished.present) {
+      map['is_published'] = Variable<bool>(isPublished.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConjugationsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('lemma: $lemma, ')
+          ..write('verbGroup: $verbGroup, ')
+          ..write('auxiliariesJson: $auxiliariesJson, ')
+          ..write('isPronominal: $isPronominal, ')
+          ..write('reflexiveCase: $reflexiveCase, ')
+          ..write('isIrregular: $isIrregular, ')
+          ..write('isDefective: $isDefective, ')
+          ..write('generalNoteJson: $generalNoteJson, ')
+          ..write('formsJson: $formsJson, ')
+          ..write('source: $source, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DeclensionsTableTable extends DeclensionsTable
+    with TableInfo<$DeclensionsTableTable, DeclensionEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeclensionsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _langIdMeta = const VerificationMeta('langId');
+  @override
+  late final GeneratedColumn<int> langId = GeneratedColumn<int>(
+    'lang_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lemmaMeta = const VerificationMeta('lemma');
+  @override
+  late final GeneratedColumn<String> lemma = GeneratedColumn<String>(
+    'lemma',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 150,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _posMeta = const VerificationMeta('pos');
+  @override
+  late final GeneratedColumn<String> pos = GeneratedColumn<String>(
+    'pos',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 10,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _genderMeta = const VerificationMeta('gender');
+  @override
+  late final GeneratedColumn<String> gender = GeneratedColumn<String>(
+    'gender',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _declensionClassMeta = const VerificationMeta(
+    'declensionClass',
+  );
+  @override
+  late final GeneratedColumn<String> declensionClass = GeneratedColumn<String>(
+    'declension_class',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isIrregularMeta = const VerificationMeta(
+    'isIrregular',
+  );
+  @override
+  late final GeneratedColumn<bool> isIrregular = GeneratedColumn<bool>(
+    'is_irregular',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_irregular" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isInvariableMeta = const VerificationMeta(
+    'isInvariable',
+  );
+  @override
+  late final GeneratedColumn<bool> isInvariable = GeneratedColumn<bool>(
+    'is_invariable',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_invariable" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _generalNoteJsonMeta = const VerificationMeta(
+    'generalNoteJson',
+  );
+  @override
+  late final GeneratedColumn<String> generalNoteJson = GeneratedColumn<String>(
+    'general_note_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _formsJsonMeta = const VerificationMeta(
+    'formsJson',
+  );
+  @override
+  late final GeneratedColumn<String> formsJson = GeneratedColumn<String>(
+    'forms_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('manual'),
+  );
+  static const VerificationMeta _isPublishedMeta = const VerificationMeta(
+    'isPublished',
+  );
+  @override
+  late final GeneratedColumn<bool> isPublished = GeneratedColumn<bool>(
+    'is_published',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_published" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    langId,
+    lemma,
+    pos,
+    gender,
+    declensionClass,
+    isIrregular,
+    isInvariable,
+    generalNoteJson,
+    formsJson,
+    source,
+    isPublished,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'declensions_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DeclensionEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('lang_id')) {
+      context.handle(
+        _langIdMeta,
+        langId.isAcceptableOrUnknown(data['lang_id']!, _langIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_langIdMeta);
+    }
+    if (data.containsKey('lemma')) {
+      context.handle(
+        _lemmaMeta,
+        lemma.isAcceptableOrUnknown(data['lemma']!, _lemmaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lemmaMeta);
+    }
+    if (data.containsKey('pos')) {
+      context.handle(
+        _posMeta,
+        pos.isAcceptableOrUnknown(data['pos']!, _posMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_posMeta);
+    }
+    if (data.containsKey('gender')) {
+      context.handle(
+        _genderMeta,
+        gender.isAcceptableOrUnknown(data['gender']!, _genderMeta),
+      );
+    }
+    if (data.containsKey('declension_class')) {
+      context.handle(
+        _declensionClassMeta,
+        declensionClass.isAcceptableOrUnknown(
+          data['declension_class']!,
+          _declensionClassMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_irregular')) {
+      context.handle(
+        _isIrregularMeta,
+        isIrregular.isAcceptableOrUnknown(
+          data['is_irregular']!,
+          _isIrregularMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_invariable')) {
+      context.handle(
+        _isInvariableMeta,
+        isInvariable.isAcceptableOrUnknown(
+          data['is_invariable']!,
+          _isInvariableMeta,
+        ),
+      );
+    }
+    if (data.containsKey('general_note_json')) {
+      context.handle(
+        _generalNoteJsonMeta,
+        generalNoteJson.isAcceptableOrUnknown(
+          data['general_note_json']!,
+          _generalNoteJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('forms_json')) {
+      context.handle(
+        _formsJsonMeta,
+        formsJson.isAcceptableOrUnknown(data['forms_json']!, _formsJsonMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('is_published')) {
+      context.handle(
+        _isPublishedMeta,
+        isPublished.isAcceptableOrUnknown(
+          data['is_published']!,
+          _isPublishedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {langId, lemma, pos},
+  ];
+  @override
+  DeclensionEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeclensionEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      langId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lang_id'],
+      )!,
+      lemma: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lemma'],
+      )!,
+      pos: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pos'],
+      )!,
+      gender: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gender'],
+      ),
+      declensionClass: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}declension_class'],
+      ),
+      isIrregular: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_irregular'],
+      )!,
+      isInvariable: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_invariable'],
+      )!,
+      generalNoteJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}general_note_json'],
+      )!,
+      formsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}forms_json'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      isPublished: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_published'],
+      )!,
+    );
+  }
+
+  @override
+  $DeclensionsTableTable createAlias(String alias) {
+    return $DeclensionsTableTable(attachedDatabase, alias);
+  }
+}
+
+class DeclensionEntry extends DataClass implements Insertable<DeclensionEntry> {
+  final int id;
+  final int langId;
+  final String lemma;
+  final String pos;
+  final String? gender;
+  final String? declensionClass;
+  final bool isIrregular;
+  final bool isInvariable;
+  final String generalNoteJson;
+  final String formsJson;
+  final String source;
+  final bool isPublished;
+  const DeclensionEntry({
+    required this.id,
+    required this.langId,
+    required this.lemma,
+    required this.pos,
+    this.gender,
+    this.declensionClass,
+    required this.isIrregular,
+    required this.isInvariable,
+    required this.generalNoteJson,
+    required this.formsJson,
+    required this.source,
+    required this.isPublished,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['lang_id'] = Variable<int>(langId);
+    map['lemma'] = Variable<String>(lemma);
+    map['pos'] = Variable<String>(pos);
+    if (!nullToAbsent || gender != null) {
+      map['gender'] = Variable<String>(gender);
+    }
+    if (!nullToAbsent || declensionClass != null) {
+      map['declension_class'] = Variable<String>(declensionClass);
+    }
+    map['is_irregular'] = Variable<bool>(isIrregular);
+    map['is_invariable'] = Variable<bool>(isInvariable);
+    map['general_note_json'] = Variable<String>(generalNoteJson);
+    map['forms_json'] = Variable<String>(formsJson);
+    map['source'] = Variable<String>(source);
+    map['is_published'] = Variable<bool>(isPublished);
+    return map;
+  }
+
+  DeclensionsTableCompanion toCompanion(bool nullToAbsent) {
+    return DeclensionsTableCompanion(
+      id: Value(id),
+      langId: Value(langId),
+      lemma: Value(lemma),
+      pos: Value(pos),
+      gender: gender == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gender),
+      declensionClass: declensionClass == null && nullToAbsent
+          ? const Value.absent()
+          : Value(declensionClass),
+      isIrregular: Value(isIrregular),
+      isInvariable: Value(isInvariable),
+      generalNoteJson: Value(generalNoteJson),
+      formsJson: Value(formsJson),
+      source: Value(source),
+      isPublished: Value(isPublished),
+    );
+  }
+
+  factory DeclensionEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeclensionEntry(
+      id: serializer.fromJson<int>(json['id']),
+      langId: serializer.fromJson<int>(json['langId']),
+      lemma: serializer.fromJson<String>(json['lemma']),
+      pos: serializer.fromJson<String>(json['pos']),
+      gender: serializer.fromJson<String?>(json['gender']),
+      declensionClass: serializer.fromJson<String?>(json['declensionClass']),
+      isIrregular: serializer.fromJson<bool>(json['isIrregular']),
+      isInvariable: serializer.fromJson<bool>(json['isInvariable']),
+      generalNoteJson: serializer.fromJson<String>(json['generalNoteJson']),
+      formsJson: serializer.fromJson<String>(json['formsJson']),
+      source: serializer.fromJson<String>(json['source']),
+      isPublished: serializer.fromJson<bool>(json['isPublished']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'langId': serializer.toJson<int>(langId),
+      'lemma': serializer.toJson<String>(lemma),
+      'pos': serializer.toJson<String>(pos),
+      'gender': serializer.toJson<String?>(gender),
+      'declensionClass': serializer.toJson<String?>(declensionClass),
+      'isIrregular': serializer.toJson<bool>(isIrregular),
+      'isInvariable': serializer.toJson<bool>(isInvariable),
+      'generalNoteJson': serializer.toJson<String>(generalNoteJson),
+      'formsJson': serializer.toJson<String>(formsJson),
+      'source': serializer.toJson<String>(source),
+      'isPublished': serializer.toJson<bool>(isPublished),
+    };
+  }
+
+  DeclensionEntry copyWith({
+    int? id,
+    int? langId,
+    String? lemma,
+    String? pos,
+    Value<String?> gender = const Value.absent(),
+    Value<String?> declensionClass = const Value.absent(),
+    bool? isIrregular,
+    bool? isInvariable,
+    String? generalNoteJson,
+    String? formsJson,
+    String? source,
+    bool? isPublished,
+  }) => DeclensionEntry(
+    id: id ?? this.id,
+    langId: langId ?? this.langId,
+    lemma: lemma ?? this.lemma,
+    pos: pos ?? this.pos,
+    gender: gender.present ? gender.value : this.gender,
+    declensionClass: declensionClass.present
+        ? declensionClass.value
+        : this.declensionClass,
+    isIrregular: isIrregular ?? this.isIrregular,
+    isInvariable: isInvariable ?? this.isInvariable,
+    generalNoteJson: generalNoteJson ?? this.generalNoteJson,
+    formsJson: formsJson ?? this.formsJson,
+    source: source ?? this.source,
+    isPublished: isPublished ?? this.isPublished,
+  );
+  DeclensionEntry copyWithCompanion(DeclensionsTableCompanion data) {
+    return DeclensionEntry(
+      id: data.id.present ? data.id.value : this.id,
+      langId: data.langId.present ? data.langId.value : this.langId,
+      lemma: data.lemma.present ? data.lemma.value : this.lemma,
+      pos: data.pos.present ? data.pos.value : this.pos,
+      gender: data.gender.present ? data.gender.value : this.gender,
+      declensionClass: data.declensionClass.present
+          ? data.declensionClass.value
+          : this.declensionClass,
+      isIrregular: data.isIrregular.present
+          ? data.isIrregular.value
+          : this.isIrregular,
+      isInvariable: data.isInvariable.present
+          ? data.isInvariable.value
+          : this.isInvariable,
+      generalNoteJson: data.generalNoteJson.present
+          ? data.generalNoteJson.value
+          : this.generalNoteJson,
+      formsJson: data.formsJson.present ? data.formsJson.value : this.formsJson,
+      source: data.source.present ? data.source.value : this.source,
+      isPublished: data.isPublished.present
+          ? data.isPublished.value
+          : this.isPublished,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeclensionEntry(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('lemma: $lemma, ')
+          ..write('pos: $pos, ')
+          ..write('gender: $gender, ')
+          ..write('declensionClass: $declensionClass, ')
+          ..write('isIrregular: $isIrregular, ')
+          ..write('isInvariable: $isInvariable, ')
+          ..write('generalNoteJson: $generalNoteJson, ')
+          ..write('formsJson: $formsJson, ')
+          ..write('source: $source, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    langId,
+    lemma,
+    pos,
+    gender,
+    declensionClass,
+    isIrregular,
+    isInvariable,
+    generalNoteJson,
+    formsJson,
+    source,
+    isPublished,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeclensionEntry &&
+          other.id == this.id &&
+          other.langId == this.langId &&
+          other.lemma == this.lemma &&
+          other.pos == this.pos &&
+          other.gender == this.gender &&
+          other.declensionClass == this.declensionClass &&
+          other.isIrregular == this.isIrregular &&
+          other.isInvariable == this.isInvariable &&
+          other.generalNoteJson == this.generalNoteJson &&
+          other.formsJson == this.formsJson &&
+          other.source == this.source &&
+          other.isPublished == this.isPublished);
+}
+
+class DeclensionsTableCompanion extends UpdateCompanion<DeclensionEntry> {
+  final Value<int> id;
+  final Value<int> langId;
+  final Value<String> lemma;
+  final Value<String> pos;
+  final Value<String?> gender;
+  final Value<String?> declensionClass;
+  final Value<bool> isIrregular;
+  final Value<bool> isInvariable;
+  final Value<String> generalNoteJson;
+  final Value<String> formsJson;
+  final Value<String> source;
+  final Value<bool> isPublished;
+  const DeclensionsTableCompanion({
+    this.id = const Value.absent(),
+    this.langId = const Value.absent(),
+    this.lemma = const Value.absent(),
+    this.pos = const Value.absent(),
+    this.gender = const Value.absent(),
+    this.declensionClass = const Value.absent(),
+    this.isIrregular = const Value.absent(),
+    this.isInvariable = const Value.absent(),
+    this.generalNoteJson = const Value.absent(),
+    this.formsJson = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  });
+  DeclensionsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int langId,
+    required String lemma,
+    required String pos,
+    this.gender = const Value.absent(),
+    this.declensionClass = const Value.absent(),
+    this.isIrregular = const Value.absent(),
+    this.isInvariable = const Value.absent(),
+    this.generalNoteJson = const Value.absent(),
+    this.formsJson = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  }) : langId = Value(langId),
+       lemma = Value(lemma),
+       pos = Value(pos);
+  static Insertable<DeclensionEntry> custom({
+    Expression<int>? id,
+    Expression<int>? langId,
+    Expression<String>? lemma,
+    Expression<String>? pos,
+    Expression<String>? gender,
+    Expression<String>? declensionClass,
+    Expression<bool>? isIrregular,
+    Expression<bool>? isInvariable,
+    Expression<String>? generalNoteJson,
+    Expression<String>? formsJson,
+    Expression<String>? source,
+    Expression<bool>? isPublished,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (langId != null) 'lang_id': langId,
+      if (lemma != null) 'lemma': lemma,
+      if (pos != null) 'pos': pos,
+      if (gender != null) 'gender': gender,
+      if (declensionClass != null) 'declension_class': declensionClass,
+      if (isIrregular != null) 'is_irregular': isIrregular,
+      if (isInvariable != null) 'is_invariable': isInvariable,
+      if (generalNoteJson != null) 'general_note_json': generalNoteJson,
+      if (formsJson != null) 'forms_json': formsJson,
+      if (source != null) 'source': source,
+      if (isPublished != null) 'is_published': isPublished,
+    });
+  }
+
+  DeclensionsTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? langId,
+    Value<String>? lemma,
+    Value<String>? pos,
+    Value<String?>? gender,
+    Value<String?>? declensionClass,
+    Value<bool>? isIrregular,
+    Value<bool>? isInvariable,
+    Value<String>? generalNoteJson,
+    Value<String>? formsJson,
+    Value<String>? source,
+    Value<bool>? isPublished,
+  }) {
+    return DeclensionsTableCompanion(
+      id: id ?? this.id,
+      langId: langId ?? this.langId,
+      lemma: lemma ?? this.lemma,
+      pos: pos ?? this.pos,
+      gender: gender ?? this.gender,
+      declensionClass: declensionClass ?? this.declensionClass,
+      isIrregular: isIrregular ?? this.isIrregular,
+      isInvariable: isInvariable ?? this.isInvariable,
+      generalNoteJson: generalNoteJson ?? this.generalNoteJson,
+      formsJson: formsJson ?? this.formsJson,
+      source: source ?? this.source,
+      isPublished: isPublished ?? this.isPublished,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (langId.present) {
+      map['lang_id'] = Variable<int>(langId.value);
+    }
+    if (lemma.present) {
+      map['lemma'] = Variable<String>(lemma.value);
+    }
+    if (pos.present) {
+      map['pos'] = Variable<String>(pos.value);
+    }
+    if (gender.present) {
+      map['gender'] = Variable<String>(gender.value);
+    }
+    if (declensionClass.present) {
+      map['declension_class'] = Variable<String>(declensionClass.value);
+    }
+    if (isIrregular.present) {
+      map['is_irregular'] = Variable<bool>(isIrregular.value);
+    }
+    if (isInvariable.present) {
+      map['is_invariable'] = Variable<bool>(isInvariable.value);
+    }
+    if (generalNoteJson.present) {
+      map['general_note_json'] = Variable<String>(generalNoteJson.value);
+    }
+    if (formsJson.present) {
+      map['forms_json'] = Variable<String>(formsJson.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (isPublished.present) {
+      map['is_published'] = Variable<bool>(isPublished.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeclensionsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('lemma: $lemma, ')
+          ..write('pos: $pos, ')
+          ..write('gender: $gender, ')
+          ..write('declensionClass: $declensionClass, ')
+          ..write('isIrregular: $isIrregular, ')
+          ..write('isInvariable: $isInvariable, ')
+          ..write('generalNoteJson: $generalNoteJson, ')
+          ..write('formsJson: $formsJson, ')
+          ..write('source: $source, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GrammarLessonsTableTable extends GrammarLessonsTable
+    with TableInfo<$GrammarLessonsTableTable, GrammarLessonEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GrammarLessonsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _langIdMeta = const VerificationMeta('langId');
+  @override
+  late final GeneratedColumn<int> langId = GeneratedColumn<int>(
+    'lang_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _slugMeta = const VerificationMeta('slug');
+  @override
+  late final GeneratedColumn<String> slug = GeneratedColumn<String>(
+    'slug',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 150,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<String> level = GeneratedColumn<String>(
+    'level',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 2,
+      maxTextLength: 4,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _titleJsonMeta = const VerificationMeta(
+    'titleJson',
+  );
+  @override
+  late final GeneratedColumn<String> titleJson = GeneratedColumn<String>(
+    'title_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _prerequisiteIdsJsonMeta =
+      const VerificationMeta('prerequisiteIdsJson');
+  @override
+  late final GeneratedColumn<String> prerequisiteIdsJson =
+      GeneratedColumn<String>(
+        'prerequisite_ids_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _linkedVerbIdsJsonMeta = const VerificationMeta(
+    'linkedVerbIdsJson',
+  );
+  @override
+  late final GeneratedColumn<String> linkedVerbIdsJson =
+      GeneratedColumn<String>(
+        'linked_verb_ids_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _targetTensesJsonMeta = const VerificationMeta(
+    'targetTensesJson',
+  );
+  @override
+  late final GeneratedColumn<String> targetTensesJson = GeneratedColumn<String>(
+    'target_tenses_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _linkedDeclensionIdsJsonMeta =
+      const VerificationMeta('linkedDeclensionIdsJson');
+  @override
+  late final GeneratedColumn<String> linkedDeclensionIdsJson =
+      GeneratedColumn<String>(
+        'linked_declension_ids_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _targetCasesJsonMeta = const VerificationMeta(
+    'targetCasesJson',
+  );
+  @override
+  late final GeneratedColumn<String> targetCasesJson = GeneratedColumn<String>(
+    'target_cases_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _blocksJsonMeta = const VerificationMeta(
+    'blocksJson',
+  );
+  @override
+  late final GeneratedColumn<String> blocksJson = GeneratedColumn<String>(
+    'blocks_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _exercisesJsonMeta = const VerificationMeta(
+    'exercisesJson',
+  );
+  @override
+  late final GeneratedColumn<String> exercisesJson = GeneratedColumn<String>(
+    'exercises_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _isPublishedMeta = const VerificationMeta(
+    'isPublished',
+  );
+  @override
+  late final GeneratedColumn<bool> isPublished = GeneratedColumn<bool>(
+    'is_published',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_published" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    langId,
+    slug,
+    level,
+    orderIndex,
+    titleJson,
+    prerequisiteIdsJson,
+    linkedVerbIdsJson,
+    targetTensesJson,
+    linkedDeclensionIdsJson,
+    targetCasesJson,
+    blocksJson,
+    exercisesJson,
+    isPublished,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'grammar_lessons_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GrammarLessonEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('lang_id')) {
+      context.handle(
+        _langIdMeta,
+        langId.isAcceptableOrUnknown(data['lang_id']!, _langIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_langIdMeta);
+    }
+    if (data.containsKey('slug')) {
+      context.handle(
+        _slugMeta,
+        slug.isAcceptableOrUnknown(data['slug']!, _slugMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_slugMeta);
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_levelMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
+    if (data.containsKey('title_json')) {
+      context.handle(
+        _titleJsonMeta,
+        titleJson.isAcceptableOrUnknown(data['title_json']!, _titleJsonMeta),
+      );
+    }
+    if (data.containsKey('prerequisite_ids_json')) {
+      context.handle(
+        _prerequisiteIdsJsonMeta,
+        prerequisiteIdsJson.isAcceptableOrUnknown(
+          data['prerequisite_ids_json']!,
+          _prerequisiteIdsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_verb_ids_json')) {
+      context.handle(
+        _linkedVerbIdsJsonMeta,
+        linkedVerbIdsJson.isAcceptableOrUnknown(
+          data['linked_verb_ids_json']!,
+          _linkedVerbIdsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_tenses_json')) {
+      context.handle(
+        _targetTensesJsonMeta,
+        targetTensesJson.isAcceptableOrUnknown(
+          data['target_tenses_json']!,
+          _targetTensesJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_declension_ids_json')) {
+      context.handle(
+        _linkedDeclensionIdsJsonMeta,
+        linkedDeclensionIdsJson.isAcceptableOrUnknown(
+          data['linked_declension_ids_json']!,
+          _linkedDeclensionIdsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_cases_json')) {
+      context.handle(
+        _targetCasesJsonMeta,
+        targetCasesJson.isAcceptableOrUnknown(
+          data['target_cases_json']!,
+          _targetCasesJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('blocks_json')) {
+      context.handle(
+        _blocksJsonMeta,
+        blocksJson.isAcceptableOrUnknown(data['blocks_json']!, _blocksJsonMeta),
+      );
+    }
+    if (data.containsKey('exercises_json')) {
+      context.handle(
+        _exercisesJsonMeta,
+        exercisesJson.isAcceptableOrUnknown(
+          data['exercises_json']!,
+          _exercisesJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_published')) {
+      context.handle(
+        _isPublishedMeta,
+        isPublished.isAcceptableOrUnknown(
+          data['is_published']!,
+          _isPublishedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {langId, slug},
+  ];
+  @override
+  GrammarLessonEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GrammarLessonEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      langId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lang_id'],
+      )!,
+      slug: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}slug'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}level'],
+      )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+      titleJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title_json'],
+      )!,
+      prerequisiteIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prerequisite_ids_json'],
+      )!,
+      linkedVerbIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_verb_ids_json'],
+      )!,
+      targetTensesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_tenses_json'],
+      )!,
+      linkedDeclensionIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_declension_ids_json'],
+      )!,
+      targetCasesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_cases_json'],
+      )!,
+      blocksJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}blocks_json'],
+      )!,
+      exercisesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}exercises_json'],
+      )!,
+      isPublished: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_published'],
+      )!,
+    );
+  }
+
+  @override
+  $GrammarLessonsTableTable createAlias(String alias) {
+    return $GrammarLessonsTableTable(attachedDatabase, alias);
+  }
+}
+
+class GrammarLessonEntry extends DataClass
+    implements Insertable<GrammarLessonEntry> {
+  final int id;
+  final int langId;
+  final String slug;
+  final String level;
+  final int orderIndex;
+  final String titleJson;
+  final String prerequisiteIdsJson;
+  final String linkedVerbIdsJson;
+  final String targetTensesJson;
+  final String linkedDeclensionIdsJson;
+  final String targetCasesJson;
+  final String blocksJson;
+  final String exercisesJson;
+  final bool isPublished;
+  const GrammarLessonEntry({
+    required this.id,
+    required this.langId,
+    required this.slug,
+    required this.level,
+    required this.orderIndex,
+    required this.titleJson,
+    required this.prerequisiteIdsJson,
+    required this.linkedVerbIdsJson,
+    required this.targetTensesJson,
+    required this.linkedDeclensionIdsJson,
+    required this.targetCasesJson,
+    required this.blocksJson,
+    required this.exercisesJson,
+    required this.isPublished,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['lang_id'] = Variable<int>(langId);
+    map['slug'] = Variable<String>(slug);
+    map['level'] = Variable<String>(level);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['title_json'] = Variable<String>(titleJson);
+    map['prerequisite_ids_json'] = Variable<String>(prerequisiteIdsJson);
+    map['linked_verb_ids_json'] = Variable<String>(linkedVerbIdsJson);
+    map['target_tenses_json'] = Variable<String>(targetTensesJson);
+    map['linked_declension_ids_json'] = Variable<String>(
+      linkedDeclensionIdsJson,
+    );
+    map['target_cases_json'] = Variable<String>(targetCasesJson);
+    map['blocks_json'] = Variable<String>(blocksJson);
+    map['exercises_json'] = Variable<String>(exercisesJson);
+    map['is_published'] = Variable<bool>(isPublished);
+    return map;
+  }
+
+  GrammarLessonsTableCompanion toCompanion(bool nullToAbsent) {
+    return GrammarLessonsTableCompanion(
+      id: Value(id),
+      langId: Value(langId),
+      slug: Value(slug),
+      level: Value(level),
+      orderIndex: Value(orderIndex),
+      titleJson: Value(titleJson),
+      prerequisiteIdsJson: Value(prerequisiteIdsJson),
+      linkedVerbIdsJson: Value(linkedVerbIdsJson),
+      targetTensesJson: Value(targetTensesJson),
+      linkedDeclensionIdsJson: Value(linkedDeclensionIdsJson),
+      targetCasesJson: Value(targetCasesJson),
+      blocksJson: Value(blocksJson),
+      exercisesJson: Value(exercisesJson),
+      isPublished: Value(isPublished),
+    );
+  }
+
+  factory GrammarLessonEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GrammarLessonEntry(
+      id: serializer.fromJson<int>(json['id']),
+      langId: serializer.fromJson<int>(json['langId']),
+      slug: serializer.fromJson<String>(json['slug']),
+      level: serializer.fromJson<String>(json['level']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      titleJson: serializer.fromJson<String>(json['titleJson']),
+      prerequisiteIdsJson: serializer.fromJson<String>(
+        json['prerequisiteIdsJson'],
+      ),
+      linkedVerbIdsJson: serializer.fromJson<String>(json['linkedVerbIdsJson']),
+      targetTensesJson: serializer.fromJson<String>(json['targetTensesJson']),
+      linkedDeclensionIdsJson: serializer.fromJson<String>(
+        json['linkedDeclensionIdsJson'],
+      ),
+      targetCasesJson: serializer.fromJson<String>(json['targetCasesJson']),
+      blocksJson: serializer.fromJson<String>(json['blocksJson']),
+      exercisesJson: serializer.fromJson<String>(json['exercisesJson']),
+      isPublished: serializer.fromJson<bool>(json['isPublished']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'langId': serializer.toJson<int>(langId),
+      'slug': serializer.toJson<String>(slug),
+      'level': serializer.toJson<String>(level),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'titleJson': serializer.toJson<String>(titleJson),
+      'prerequisiteIdsJson': serializer.toJson<String>(prerequisiteIdsJson),
+      'linkedVerbIdsJson': serializer.toJson<String>(linkedVerbIdsJson),
+      'targetTensesJson': serializer.toJson<String>(targetTensesJson),
+      'linkedDeclensionIdsJson': serializer.toJson<String>(
+        linkedDeclensionIdsJson,
+      ),
+      'targetCasesJson': serializer.toJson<String>(targetCasesJson),
+      'blocksJson': serializer.toJson<String>(blocksJson),
+      'exercisesJson': serializer.toJson<String>(exercisesJson),
+      'isPublished': serializer.toJson<bool>(isPublished),
+    };
+  }
+
+  GrammarLessonEntry copyWith({
+    int? id,
+    int? langId,
+    String? slug,
+    String? level,
+    int? orderIndex,
+    String? titleJson,
+    String? prerequisiteIdsJson,
+    String? linkedVerbIdsJson,
+    String? targetTensesJson,
+    String? linkedDeclensionIdsJson,
+    String? targetCasesJson,
+    String? blocksJson,
+    String? exercisesJson,
+    bool? isPublished,
+  }) => GrammarLessonEntry(
+    id: id ?? this.id,
+    langId: langId ?? this.langId,
+    slug: slug ?? this.slug,
+    level: level ?? this.level,
+    orderIndex: orderIndex ?? this.orderIndex,
+    titleJson: titleJson ?? this.titleJson,
+    prerequisiteIdsJson: prerequisiteIdsJson ?? this.prerequisiteIdsJson,
+    linkedVerbIdsJson: linkedVerbIdsJson ?? this.linkedVerbIdsJson,
+    targetTensesJson: targetTensesJson ?? this.targetTensesJson,
+    linkedDeclensionIdsJson:
+        linkedDeclensionIdsJson ?? this.linkedDeclensionIdsJson,
+    targetCasesJson: targetCasesJson ?? this.targetCasesJson,
+    blocksJson: blocksJson ?? this.blocksJson,
+    exercisesJson: exercisesJson ?? this.exercisesJson,
+    isPublished: isPublished ?? this.isPublished,
+  );
+  GrammarLessonEntry copyWithCompanion(GrammarLessonsTableCompanion data) {
+    return GrammarLessonEntry(
+      id: data.id.present ? data.id.value : this.id,
+      langId: data.langId.present ? data.langId.value : this.langId,
+      slug: data.slug.present ? data.slug.value : this.slug,
+      level: data.level.present ? data.level.value : this.level,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+      titleJson: data.titleJson.present ? data.titleJson.value : this.titleJson,
+      prerequisiteIdsJson: data.prerequisiteIdsJson.present
+          ? data.prerequisiteIdsJson.value
+          : this.prerequisiteIdsJson,
+      linkedVerbIdsJson: data.linkedVerbIdsJson.present
+          ? data.linkedVerbIdsJson.value
+          : this.linkedVerbIdsJson,
+      targetTensesJson: data.targetTensesJson.present
+          ? data.targetTensesJson.value
+          : this.targetTensesJson,
+      linkedDeclensionIdsJson: data.linkedDeclensionIdsJson.present
+          ? data.linkedDeclensionIdsJson.value
+          : this.linkedDeclensionIdsJson,
+      targetCasesJson: data.targetCasesJson.present
+          ? data.targetCasesJson.value
+          : this.targetCasesJson,
+      blocksJson: data.blocksJson.present
+          ? data.blocksJson.value
+          : this.blocksJson,
+      exercisesJson: data.exercisesJson.present
+          ? data.exercisesJson.value
+          : this.exercisesJson,
+      isPublished: data.isPublished.present
+          ? data.isPublished.value
+          : this.isPublished,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrammarLessonEntry(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('slug: $slug, ')
+          ..write('level: $level, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('titleJson: $titleJson, ')
+          ..write('prerequisiteIdsJson: $prerequisiteIdsJson, ')
+          ..write('linkedVerbIdsJson: $linkedVerbIdsJson, ')
+          ..write('targetTensesJson: $targetTensesJson, ')
+          ..write('linkedDeclensionIdsJson: $linkedDeclensionIdsJson, ')
+          ..write('targetCasesJson: $targetCasesJson, ')
+          ..write('blocksJson: $blocksJson, ')
+          ..write('exercisesJson: $exercisesJson, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    langId,
+    slug,
+    level,
+    orderIndex,
+    titleJson,
+    prerequisiteIdsJson,
+    linkedVerbIdsJson,
+    targetTensesJson,
+    linkedDeclensionIdsJson,
+    targetCasesJson,
+    blocksJson,
+    exercisesJson,
+    isPublished,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GrammarLessonEntry &&
+          other.id == this.id &&
+          other.langId == this.langId &&
+          other.slug == this.slug &&
+          other.level == this.level &&
+          other.orderIndex == this.orderIndex &&
+          other.titleJson == this.titleJson &&
+          other.prerequisiteIdsJson == this.prerequisiteIdsJson &&
+          other.linkedVerbIdsJson == this.linkedVerbIdsJson &&
+          other.targetTensesJson == this.targetTensesJson &&
+          other.linkedDeclensionIdsJson == this.linkedDeclensionIdsJson &&
+          other.targetCasesJson == this.targetCasesJson &&
+          other.blocksJson == this.blocksJson &&
+          other.exercisesJson == this.exercisesJson &&
+          other.isPublished == this.isPublished);
+}
+
+class GrammarLessonsTableCompanion extends UpdateCompanion<GrammarLessonEntry> {
+  final Value<int> id;
+  final Value<int> langId;
+  final Value<String> slug;
+  final Value<String> level;
+  final Value<int> orderIndex;
+  final Value<String> titleJson;
+  final Value<String> prerequisiteIdsJson;
+  final Value<String> linkedVerbIdsJson;
+  final Value<String> targetTensesJson;
+  final Value<String> linkedDeclensionIdsJson;
+  final Value<String> targetCasesJson;
+  final Value<String> blocksJson;
+  final Value<String> exercisesJson;
+  final Value<bool> isPublished;
+  const GrammarLessonsTableCompanion({
+    this.id = const Value.absent(),
+    this.langId = const Value.absent(),
+    this.slug = const Value.absent(),
+    this.level = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.titleJson = const Value.absent(),
+    this.prerequisiteIdsJson = const Value.absent(),
+    this.linkedVerbIdsJson = const Value.absent(),
+    this.targetTensesJson = const Value.absent(),
+    this.linkedDeclensionIdsJson = const Value.absent(),
+    this.targetCasesJson = const Value.absent(),
+    this.blocksJson = const Value.absent(),
+    this.exercisesJson = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  });
+  GrammarLessonsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int langId,
+    required String slug,
+    required String level,
+    this.orderIndex = const Value.absent(),
+    this.titleJson = const Value.absent(),
+    this.prerequisiteIdsJson = const Value.absent(),
+    this.linkedVerbIdsJson = const Value.absent(),
+    this.targetTensesJson = const Value.absent(),
+    this.linkedDeclensionIdsJson = const Value.absent(),
+    this.targetCasesJson = const Value.absent(),
+    this.blocksJson = const Value.absent(),
+    this.exercisesJson = const Value.absent(),
+    this.isPublished = const Value.absent(),
+  }) : langId = Value(langId),
+       slug = Value(slug),
+       level = Value(level);
+  static Insertable<GrammarLessonEntry> custom({
+    Expression<int>? id,
+    Expression<int>? langId,
+    Expression<String>? slug,
+    Expression<String>? level,
+    Expression<int>? orderIndex,
+    Expression<String>? titleJson,
+    Expression<String>? prerequisiteIdsJson,
+    Expression<String>? linkedVerbIdsJson,
+    Expression<String>? targetTensesJson,
+    Expression<String>? linkedDeclensionIdsJson,
+    Expression<String>? targetCasesJson,
+    Expression<String>? blocksJson,
+    Expression<String>? exercisesJson,
+    Expression<bool>? isPublished,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (langId != null) 'lang_id': langId,
+      if (slug != null) 'slug': slug,
+      if (level != null) 'level': level,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (titleJson != null) 'title_json': titleJson,
+      if (prerequisiteIdsJson != null)
+        'prerequisite_ids_json': prerequisiteIdsJson,
+      if (linkedVerbIdsJson != null) 'linked_verb_ids_json': linkedVerbIdsJson,
+      if (targetTensesJson != null) 'target_tenses_json': targetTensesJson,
+      if (linkedDeclensionIdsJson != null)
+        'linked_declension_ids_json': linkedDeclensionIdsJson,
+      if (targetCasesJson != null) 'target_cases_json': targetCasesJson,
+      if (blocksJson != null) 'blocks_json': blocksJson,
+      if (exercisesJson != null) 'exercises_json': exercisesJson,
+      if (isPublished != null) 'is_published': isPublished,
+    });
+  }
+
+  GrammarLessonsTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? langId,
+    Value<String>? slug,
+    Value<String>? level,
+    Value<int>? orderIndex,
+    Value<String>? titleJson,
+    Value<String>? prerequisiteIdsJson,
+    Value<String>? linkedVerbIdsJson,
+    Value<String>? targetTensesJson,
+    Value<String>? linkedDeclensionIdsJson,
+    Value<String>? targetCasesJson,
+    Value<String>? blocksJson,
+    Value<String>? exercisesJson,
+    Value<bool>? isPublished,
+  }) {
+    return GrammarLessonsTableCompanion(
+      id: id ?? this.id,
+      langId: langId ?? this.langId,
+      slug: slug ?? this.slug,
+      level: level ?? this.level,
+      orderIndex: orderIndex ?? this.orderIndex,
+      titleJson: titleJson ?? this.titleJson,
+      prerequisiteIdsJson: prerequisiteIdsJson ?? this.prerequisiteIdsJson,
+      linkedVerbIdsJson: linkedVerbIdsJson ?? this.linkedVerbIdsJson,
+      targetTensesJson: targetTensesJson ?? this.targetTensesJson,
+      linkedDeclensionIdsJson:
+          linkedDeclensionIdsJson ?? this.linkedDeclensionIdsJson,
+      targetCasesJson: targetCasesJson ?? this.targetCasesJson,
+      blocksJson: blocksJson ?? this.blocksJson,
+      exercisesJson: exercisesJson ?? this.exercisesJson,
+      isPublished: isPublished ?? this.isPublished,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (langId.present) {
+      map['lang_id'] = Variable<int>(langId.value);
+    }
+    if (slug.present) {
+      map['slug'] = Variable<String>(slug.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<String>(level.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (titleJson.present) {
+      map['title_json'] = Variable<String>(titleJson.value);
+    }
+    if (prerequisiteIdsJson.present) {
+      map['prerequisite_ids_json'] = Variable<String>(
+        prerequisiteIdsJson.value,
+      );
+    }
+    if (linkedVerbIdsJson.present) {
+      map['linked_verb_ids_json'] = Variable<String>(linkedVerbIdsJson.value);
+    }
+    if (targetTensesJson.present) {
+      map['target_tenses_json'] = Variable<String>(targetTensesJson.value);
+    }
+    if (linkedDeclensionIdsJson.present) {
+      map['linked_declension_ids_json'] = Variable<String>(
+        linkedDeclensionIdsJson.value,
+      );
+    }
+    if (targetCasesJson.present) {
+      map['target_cases_json'] = Variable<String>(targetCasesJson.value);
+    }
+    if (blocksJson.present) {
+      map['blocks_json'] = Variable<String>(blocksJson.value);
+    }
+    if (exercisesJson.present) {
+      map['exercises_json'] = Variable<String>(exercisesJson.value);
+    }
+    if (isPublished.present) {
+      map['is_published'] = Variable<bool>(isPublished.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrammarLessonsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('langId: $langId, ')
+          ..write('slug: $slug, ')
+          ..write('level: $level, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('titleJson: $titleJson, ')
+          ..write('prerequisiteIdsJson: $prerequisiteIdsJson, ')
+          ..write('linkedVerbIdsJson: $linkedVerbIdsJson, ')
+          ..write('targetTensesJson: $targetTensesJson, ')
+          ..write('linkedDeclensionIdsJson: $linkedDeclensionIdsJson, ')
+          ..write('targetCasesJson: $targetCasesJson, ')
+          ..write('blocksJson: $blocksJson, ')
+          ..write('exercisesJson: $exercisesJson, ')
+          ..write('isPublished: $isPublished')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LessonProgressTableTable extends LessonProgressTable
+    with TableInfo<$LessonProgressTableTable, LessonProgressEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LessonProgressTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userKeyMeta = const VerificationMeta(
+    'userKey',
+  );
+  @override
+  late final GeneratedColumn<String> userKey = GeneratedColumn<String>(
+    'user_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('local'),
+  );
+  static const VerificationMeta _lessonIdMeta = const VerificationMeta(
+    'lessonId',
+  );
+  @override
+  late final GeneratedColumn<int> lessonId = GeneratedColumn<int>(
+    'lesson_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _exerciseResultsJsonMeta =
+      const VerificationMeta('exerciseResultsJson');
+  @override
+  late final GeneratedColumn<String> exerciseResultsJson =
+      GeneratedColumn<String>(
+        'exercise_results_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('{}'),
+      );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<double> score = GeneratedColumn<double>(
+    'score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _lastSeenAtMeta = const VerificationMeta(
+    'lastSeenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSeenAt = GeneratedColumn<DateTime>(
+    'last_seen_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _nextDueAtMeta = const VerificationMeta(
+    'nextDueAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextDueAt = GeneratedColumn<DateTime>(
+    'next_due_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userKey,
+    lessonId,
+    exerciseResultsJson,
+    score,
+    lastSeenAt,
+    nextDueAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'lesson_progress_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LessonProgressEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_key')) {
+      context.handle(
+        _userKeyMeta,
+        userKey.isAcceptableOrUnknown(data['user_key']!, _userKeyMeta),
+      );
+    }
+    if (data.containsKey('lesson_id')) {
+      context.handle(
+        _lessonIdMeta,
+        lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lessonIdMeta);
+    }
+    if (data.containsKey('exercise_results_json')) {
+      context.handle(
+        _exerciseResultsJsonMeta,
+        exerciseResultsJson.isAcceptableOrUnknown(
+          data['exercise_results_json']!,
+          _exerciseResultsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    }
+    if (data.containsKey('last_seen_at')) {
+      context.handle(
+        _lastSeenAtMeta,
+        lastSeenAt.isAcceptableOrUnknown(
+          data['last_seen_at']!,
+          _lastSeenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_due_at')) {
+      context.handle(
+        _nextDueAtMeta,
+        nextDueAt.isAcceptableOrUnknown(data['next_due_at']!, _nextDueAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {userKey, lessonId},
+  ];
+  @override
+  LessonProgressEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LessonProgressEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      userKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_key'],
+      )!,
+      lessonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lesson_id'],
+      )!,
+      exerciseResultsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}exercise_results_json'],
+      )!,
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}score'],
+      )!,
+      lastSeenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_seen_at'],
+      )!,
+      nextDueAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_due_at'],
+      ),
+    );
+  }
+
+  @override
+  $LessonProgressTableTable createAlias(String alias) {
+    return $LessonProgressTableTable(attachedDatabase, alias);
+  }
+}
+
+class LessonProgressEntry extends DataClass
+    implements Insertable<LessonProgressEntry> {
+  final int id;
+  final String userKey;
+  final int lessonId;
+  final String exerciseResultsJson;
+  final double score;
+  final DateTime lastSeenAt;
+  final DateTime? nextDueAt;
+  const LessonProgressEntry({
+    required this.id,
+    required this.userKey,
+    required this.lessonId,
+    required this.exerciseResultsJson,
+    required this.score,
+    required this.lastSeenAt,
+    this.nextDueAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_key'] = Variable<String>(userKey);
+    map['lesson_id'] = Variable<int>(lessonId);
+    map['exercise_results_json'] = Variable<String>(exerciseResultsJson);
+    map['score'] = Variable<double>(score);
+    map['last_seen_at'] = Variable<DateTime>(lastSeenAt);
+    if (!nullToAbsent || nextDueAt != null) {
+      map['next_due_at'] = Variable<DateTime>(nextDueAt);
+    }
+    return map;
+  }
+
+  LessonProgressTableCompanion toCompanion(bool nullToAbsent) {
+    return LessonProgressTableCompanion(
+      id: Value(id),
+      userKey: Value(userKey),
+      lessonId: Value(lessonId),
+      exerciseResultsJson: Value(exerciseResultsJson),
+      score: Value(score),
+      lastSeenAt: Value(lastSeenAt),
+      nextDueAt: nextDueAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextDueAt),
+    );
+  }
+
+  factory LessonProgressEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LessonProgressEntry(
+      id: serializer.fromJson<int>(json['id']),
+      userKey: serializer.fromJson<String>(json['userKey']),
+      lessonId: serializer.fromJson<int>(json['lessonId']),
+      exerciseResultsJson: serializer.fromJson<String>(
+        json['exerciseResultsJson'],
+      ),
+      score: serializer.fromJson<double>(json['score']),
+      lastSeenAt: serializer.fromJson<DateTime>(json['lastSeenAt']),
+      nextDueAt: serializer.fromJson<DateTime?>(json['nextDueAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userKey': serializer.toJson<String>(userKey),
+      'lessonId': serializer.toJson<int>(lessonId),
+      'exerciseResultsJson': serializer.toJson<String>(exerciseResultsJson),
+      'score': serializer.toJson<double>(score),
+      'lastSeenAt': serializer.toJson<DateTime>(lastSeenAt),
+      'nextDueAt': serializer.toJson<DateTime?>(nextDueAt),
+    };
+  }
+
+  LessonProgressEntry copyWith({
+    int? id,
+    String? userKey,
+    int? lessonId,
+    String? exerciseResultsJson,
+    double? score,
+    DateTime? lastSeenAt,
+    Value<DateTime?> nextDueAt = const Value.absent(),
+  }) => LessonProgressEntry(
+    id: id ?? this.id,
+    userKey: userKey ?? this.userKey,
+    lessonId: lessonId ?? this.lessonId,
+    exerciseResultsJson: exerciseResultsJson ?? this.exerciseResultsJson,
+    score: score ?? this.score,
+    lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+    nextDueAt: nextDueAt.present ? nextDueAt.value : this.nextDueAt,
+  );
+  LessonProgressEntry copyWithCompanion(LessonProgressTableCompanion data) {
+    return LessonProgressEntry(
+      id: data.id.present ? data.id.value : this.id,
+      userKey: data.userKey.present ? data.userKey.value : this.userKey,
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      exerciseResultsJson: data.exerciseResultsJson.present
+          ? data.exerciseResultsJson.value
+          : this.exerciseResultsJson,
+      score: data.score.present ? data.score.value : this.score,
+      lastSeenAt: data.lastSeenAt.present
+          ? data.lastSeenAt.value
+          : this.lastSeenAt,
+      nextDueAt: data.nextDueAt.present ? data.nextDueAt.value : this.nextDueAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonProgressEntry(')
+          ..write('id: $id, ')
+          ..write('userKey: $userKey, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('exerciseResultsJson: $exerciseResultsJson, ')
+          ..write('score: $score, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('nextDueAt: $nextDueAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userKey,
+    lessonId,
+    exerciseResultsJson,
+    score,
+    lastSeenAt,
+    nextDueAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LessonProgressEntry &&
+          other.id == this.id &&
+          other.userKey == this.userKey &&
+          other.lessonId == this.lessonId &&
+          other.exerciseResultsJson == this.exerciseResultsJson &&
+          other.score == this.score &&
+          other.lastSeenAt == this.lastSeenAt &&
+          other.nextDueAt == this.nextDueAt);
+}
+
+class LessonProgressTableCompanion
+    extends UpdateCompanion<LessonProgressEntry> {
+  final Value<int> id;
+  final Value<String> userKey;
+  final Value<int> lessonId;
+  final Value<String> exerciseResultsJson;
+  final Value<double> score;
+  final Value<DateTime> lastSeenAt;
+  final Value<DateTime?> nextDueAt;
+  const LessonProgressTableCompanion({
+    this.id = const Value.absent(),
+    this.userKey = const Value.absent(),
+    this.lessonId = const Value.absent(),
+    this.exerciseResultsJson = const Value.absent(),
+    this.score = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.nextDueAt = const Value.absent(),
+  });
+  LessonProgressTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.userKey = const Value.absent(),
+    required int lessonId,
+    this.exerciseResultsJson = const Value.absent(),
+    this.score = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.nextDueAt = const Value.absent(),
+  }) : lessonId = Value(lessonId);
+  static Insertable<LessonProgressEntry> custom({
+    Expression<int>? id,
+    Expression<String>? userKey,
+    Expression<int>? lessonId,
+    Expression<String>? exerciseResultsJson,
+    Expression<double>? score,
+    Expression<DateTime>? lastSeenAt,
+    Expression<DateTime>? nextDueAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userKey != null) 'user_key': userKey,
+      if (lessonId != null) 'lesson_id': lessonId,
+      if (exerciseResultsJson != null)
+        'exercise_results_json': exerciseResultsJson,
+      if (score != null) 'score': score,
+      if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+      if (nextDueAt != null) 'next_due_at': nextDueAt,
+    });
+  }
+
+  LessonProgressTableCompanion copyWith({
+    Value<int>? id,
+    Value<String>? userKey,
+    Value<int>? lessonId,
+    Value<String>? exerciseResultsJson,
+    Value<double>? score,
+    Value<DateTime>? lastSeenAt,
+    Value<DateTime?>? nextDueAt,
+  }) {
+    return LessonProgressTableCompanion(
+      id: id ?? this.id,
+      userKey: userKey ?? this.userKey,
+      lessonId: lessonId ?? this.lessonId,
+      exerciseResultsJson: exerciseResultsJson ?? this.exerciseResultsJson,
+      score: score ?? this.score,
+      lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+      nextDueAt: nextDueAt ?? this.nextDueAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userKey.present) {
+      map['user_key'] = Variable<String>(userKey.value);
+    }
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<int>(lessonId.value);
+    }
+    if (exerciseResultsJson.present) {
+      map['exercise_results_json'] = Variable<String>(
+        exerciseResultsJson.value,
+      );
+    }
+    if (score.present) {
+      map['score'] = Variable<double>(score.value);
+    }
+    if (lastSeenAt.present) {
+      map['last_seen_at'] = Variable<DateTime>(lastSeenAt.value);
+    }
+    if (nextDueAt.present) {
+      map['next_due_at'] = Variable<DateTime>(nextDueAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonProgressTableCompanion(')
+          ..write('id: $id, ')
+          ..write('userKey: $userKey, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('exerciseResultsJson: $exerciseResultsJson, ')
+          ..write('score: $score, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('nextDueAt: $nextDueAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2204,6 +5383,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UnimorphFormsTableTable(this);
   late final $GrammarRulesTableTable grammarRulesTable =
       $GrammarRulesTableTable(this);
+  late final $LanguagesTableTable languagesTable = $LanguagesTableTable(this);
+  late final $ConjugationsTableTable conjugationsTable =
+      $ConjugationsTableTable(this);
+  late final $DeclensionsTableTable declensionsTable = $DeclensionsTableTable(
+    this,
+  );
+  late final $GrammarLessonsTableTable grammarLessonsTable =
+      $GrammarLessonsTableTable(this);
+  late final $LessonProgressTableTable lessonProgressTable =
+      $LessonProgressTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2213,6 +5402,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     wordProgressTable,
     unimorphFormsTable,
     grammarRulesTable,
+    languagesTable,
+    conjugationsTable,
+    declensionsTable,
+    grammarLessonsTable,
+    lessonProgressTable,
   ];
 }
 
@@ -3320,6 +6514,1575 @@ typedef $$GrammarRulesTableTableProcessedTableManager =
       GrammarRuleEntry,
       PrefetchHooks Function()
     >;
+typedef $$LanguagesTableTableCreateCompanionBuilder =
+    LanguagesTableCompanion Function({
+      Value<int> id,
+      required String code,
+      required String nameL10nJson,
+      Value<bool> isNonLatin,
+      required String grammarProfileJson,
+    });
+typedef $$LanguagesTableTableUpdateCompanionBuilder =
+    LanguagesTableCompanion Function({
+      Value<int> id,
+      Value<String> code,
+      Value<String> nameL10nJson,
+      Value<bool> isNonLatin,
+      Value<String> grammarProfileJson,
+    });
+
+class $$LanguagesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $LanguagesTableTable> {
+  $$LanguagesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameL10nJson => $composableBuilder(
+    column: $table.nameL10nJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isNonLatin => $composableBuilder(
+    column: $table.isNonLatin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grammarProfileJson => $composableBuilder(
+    column: $table.grammarProfileJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LanguagesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $LanguagesTableTable> {
+  $$LanguagesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameL10nJson => $composableBuilder(
+    column: $table.nameL10nJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isNonLatin => $composableBuilder(
+    column: $table.isNonLatin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grammarProfileJson => $composableBuilder(
+    column: $table.grammarProfileJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LanguagesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LanguagesTableTable> {
+  $$LanguagesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get nameL10nJson => $composableBuilder(
+    column: $table.nameL10nJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isNonLatin => $composableBuilder(
+    column: $table.isNonLatin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grammarProfileJson => $composableBuilder(
+    column: $table.grammarProfileJson,
+    builder: (column) => column,
+  );
+}
+
+class $$LanguagesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LanguagesTableTable,
+          LanguageEntry,
+          $$LanguagesTableTableFilterComposer,
+          $$LanguagesTableTableOrderingComposer,
+          $$LanguagesTableTableAnnotationComposer,
+          $$LanguagesTableTableCreateCompanionBuilder,
+          $$LanguagesTableTableUpdateCompanionBuilder,
+          (
+            LanguageEntry,
+            BaseReferences<_$AppDatabase, $LanguagesTableTable, LanguageEntry>,
+          ),
+          LanguageEntry,
+          PrefetchHooks Function()
+        > {
+  $$LanguagesTableTableTableManager(
+    _$AppDatabase db,
+    $LanguagesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LanguagesTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LanguagesTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LanguagesTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<String> nameL10nJson = const Value.absent(),
+                Value<bool> isNonLatin = const Value.absent(),
+                Value<String> grammarProfileJson = const Value.absent(),
+              }) => LanguagesTableCompanion(
+                id: id,
+                code: code,
+                nameL10nJson: nameL10nJson,
+                isNonLatin: isNonLatin,
+                grammarProfileJson: grammarProfileJson,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String code,
+                required String nameL10nJson,
+                Value<bool> isNonLatin = const Value.absent(),
+                required String grammarProfileJson,
+              }) => LanguagesTableCompanion.insert(
+                id: id,
+                code: code,
+                nameL10nJson: nameL10nJson,
+                isNonLatin: isNonLatin,
+                grammarProfileJson: grammarProfileJson,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LanguagesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LanguagesTableTable,
+      LanguageEntry,
+      $$LanguagesTableTableFilterComposer,
+      $$LanguagesTableTableOrderingComposer,
+      $$LanguagesTableTableAnnotationComposer,
+      $$LanguagesTableTableCreateCompanionBuilder,
+      $$LanguagesTableTableUpdateCompanionBuilder,
+      (
+        LanguageEntry,
+        BaseReferences<_$AppDatabase, $LanguagesTableTable, LanguageEntry>,
+      ),
+      LanguageEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$ConjugationsTableTableCreateCompanionBuilder =
+    ConjugationsTableCompanion Function({
+      Value<int> id,
+      required int langId,
+      required String lemma,
+      Value<String?> verbGroup,
+      Value<String> auxiliariesJson,
+      Value<bool> isPronominal,
+      Value<String?> reflexiveCase,
+      Value<bool> isIrregular,
+      Value<bool> isDefective,
+      Value<String> generalNoteJson,
+      Value<String> formsJson,
+      Value<String> source,
+      Value<bool> isPublished,
+    });
+typedef $$ConjugationsTableTableUpdateCompanionBuilder =
+    ConjugationsTableCompanion Function({
+      Value<int> id,
+      Value<int> langId,
+      Value<String> lemma,
+      Value<String?> verbGroup,
+      Value<String> auxiliariesJson,
+      Value<bool> isPronominal,
+      Value<String?> reflexiveCase,
+      Value<bool> isIrregular,
+      Value<bool> isDefective,
+      Value<String> generalNoteJson,
+      Value<String> formsJson,
+      Value<String> source,
+      Value<bool> isPublished,
+    });
+
+class $$ConjugationsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ConjugationsTableTable> {
+  $$ConjugationsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lemma => $composableBuilder(
+    column: $table.lemma,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get verbGroup => $composableBuilder(
+    column: $table.verbGroup,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get auxiliariesJson => $composableBuilder(
+    column: $table.auxiliariesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPronominal => $composableBuilder(
+    column: $table.isPronominal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reflexiveCase => $composableBuilder(
+    column: $table.reflexiveCase,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefective => $composableBuilder(
+    column: $table.isDefective,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get formsJson => $composableBuilder(
+    column: $table.formsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ConjugationsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ConjugationsTableTable> {
+  $$ConjugationsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lemma => $composableBuilder(
+    column: $table.lemma,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get verbGroup => $composableBuilder(
+    column: $table.verbGroup,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get auxiliariesJson => $composableBuilder(
+    column: $table.auxiliariesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPronominal => $composableBuilder(
+    column: $table.isPronominal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reflexiveCase => $composableBuilder(
+    column: $table.reflexiveCase,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefective => $composableBuilder(
+    column: $table.isDefective,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formsJson => $composableBuilder(
+    column: $table.formsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ConjugationsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ConjugationsTableTable> {
+  $$ConjugationsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get langId =>
+      $composableBuilder(column: $table.langId, builder: (column) => column);
+
+  GeneratedColumn<String> get lemma =>
+      $composableBuilder(column: $table.lemma, builder: (column) => column);
+
+  GeneratedColumn<String> get verbGroup =>
+      $composableBuilder(column: $table.verbGroup, builder: (column) => column);
+
+  GeneratedColumn<String> get auxiliariesJson => $composableBuilder(
+    column: $table.auxiliariesJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPronominal => $composableBuilder(
+    column: $table.isPronominal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reflexiveCase => $composableBuilder(
+    column: $table.reflexiveCase,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDefective => $composableBuilder(
+    column: $table.isDefective,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get formsJson =>
+      $composableBuilder(column: $table.formsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => column,
+  );
+}
+
+class $$ConjugationsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ConjugationsTableTable,
+          ConjugationEntry,
+          $$ConjugationsTableTableFilterComposer,
+          $$ConjugationsTableTableOrderingComposer,
+          $$ConjugationsTableTableAnnotationComposer,
+          $$ConjugationsTableTableCreateCompanionBuilder,
+          $$ConjugationsTableTableUpdateCompanionBuilder,
+          (
+            ConjugationEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $ConjugationsTableTable,
+              ConjugationEntry
+            >,
+          ),
+          ConjugationEntry,
+          PrefetchHooks Function()
+        > {
+  $$ConjugationsTableTableTableManager(
+    _$AppDatabase db,
+    $ConjugationsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConjugationsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConjugationsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConjugationsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> langId = const Value.absent(),
+                Value<String> lemma = const Value.absent(),
+                Value<String?> verbGroup = const Value.absent(),
+                Value<String> auxiliariesJson = const Value.absent(),
+                Value<bool> isPronominal = const Value.absent(),
+                Value<String?> reflexiveCase = const Value.absent(),
+                Value<bool> isIrregular = const Value.absent(),
+                Value<bool> isDefective = const Value.absent(),
+                Value<String> generalNoteJson = const Value.absent(),
+                Value<String> formsJson = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => ConjugationsTableCompanion(
+                id: id,
+                langId: langId,
+                lemma: lemma,
+                verbGroup: verbGroup,
+                auxiliariesJson: auxiliariesJson,
+                isPronominal: isPronominal,
+                reflexiveCase: reflexiveCase,
+                isIrregular: isIrregular,
+                isDefective: isDefective,
+                generalNoteJson: generalNoteJson,
+                formsJson: formsJson,
+                source: source,
+                isPublished: isPublished,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int langId,
+                required String lemma,
+                Value<String?> verbGroup = const Value.absent(),
+                Value<String> auxiliariesJson = const Value.absent(),
+                Value<bool> isPronominal = const Value.absent(),
+                Value<String?> reflexiveCase = const Value.absent(),
+                Value<bool> isIrregular = const Value.absent(),
+                Value<bool> isDefective = const Value.absent(),
+                Value<String> generalNoteJson = const Value.absent(),
+                Value<String> formsJson = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => ConjugationsTableCompanion.insert(
+                id: id,
+                langId: langId,
+                lemma: lemma,
+                verbGroup: verbGroup,
+                auxiliariesJson: auxiliariesJson,
+                isPronominal: isPronominal,
+                reflexiveCase: reflexiveCase,
+                isIrregular: isIrregular,
+                isDefective: isDefective,
+                generalNoteJson: generalNoteJson,
+                formsJson: formsJson,
+                source: source,
+                isPublished: isPublished,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ConjugationsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ConjugationsTableTable,
+      ConjugationEntry,
+      $$ConjugationsTableTableFilterComposer,
+      $$ConjugationsTableTableOrderingComposer,
+      $$ConjugationsTableTableAnnotationComposer,
+      $$ConjugationsTableTableCreateCompanionBuilder,
+      $$ConjugationsTableTableUpdateCompanionBuilder,
+      (
+        ConjugationEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $ConjugationsTableTable,
+          ConjugationEntry
+        >,
+      ),
+      ConjugationEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$DeclensionsTableTableCreateCompanionBuilder =
+    DeclensionsTableCompanion Function({
+      Value<int> id,
+      required int langId,
+      required String lemma,
+      required String pos,
+      Value<String?> gender,
+      Value<String?> declensionClass,
+      Value<bool> isIrregular,
+      Value<bool> isInvariable,
+      Value<String> generalNoteJson,
+      Value<String> formsJson,
+      Value<String> source,
+      Value<bool> isPublished,
+    });
+typedef $$DeclensionsTableTableUpdateCompanionBuilder =
+    DeclensionsTableCompanion Function({
+      Value<int> id,
+      Value<int> langId,
+      Value<String> lemma,
+      Value<String> pos,
+      Value<String?> gender,
+      Value<String?> declensionClass,
+      Value<bool> isIrregular,
+      Value<bool> isInvariable,
+      Value<String> generalNoteJson,
+      Value<String> formsJson,
+      Value<String> source,
+      Value<bool> isPublished,
+    });
+
+class $$DeclensionsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $DeclensionsTableTable> {
+  $$DeclensionsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lemma => $composableBuilder(
+    column: $table.lemma,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pos => $composableBuilder(
+    column: $table.pos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get gender => $composableBuilder(
+    column: $table.gender,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get declensionClass => $composableBuilder(
+    column: $table.declensionClass,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isInvariable => $composableBuilder(
+    column: $table.isInvariable,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get formsJson => $composableBuilder(
+    column: $table.formsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DeclensionsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeclensionsTableTable> {
+  $$DeclensionsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lemma => $composableBuilder(
+    column: $table.lemma,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pos => $composableBuilder(
+    column: $table.pos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get gender => $composableBuilder(
+    column: $table.gender,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get declensionClass => $composableBuilder(
+    column: $table.declensionClass,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isInvariable => $composableBuilder(
+    column: $table.isInvariable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formsJson => $composableBuilder(
+    column: $table.formsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DeclensionsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeclensionsTableTable> {
+  $$DeclensionsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get langId =>
+      $composableBuilder(column: $table.langId, builder: (column) => column);
+
+  GeneratedColumn<String> get lemma =>
+      $composableBuilder(column: $table.lemma, builder: (column) => column);
+
+  GeneratedColumn<String> get pos =>
+      $composableBuilder(column: $table.pos, builder: (column) => column);
+
+  GeneratedColumn<String> get gender =>
+      $composableBuilder(column: $table.gender, builder: (column) => column);
+
+  GeneratedColumn<String> get declensionClass => $composableBuilder(
+    column: $table.declensionClass,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isIrregular => $composableBuilder(
+    column: $table.isIrregular,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isInvariable => $composableBuilder(
+    column: $table.isInvariable,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get generalNoteJson => $composableBuilder(
+    column: $table.generalNoteJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get formsJson =>
+      $composableBuilder(column: $table.formsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => column,
+  );
+}
+
+class $$DeclensionsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeclensionsTableTable,
+          DeclensionEntry,
+          $$DeclensionsTableTableFilterComposer,
+          $$DeclensionsTableTableOrderingComposer,
+          $$DeclensionsTableTableAnnotationComposer,
+          $$DeclensionsTableTableCreateCompanionBuilder,
+          $$DeclensionsTableTableUpdateCompanionBuilder,
+          (
+            DeclensionEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $DeclensionsTableTable,
+              DeclensionEntry
+            >,
+          ),
+          DeclensionEntry,
+          PrefetchHooks Function()
+        > {
+  $$DeclensionsTableTableTableManager(
+    _$AppDatabase db,
+    $DeclensionsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeclensionsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeclensionsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DeclensionsTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> langId = const Value.absent(),
+                Value<String> lemma = const Value.absent(),
+                Value<String> pos = const Value.absent(),
+                Value<String?> gender = const Value.absent(),
+                Value<String?> declensionClass = const Value.absent(),
+                Value<bool> isIrregular = const Value.absent(),
+                Value<bool> isInvariable = const Value.absent(),
+                Value<String> generalNoteJson = const Value.absent(),
+                Value<String> formsJson = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => DeclensionsTableCompanion(
+                id: id,
+                langId: langId,
+                lemma: lemma,
+                pos: pos,
+                gender: gender,
+                declensionClass: declensionClass,
+                isIrregular: isIrregular,
+                isInvariable: isInvariable,
+                generalNoteJson: generalNoteJson,
+                formsJson: formsJson,
+                source: source,
+                isPublished: isPublished,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int langId,
+                required String lemma,
+                required String pos,
+                Value<String?> gender = const Value.absent(),
+                Value<String?> declensionClass = const Value.absent(),
+                Value<bool> isIrregular = const Value.absent(),
+                Value<bool> isInvariable = const Value.absent(),
+                Value<String> generalNoteJson = const Value.absent(),
+                Value<String> formsJson = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => DeclensionsTableCompanion.insert(
+                id: id,
+                langId: langId,
+                lemma: lemma,
+                pos: pos,
+                gender: gender,
+                declensionClass: declensionClass,
+                isIrregular: isIrregular,
+                isInvariable: isInvariable,
+                generalNoteJson: generalNoteJson,
+                formsJson: formsJson,
+                source: source,
+                isPublished: isPublished,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DeclensionsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeclensionsTableTable,
+      DeclensionEntry,
+      $$DeclensionsTableTableFilterComposer,
+      $$DeclensionsTableTableOrderingComposer,
+      $$DeclensionsTableTableAnnotationComposer,
+      $$DeclensionsTableTableCreateCompanionBuilder,
+      $$DeclensionsTableTableUpdateCompanionBuilder,
+      (
+        DeclensionEntry,
+        BaseReferences<_$AppDatabase, $DeclensionsTableTable, DeclensionEntry>,
+      ),
+      DeclensionEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$GrammarLessonsTableTableCreateCompanionBuilder =
+    GrammarLessonsTableCompanion Function({
+      Value<int> id,
+      required int langId,
+      required String slug,
+      required String level,
+      Value<int> orderIndex,
+      Value<String> titleJson,
+      Value<String> prerequisiteIdsJson,
+      Value<String> linkedVerbIdsJson,
+      Value<String> targetTensesJson,
+      Value<String> linkedDeclensionIdsJson,
+      Value<String> targetCasesJson,
+      Value<String> blocksJson,
+      Value<String> exercisesJson,
+      Value<bool> isPublished,
+    });
+typedef $$GrammarLessonsTableTableUpdateCompanionBuilder =
+    GrammarLessonsTableCompanion Function({
+      Value<int> id,
+      Value<int> langId,
+      Value<String> slug,
+      Value<String> level,
+      Value<int> orderIndex,
+      Value<String> titleJson,
+      Value<String> prerequisiteIdsJson,
+      Value<String> linkedVerbIdsJson,
+      Value<String> targetTensesJson,
+      Value<String> linkedDeclensionIdsJson,
+      Value<String> targetCasesJson,
+      Value<String> blocksJson,
+      Value<String> exercisesJson,
+      Value<bool> isPublished,
+    });
+
+class $$GrammarLessonsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $GrammarLessonsTableTable> {
+  $$GrammarLessonsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get slug => $composableBuilder(
+    column: $table.slug,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get titleJson => $composableBuilder(
+    column: $table.titleJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get prerequisiteIdsJson => $composableBuilder(
+    column: $table.prerequisiteIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get linkedVerbIdsJson => $composableBuilder(
+    column: $table.linkedVerbIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetTensesJson => $composableBuilder(
+    column: $table.targetTensesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get linkedDeclensionIdsJson => $composableBuilder(
+    column: $table.linkedDeclensionIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetCasesJson => $composableBuilder(
+    column: $table.targetCasesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get blocksJson => $composableBuilder(
+    column: $table.blocksJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get exercisesJson => $composableBuilder(
+    column: $table.exercisesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GrammarLessonsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $GrammarLessonsTableTable> {
+  $$GrammarLessonsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get langId => $composableBuilder(
+    column: $table.langId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get slug => $composableBuilder(
+    column: $table.slug,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get titleJson => $composableBuilder(
+    column: $table.titleJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get prerequisiteIdsJson => $composableBuilder(
+    column: $table.prerequisiteIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get linkedVerbIdsJson => $composableBuilder(
+    column: $table.linkedVerbIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetTensesJson => $composableBuilder(
+    column: $table.targetTensesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get linkedDeclensionIdsJson => $composableBuilder(
+    column: $table.linkedDeclensionIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetCasesJson => $composableBuilder(
+    column: $table.targetCasesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get blocksJson => $composableBuilder(
+    column: $table.blocksJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get exercisesJson => $composableBuilder(
+    column: $table.exercisesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GrammarLessonsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GrammarLessonsTableTable> {
+  $$GrammarLessonsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get langId =>
+      $composableBuilder(column: $table.langId, builder: (column) => column);
+
+  GeneratedColumn<String> get slug =>
+      $composableBuilder(column: $table.slug, builder: (column) => column);
+
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get titleJson =>
+      $composableBuilder(column: $table.titleJson, builder: (column) => column);
+
+  GeneratedColumn<String> get prerequisiteIdsJson => $composableBuilder(
+    column: $table.prerequisiteIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get linkedVerbIdsJson => $composableBuilder(
+    column: $table.linkedVerbIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetTensesJson => $composableBuilder(
+    column: $table.targetTensesJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get linkedDeclensionIdsJson => $composableBuilder(
+    column: $table.linkedDeclensionIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetCasesJson => $composableBuilder(
+    column: $table.targetCasesJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get blocksJson => $composableBuilder(
+    column: $table.blocksJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get exercisesJson => $composableBuilder(
+    column: $table.exercisesJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPublished => $composableBuilder(
+    column: $table.isPublished,
+    builder: (column) => column,
+  );
+}
+
+class $$GrammarLessonsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GrammarLessonsTableTable,
+          GrammarLessonEntry,
+          $$GrammarLessonsTableTableFilterComposer,
+          $$GrammarLessonsTableTableOrderingComposer,
+          $$GrammarLessonsTableTableAnnotationComposer,
+          $$GrammarLessonsTableTableCreateCompanionBuilder,
+          $$GrammarLessonsTableTableUpdateCompanionBuilder,
+          (
+            GrammarLessonEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $GrammarLessonsTableTable,
+              GrammarLessonEntry
+            >,
+          ),
+          GrammarLessonEntry,
+          PrefetchHooks Function()
+        > {
+  $$GrammarLessonsTableTableTableManager(
+    _$AppDatabase db,
+    $GrammarLessonsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GrammarLessonsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GrammarLessonsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$GrammarLessonsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> langId = const Value.absent(),
+                Value<String> slug = const Value.absent(),
+                Value<String> level = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<String> titleJson = const Value.absent(),
+                Value<String> prerequisiteIdsJson = const Value.absent(),
+                Value<String> linkedVerbIdsJson = const Value.absent(),
+                Value<String> targetTensesJson = const Value.absent(),
+                Value<String> linkedDeclensionIdsJson = const Value.absent(),
+                Value<String> targetCasesJson = const Value.absent(),
+                Value<String> blocksJson = const Value.absent(),
+                Value<String> exercisesJson = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => GrammarLessonsTableCompanion(
+                id: id,
+                langId: langId,
+                slug: slug,
+                level: level,
+                orderIndex: orderIndex,
+                titleJson: titleJson,
+                prerequisiteIdsJson: prerequisiteIdsJson,
+                linkedVerbIdsJson: linkedVerbIdsJson,
+                targetTensesJson: targetTensesJson,
+                linkedDeclensionIdsJson: linkedDeclensionIdsJson,
+                targetCasesJson: targetCasesJson,
+                blocksJson: blocksJson,
+                exercisesJson: exercisesJson,
+                isPublished: isPublished,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int langId,
+                required String slug,
+                required String level,
+                Value<int> orderIndex = const Value.absent(),
+                Value<String> titleJson = const Value.absent(),
+                Value<String> prerequisiteIdsJson = const Value.absent(),
+                Value<String> linkedVerbIdsJson = const Value.absent(),
+                Value<String> targetTensesJson = const Value.absent(),
+                Value<String> linkedDeclensionIdsJson = const Value.absent(),
+                Value<String> targetCasesJson = const Value.absent(),
+                Value<String> blocksJson = const Value.absent(),
+                Value<String> exercisesJson = const Value.absent(),
+                Value<bool> isPublished = const Value.absent(),
+              }) => GrammarLessonsTableCompanion.insert(
+                id: id,
+                langId: langId,
+                slug: slug,
+                level: level,
+                orderIndex: orderIndex,
+                titleJson: titleJson,
+                prerequisiteIdsJson: prerequisiteIdsJson,
+                linkedVerbIdsJson: linkedVerbIdsJson,
+                targetTensesJson: targetTensesJson,
+                linkedDeclensionIdsJson: linkedDeclensionIdsJson,
+                targetCasesJson: targetCasesJson,
+                blocksJson: blocksJson,
+                exercisesJson: exercisesJson,
+                isPublished: isPublished,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GrammarLessonsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GrammarLessonsTableTable,
+      GrammarLessonEntry,
+      $$GrammarLessonsTableTableFilterComposer,
+      $$GrammarLessonsTableTableOrderingComposer,
+      $$GrammarLessonsTableTableAnnotationComposer,
+      $$GrammarLessonsTableTableCreateCompanionBuilder,
+      $$GrammarLessonsTableTableUpdateCompanionBuilder,
+      (
+        GrammarLessonEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $GrammarLessonsTableTable,
+          GrammarLessonEntry
+        >,
+      ),
+      GrammarLessonEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$LessonProgressTableTableCreateCompanionBuilder =
+    LessonProgressTableCompanion Function({
+      Value<int> id,
+      Value<String> userKey,
+      required int lessonId,
+      Value<String> exerciseResultsJson,
+      Value<double> score,
+      Value<DateTime> lastSeenAt,
+      Value<DateTime?> nextDueAt,
+    });
+typedef $$LessonProgressTableTableUpdateCompanionBuilder =
+    LessonProgressTableCompanion Function({
+      Value<int> id,
+      Value<String> userKey,
+      Value<int> lessonId,
+      Value<String> exerciseResultsJson,
+      Value<double> score,
+      Value<DateTime> lastSeenAt,
+      Value<DateTime?> nextDueAt,
+    });
+
+class $$LessonProgressTableTableFilterComposer
+    extends Composer<_$AppDatabase, $LessonProgressTableTable> {
+  $$LessonProgressTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userKey => $composableBuilder(
+    column: $table.userKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lessonId => $composableBuilder(
+    column: $table.lessonId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get exerciseResultsJson => $composableBuilder(
+    column: $table.exerciseResultsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextDueAt => $composableBuilder(
+    column: $table.nextDueAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LessonProgressTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $LessonProgressTableTable> {
+  $$LessonProgressTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userKey => $composableBuilder(
+    column: $table.userKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lessonId => $composableBuilder(
+    column: $table.lessonId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get exerciseResultsJson => $composableBuilder(
+    column: $table.exerciseResultsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextDueAt => $composableBuilder(
+    column: $table.nextDueAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LessonProgressTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LessonProgressTableTable> {
+  $$LessonProgressTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userKey =>
+      $composableBuilder(column: $table.userKey, builder: (column) => column);
+
+  GeneratedColumn<int> get lessonId =>
+      $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<String> get exerciseResultsJson => $composableBuilder(
+    column: $table.exerciseResultsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextDueAt =>
+      $composableBuilder(column: $table.nextDueAt, builder: (column) => column);
+}
+
+class $$LessonProgressTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LessonProgressTableTable,
+          LessonProgressEntry,
+          $$LessonProgressTableTableFilterComposer,
+          $$LessonProgressTableTableOrderingComposer,
+          $$LessonProgressTableTableAnnotationComposer,
+          $$LessonProgressTableTableCreateCompanionBuilder,
+          $$LessonProgressTableTableUpdateCompanionBuilder,
+          (
+            LessonProgressEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $LessonProgressTableTable,
+              LessonProgressEntry
+            >,
+          ),
+          LessonProgressEntry,
+          PrefetchHooks Function()
+        > {
+  $$LessonProgressTableTableTableManager(
+    _$AppDatabase db,
+    $LessonProgressTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LessonProgressTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LessonProgressTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$LessonProgressTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> userKey = const Value.absent(),
+                Value<int> lessonId = const Value.absent(),
+                Value<String> exerciseResultsJson = const Value.absent(),
+                Value<double> score = const Value.absent(),
+                Value<DateTime> lastSeenAt = const Value.absent(),
+                Value<DateTime?> nextDueAt = const Value.absent(),
+              }) => LessonProgressTableCompanion(
+                id: id,
+                userKey: userKey,
+                lessonId: lessonId,
+                exerciseResultsJson: exerciseResultsJson,
+                score: score,
+                lastSeenAt: lastSeenAt,
+                nextDueAt: nextDueAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> userKey = const Value.absent(),
+                required int lessonId,
+                Value<String> exerciseResultsJson = const Value.absent(),
+                Value<double> score = const Value.absent(),
+                Value<DateTime> lastSeenAt = const Value.absent(),
+                Value<DateTime?> nextDueAt = const Value.absent(),
+              }) => LessonProgressTableCompanion.insert(
+                id: id,
+                userKey: userKey,
+                lessonId: lessonId,
+                exerciseResultsJson: exerciseResultsJson,
+                score: score,
+                lastSeenAt: lastSeenAt,
+                nextDueAt: nextDueAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LessonProgressTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LessonProgressTableTable,
+      LessonProgressEntry,
+      $$LessonProgressTableTableFilterComposer,
+      $$LessonProgressTableTableOrderingComposer,
+      $$LessonProgressTableTableAnnotationComposer,
+      $$LessonProgressTableTableCreateCompanionBuilder,
+      $$LessonProgressTableTableUpdateCompanionBuilder,
+      (
+        LessonProgressEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $LessonProgressTableTable,
+          LessonProgressEntry
+        >,
+      ),
+      LessonProgressEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3332,4 +8095,14 @@ class $AppDatabaseManager {
       $$UnimorphFormsTableTableTableManager(_db, _db.unimorphFormsTable);
   $$GrammarRulesTableTableTableManager get grammarRulesTable =>
       $$GrammarRulesTableTableTableManager(_db, _db.grammarRulesTable);
+  $$LanguagesTableTableTableManager get languagesTable =>
+      $$LanguagesTableTableTableManager(_db, _db.languagesTable);
+  $$ConjugationsTableTableTableManager get conjugationsTable =>
+      $$ConjugationsTableTableTableManager(_db, _db.conjugationsTable);
+  $$DeclensionsTableTableTableManager get declensionsTable =>
+      $$DeclensionsTableTableTableManager(_db, _db.declensionsTable);
+  $$GrammarLessonsTableTableTableManager get grammarLessonsTable =>
+      $$GrammarLessonsTableTableTableManager(_db, _db.grammarLessonsTable);
+  $$LessonProgressTableTableTableManager get lessonProgressTable =>
+      $$LessonProgressTableTableTableManager(_db, _db.lessonProgressTable);
 }

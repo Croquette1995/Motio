@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/bauhaus_theme.dart';
+import '../../referentiel/application/referentiel_controllers.dart';
+import '../domain/word.dart';
 import 'vocabulary_controller.dart';
 import 'widgets/tatoeba_examples_sheet.dart';
 import 'wiktionary_enrichment_widget.dart';
@@ -71,14 +73,14 @@ class CategoryScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.auto_stories),
-            tooltip: 'Domaines & Progression',
-            onPressed: () => context.push('/domains'),
-          ),
-          IconButton(
             icon: const Icon(Icons.travel_explore),
             tooltip: 'Explorer Tatoeba',
             onPressed: () => context.push('/tatoeba'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Paramètres',
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -356,6 +358,7 @@ class CategoryScreen extends ConsumerWidget {
                                 ),
                                 WiktionaryEnrichmentWidget(term: word.term),
                                 const SizedBox(height: 6),
+                                _WordMorphologyBridgeRow(word: word),
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: TextButton.icon(
@@ -394,5 +397,44 @@ class CategoryScreen extends ConsumerWidget {
             ],
           ),
         );
+  }
+}
+
+class _WordMorphologyBridgeRow extends ConsumerWidget {
+  final Word word;
+  const _WordMorphologyBridgeRow({required this.word});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final b = context.bauhaus;
+    final linksAsync = ref.watch(wordMorphologyLinksProvider(word));
+    final links = linksAsync.valueOrNull;
+    if (links == null || !links.hasAny) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        children: [
+          if (links.conjugation != null)
+            ActionChip(
+              avatar: Icon(Icons.menu_book, size: 14, color: b.slate),
+              backgroundColor: b.pastelYellow,
+              label: const Text('Voir la conjugaison'),
+              onPressed: () =>
+                  context.push('/referentiel/conjugation/${links.conjugation!.id}'),
+            ),
+          ...links.declensions.map(
+            (d) => ActionChip(
+              avatar: Icon(Icons.table_chart_outlined, size: 14, color: b.slate),
+              backgroundColor: b.pastelMint,
+              label: Text('Voir la déclinaison (${d.pos.code})'),
+              onPressed: () => context.push('/referentiel/declension/${d.id}'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

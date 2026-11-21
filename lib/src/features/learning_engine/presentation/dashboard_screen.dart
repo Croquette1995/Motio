@@ -48,16 +48,6 @@ class DashboardScreen extends ConsumerWidget {
             onPressed: () => context.push('/tatoeba'),
           ),
           IconButton(
-            icon: const Icon(Icons.auto_stories),
-            tooltip: 'Domaines & Progression',
-            onPressed: () => context.push('/domains'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.list_alt),
-            tooltip: 'Vocabulaire',
-            onPressed: () => context.push('/vocabulary'),
-          ),
-          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Paramètres',
             onPressed: () => context.push('/settings'),
@@ -225,7 +215,7 @@ class DashboardScreen extends ConsumerWidget {
                           ref.read(selectedStatusFilterProvider.notifier).select('À réviser');
                           ref.read(selectedCategoryProvider.notifier).select(null);
                           ref.read(selectedLevelFilterProvider.notifier).select(userLevel.code);
-                          context.push('/vocabulary');
+                          context.go('/vocabulary');
                         },
                       ),
                     ),
@@ -241,7 +231,7 @@ class DashboardScreen extends ConsumerWidget {
                           ref.read(selectedStatusFilterProvider.notifier).select('Nouveau');
                           ref.read(selectedCategoryProvider.notifier).select(null);
                           ref.read(selectedLevelFilterProvider.notifier).select(userLevel.code);
-                          context.push('/vocabulary');
+                          context.go('/vocabulary');
                         },
                       ),
                     ),
@@ -257,7 +247,7 @@ class DashboardScreen extends ConsumerWidget {
                           ref.read(selectedStatusFilterProvider.notifier).select(null);
                           ref.read(selectedCategoryProvider.notifier).select(null);
                           ref.read(selectedLevelFilterProvider.notifier).select(userLevel.code);
-                          context.push('/vocabulary');
+                          context.go('/vocabulary');
                         },
                       ),
                     ),
@@ -320,7 +310,7 @@ class DashboardScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
                         ),
-                        onPressed: () => context.push('/domains'),
+                        onPressed: () => context.go('/domains'),
                         child: const Text('VOIR'),
                       ),
                     ],

@@ -59,9 +59,9 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
             onPressed: () => context.push('/tatoeba'),
           ),
           IconButton(
-            icon: const Icon(Icons.list_alt),
-            tooltip: 'Vocabulaire',
-            onPressed: () => context.push('/vocabulary'),
+            icon: const Icon(Icons.settings),
+            tooltip: 'Paramètres',
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),

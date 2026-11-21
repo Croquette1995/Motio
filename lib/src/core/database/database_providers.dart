@@ -5,6 +5,9 @@ import '../../features/vocabulary/domain/i_word_repository.dart';
 import '../../features/learning_engine/data/drift_progress_repository.dart';
 import '../../features/learning_engine/application/session_scheduler_service.dart';
 import '../../features/learning_engine/application/srs_service.dart';
+import '../../features/referentiel/data/drift_referentiel_repository.dart';
+import '../../features/referentiel/application/referentiel_import_service.dart';
+import '../../features/referentiel/application/vocabulary_bridge_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -34,4 +37,23 @@ final sessionSchedulerServiceProvider = Provider<SessionSchedulerService>((ref) 
 final srsServiceProvider = Provider<SrsService>((ref) {
   final progressRepo = ref.watch(progressRepositoryProvider);
   return SrsService(progressRepo);
+});
+
+final referentielRepositoryProvider = Provider<DriftReferentielRepository>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return DriftReferentielRepository(db);
+});
+
+final referentielImportServiceProvider = Provider<ReferentielImportService>((ref) {
+  final repo = ref.watch(referentielRepositoryProvider);
+  return ReferentielImportService(repo);
+});
+
+final vocabularyBridgeServiceProvider = Provider<VocabularyBridgeService>((ref) {
+  final refRepo = ref.watch(referentielRepositoryProvider);
+  final wordRepo = ref.watch(wordRepositoryProvider);
+  return VocabularyBridgeService(
+    referentielRepo: refRepo,
+    wordRepo: wordRepo,
+  );
 });
