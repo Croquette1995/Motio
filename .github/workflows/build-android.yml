@@ -3,9 +3,13 @@ name: Build Flutter Android
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch: # Permet de lancer le build manuellement depuis l'onglet Actions
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -45,3 +49,25 @@ jobs:
           name: flutter-apk
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 7
+
+      - name: Publish APKs to GitHub Release
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            TITLE="Motio ${TAG}"
+          else
+            TAG="latest"
+            TITLE="Motio Latest APK"
+          fi
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" build/app/outputs/flutter-apk/*.apk --clobber
+            gh release edit "$TAG" --title "$TITLE" --notes "Build automatique (${GITHUB_SHA::7}) - ${GITHUB_REF_NAME}"
+          else
+            gh release create "$TAG" build/app/outputs/flutter-apk/*.apk \
+              --title "$TITLE" \
+              --notes "Build automatique (${GITHUB_SHA::7}) - ${GITHUB_REF_NAME}"
+          fi
