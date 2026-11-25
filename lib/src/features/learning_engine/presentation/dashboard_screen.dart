@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/database/database_providers.dart';
 import '../../../core/theme/bauhaus_theme.dart';
+import '../../settings/application/level_unlock_controller.dart';
 import '../../settings/application/user_level_controller.dart';
 import '../../settings/domain/cefr_level.dart';
+import '../../settings/presentation/level_unlock_dialog.dart';
+import '../../settings/presentation/level_up_banner.dart';
 import '../../vocabulary/presentation/vocabulary_controller.dart';
 import 'session_controller.dart';
 
@@ -16,6 +19,7 @@ class DashboardScreen extends ConsumerWidget {
     final allWordsAsync = ref.watch(allWordsProvider);
     final progressRepo = ref.watch(progressRepositoryProvider);
     final userLevel = ref.watch(userLevelProvider);
+    final unlockState = ref.watch(levelUnlockDisplayProvider);
     // Watch wordProgressMapProvider so the dashboard refreshes automatically on progress updates
     ref.watch(wordProgressMapProvider);
     final b = context.bauhaus;
@@ -74,6 +78,8 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const LevelUpBanner(),
+
                 // Welcome banner - Bauhaus Pastel Hero Card avec sélecteur de niveau CECRL
                 Container(
                   padding: const EdgeInsets.all(22.0),
@@ -151,6 +157,10 @@ class DashboardScreen extends ConsumerWidget {
                           return InkWell(
                             borderRadius: BorderRadius.circular(6),
                             onTap: () {
+                              if (!unlockState.isUnlocked(lvl)) {
+                                LevelUnlockDialog.show(context, lvl);
+                                return;
+                              }
                               ref.read(userLevelProvider.notifier).setLevel(lvl);
                             },
                             child: AnimatedContainer(
@@ -179,6 +189,10 @@ class DashboardScreen extends ConsumerWidget {
                                   if (isSelected) ...[
                                     Icon(Icons.check, size: 12, color: b.slate),
                                     const SizedBox(width: 4),
+                                  ],
+                                  if (!unlockState.isUnlocked(lvl)) ...[
+                                    Icon(Icons.lock, size: 12, color: b.slate),
+                                    const SizedBox(width: 2),
                                   ],
                                   Text(
                                     lvl.code,

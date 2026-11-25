@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import '../../learning_engine/presentation/session_controller.dart';
+import '../../settings/application/level_unlock_controller.dart';
 import '../../settings/application/user_level_controller.dart';
 import '../../settings/application/voice_settings_controller.dart';
 import '../../settings/domain/cefr_level.dart';
+import '../../settings/presentation/level_unlock_dialog.dart';
 import '../application/category_progress_service.dart';
 import '../domain/word.dart';
 import 'vocabulary_controller.dart';
@@ -27,6 +29,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
     final activeUserLevel = ref.watch(userLevelProvider);
+    final unlockState = ref.watch(levelUnlockDisplayProvider);
     final currentLevel = _selectedLevel ?? activeUserLevel;
 
     final progressAsync = ref.watch(levelCategoryProgressProvider(currentLevel));
@@ -77,6 +80,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
             child: Row(
               children: CefrLevel.values.map((lvl) {
                 final isSelected = currentLevel == lvl;
+                final unlocked = unlockState.isUnlocked(lvl);
                 final pastel = switch (lvl) {
                   CefrLevel.a1 => b.pastelMint,
                   CefrLevel.a2 => b.pastelBlue,
@@ -90,6 +94,10 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(6),
                       onTap: () {
+                        if (!unlocked) {
+                          LevelUnlockDialog.show(context, lvl);
+                          return;
+                        }
                         setState(() {
                           _selectedLevel = lvl;
                         });
@@ -114,14 +122,24 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                               : [],
                         ),
                         child: Center(
-                          child: Text(
-                            lvl.code,
-                            style: TextStyle(
-                              color: b.slate,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              fontSize: 13,
-                              letterSpacing: 0.5,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (!unlocked) ...[
+                                Icon(Icons.lock, size: 12, color: b.slate),
+                                const SizedBox(width: 2),
+                              ],
+                              Text(
+                                lvl.code,
+                                style: TextStyle(
+                                  color: b.slate,
+                                  fontWeight:
+                                      isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  fontSize: 13,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -147,7 +165,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                   padding: const EdgeInsets.all(16),
                   children: [
                     // Synthèse globale du niveau
-                    _buildLevelSummaryCard(context, data),
+                    _buildLevelSummaryCard(context, data, activeUserLevel),
 
                     const SizedBox(height: 20),
 
@@ -223,7 +241,11 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
   }
 
   /// Carte de synthèse globale pour le niveau sélectionné
-  Widget _buildLevelSummaryCard(BuildContext context, LevelProgressData data) {
+  Widget _buildLevelSummaryCard(
+    BuildContext context,
+    LevelProgressData data,
+    CefrLevel activeUserLevel,
+  ) {
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
 
@@ -245,15 +267,33 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                data.level.label.toUpperCase(),
-                style: t.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: b.slate,
+              Expanded(
+                child: Text(
+                  data.level.label.toUpperCase(),
+                  style: t.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: b.slate,
+                  ),
                 ),
               ),
+              // Marqueur « révision » pour un niveau déjà couvert
+              if (data.level.index < activeUserLevel.index)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: b.pastelBlue,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: b.slate, width: 1),
+                    ),
+                    child: Text(
+                      'RÉVISION ${data.level.code}',
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+                    ),
+                  ),
+                ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
