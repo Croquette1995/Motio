@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lexiflow/src/core/database/app_database.dart';
 import 'package:lexiflow/src/core/database/database_providers.dart';
 import 'package:lexiflow/src/core/theme/bauhaus_theme.dart';
+import 'package:lexiflow/src/features/settings/application/user_level_controller.dart';
+import 'package:lexiflow/src/features/settings/domain/cefr_level.dart';
 import 'package:lexiflow/src/features/vocabulary/presentation/level_domains_screen.dart';
 
 void main() {
@@ -19,10 +21,12 @@ void main() {
     await testDb.close();
   });
 
-  Widget buildTestableWidget() {
+  Widget buildTestableWidget({CefrLevel userLevel = CefrLevel.a1}) {
     return ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWithValue(testDb),
+        if (userLevel != CefrLevel.a1)
+          userLevelProvider.overrideWith(() => _FixedLevelNotifier(userLevel)),
       ],
       child: MaterialApp(
         theme: bauhausTheme(),
@@ -60,7 +64,7 @@ void main() {
   });
 
   testWidgets('LevelDomainsScreen switches level to A2 on tap', (WidgetTester tester) async {
-    await tester.pumpWidget(buildTestableWidget());
+    await tester.pumpWidget(buildTestableWidget(userLevel: CefrLevel.a2));
     await tester.pumpAndSettle();
 
     // Tap on tab A2
@@ -70,4 +74,13 @@ void main() {
     // Verify A2 subtitle
     expect(find.textContaining('NIVEAU A2'), findsOneWidget);
   });
+}
+
+class _FixedLevelNotifier extends UserLevelNotifier {
+  _FixedLevelNotifier(this.level);
+
+  final CefrLevel level;
+
+  @override
+  CefrLevel build() => level;
 }
