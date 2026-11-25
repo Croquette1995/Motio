@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
+import '../application/level_unlock_controller.dart';
 import '../application/user_level_controller.dart';
 import '../domain/cefr_level.dart';
+import 'level_unlock_dialog.dart';
 import '../application/voice_settings_controller.dart';
 import '../domain/voice_settings.dart';
 
@@ -17,6 +19,7 @@ class SettingsScreen extends ConsumerWidget {
     final n = ref.read(voiceSettingsProvider.notifier);
     final currentLevel = ref.watch(userLevelProvider);
     final levelNotifier = ref.read(userLevelProvider.notifier);
+    final unlockState = ref.watch(levelUnlockDisplayProvider);
     final voicesAsync = ref.watch(availableVoicesProvider(s.languageCode));
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
@@ -70,7 +73,12 @@ class SettingsScreen extends ConsumerWidget {
               RadioGroup<CefrLevel>(
                 groupValue: currentLevel,
                 onChanged: (val) {
-                  if (val != null) levelNotifier.setLevel(val);
+                  if (val == null) return;
+                  if (!unlockState.isUnlocked(val)) {
+                    LevelUnlockDialog.show(context, val);
+                    return;
+                  }
+                  levelNotifier.setLevel(val);
                 },
                 child: Column(
                   children: [

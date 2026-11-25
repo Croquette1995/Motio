@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import '../../referentiel/application/referentiel_controllers.dart';
+import '../../settings/application/level_unlock_controller.dart';
+import '../../settings/domain/cefr_level.dart';
+import '../../settings/presentation/level_unlock_dialog.dart';
 import '../domain/word.dart';
 import 'vocabulary_controller.dart';
 import 'widgets/tatoeba_examples_sheet.dart';
@@ -50,6 +53,7 @@ class CategoryScreen extends ConsumerWidget {
     final selectedLevel = ref.watch(selectedLevelFilterProvider);
     final selectedStatus = ref.watch(selectedStatusFilterProvider);
     final progressMapAsync = ref.watch(wordProgressMapProvider);
+    final unlockState = ref.watch(levelUnlockDisplayProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -144,40 +148,41 @@ class CategoryScreen extends ConsumerWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
                 child: Row(
-                  children: [
-                    ChoiceChip(
-                      label: const Text('TOUS NIVEAUX'),
-                      selected: selectedLevel == null,
-                      selectedColor: b.pastelMint,
-                      onSelected: (_) {
-                        ref.read(selectedLevelFilterProvider.notifier).select(null);
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    ...['A1', 'A2', 'B1', 'B2'].map((lvl) {
-                      final isSelected = selectedLevel?.toUpperCase() == lvl;
-                      final chipColor = switch (lvl) {
-                        'A1' => b.pastelMint,
-                        'A2' => b.pastelBlue,
-                        'B1' => b.pastelYellow,
-                        _ => b.pastelRed,
-                      };
+                  children: CefrLevel.values.map((lvl) {
+                    final isSelected = selectedLevel?.toUpperCase() == lvl.code;
+                    final unlocked = unlockState.isUnlocked(lvl);
+                    final isReview = unlockState.isReviewLevel(lvl);
+                    final chipColor = switch (lvl) {
+                      CefrLevel.a1 => b.pastelMint,
+                      CefrLevel.a2 => b.pastelBlue,
+                      CefrLevel.b1 => b.pastelYellow,
+                      CefrLevel.b2 => b.pastelRed,
+                    };
 
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text('NIVEAU $lvl'),
-                          selected: isSelected,
-                          selectedColor: chipColor,
-                          onSelected: (selected) {
-                            ref.read(selectedLevelFilterProvider.notifier).select(
-                                  selected ? lvl : null,
-                                );
-                          },
-                        ),
-                      );
-                    }),
-                  ],
+                    final chipLabel = unlocked && isReview
+                        ? 'RÉVISION ${lvl.code}'
+                        : 'NIVEAU ${lvl.code}';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ChoiceChip(
+                        avatar:
+                            unlocked ? null : Icon(Icons.lock, size: 14, color: b.slate),
+                        label: Text(chipLabel),
+                        selected: isSelected,
+                        selectedColor: unlocked ? chipColor : b.chalk,
+                        onSelected: (selected) {
+                          if (!unlocked) {
+                            LevelUnlockDialog.show(context, lvl);
+                            return;
+                          }
+                          if (selected) {
+                            ref.read(selectedLevelFilterProvider.notifier).select(lvl.code);
+                          }
+                        },
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
 

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/word.dart';
 import '../../../core/database/database_providers.dart';
 import '../../learning_engine/domain/word_progress.dart';
+import '../../settings/application/user_level_controller.dart';
 
 final allWordsProvider = FutureProvider<List<Word>>((ref) async {
   final repo = ref.watch(wordRepositoryProvider);
@@ -42,8 +43,9 @@ final selectedStatusFilterProvider =
 
 class SelectedLevelFilterNotifier extends Notifier<String?> {
   @override
-  String? build() => null;
-  void select(String? level) => state = level;
+  String? build() => ref.watch(userLevelProvider).code;
+
+  void select(String? level) => state = level ?? ref.read(userLevelProvider).code;
 }
 
 final selectedLevelFilterProvider =
