@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/widgets/bauhaus_dock_shell.dart';
 import '../features/learning_engine/presentation/dashboard_screen.dart';
 import '../features/learning_engine/presentation/session_screen.dart';
+import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/practice_canvas/presentation/digital_ink_init_screen.dart';
 import '../features/referentiel/domain/conjugation.dart';
 import '../features/referentiel/domain/declension.dart';
@@ -17,6 +18,7 @@ import '../features/referentiel/presentation/studio/bundle_import_export_screen.
 import '../features/referentiel/presentation/studio/conjugation_editor_screen.dart';
 import '../features/referentiel/presentation/studio/declension_editor_screen.dart';
 import '../features/referentiel/presentation/studio/lesson_editor_screen.dart';
+import '../features/settings/application/user_level_controller.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/vocabulary/presentation/category_screen.dart';
 import '../features/vocabulary/presentation/level_domains_screen.dart';
@@ -25,9 +27,17 @@ import '../features/vocabulary/presentation/tatoeba_explorer_screen.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/init',
+    redirect: (context, state) {
+      final onboarded = ref.read(isLevelOnboardedProvider).valueOrNull;
+      if (onboarded == null) return null;
+      final isOnboarding = state.matchedLocation == '/onboarding';
+      if (!onboarded && !isOnboarding) return '/onboarding';
+      if (onboarded && isOnboarding) return '/';
+      return null;
+    },
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -77,6 +87,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'init',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const DigitalInkInitScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/tatoeba',
@@ -171,4 +187,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.listen(isLevelOnboardedProvider, (_, __) => router.refresh());
+  ref.onDispose(router.dispose);
+  return router;
 });
