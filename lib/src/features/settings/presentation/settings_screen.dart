@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
 import '../application/level_unlock_controller.dart';
+import '../application/level_up_suggestion_controller.dart';
 import '../application/user_level_controller.dart';
 import '../domain/cefr_level.dart';
 import 'level_unlock_dialog.dart';
@@ -20,6 +21,7 @@ class SettingsScreen extends ConsumerWidget {
     final currentLevel = ref.watch(userLevelProvider);
     final levelNotifier = ref.read(userLevelProvider.notifier);
     final unlockState = ref.watch(levelUnlockDisplayProvider);
+    final levelUpSuggestion = ref.watch(levelUpSuggestionDisplayProvider);
     final voicesAsync = ref.watch(availableVoicesProvider(s.languageCode));
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
@@ -92,6 +94,56 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+              if (levelUpSuggestion.suggestion != null) ...[
+                section('MONTÉE EN NIVEAU'),
+                Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  elevation: 0,
+                  color: b.pastelMint.withValues(alpha: 0.18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: BorderSide(color: b.lineGrey),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          levelUpSuggestion.suggestion!.message(),
+                          style: t.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: b.slate,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: () => ref
+                                    .read(levelUpSuggestionStateProvider.notifier)
+                                    .accept(),
+                                child: Text(
+                                    'PASSER AU ${levelUpSuggestion.suggestion!.targetLevel.code}'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => ref
+                                    .read(levelUpSuggestionStateProvider.notifier)
+                                    .decline(),
+                                child: const Text('PLUS TARD'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               section('VOIX'),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,

@@ -6,6 +6,7 @@ import '../../settings/application/user_level_controller.dart';
 import '../../settings/application/voice_settings_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../../settings/domain/voice_settings.dart';
+import 'placement_quiz_card.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,6 +18,18 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   LearningLanguage _language = LearningLanguage.english;
   CefrLevel _level = CefrLevel.a1;
+  bool _showQuiz = false;
+  CefrLevel? _recommendedLevel;
+
+  void _onQuizCancelled(CefrLevel? recommended) {
+    setState(() {
+      _showQuiz = false;
+      if (recommended != null) {
+        _recommendedLevel = recommended;
+        _level = recommended;
+      }
+    });
+  }
 
   Future<void> _complete(CefrLevel level) async {
     ref.read(voiceSettingsProvider.notifier).setLanguage(_language.code);
@@ -100,7 +113,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                 ],
               ),
-              child: Column(
+              child: _showQuiz
+                  ? PlacementQuizCard(
+                      onCompleted: _complete,
+                      onCancelled: _onQuizCancelled,
+                    )
+                  : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -129,6 +147,35 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     comingSoon: true,
                   ),
                   sectionTitle('NIVEAU DE DÉPART'),
+                  if (_recommendedLevel != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: b.pastelBlue.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: b.pastelBlue),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.emoji_events,
+                              size: 18, color: b.pastelBlue),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Test de positionnement · niveau recommandé : ${_recommendedLevel!.code}',
+                              style: t.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: b.slate,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   RadioGroup<CefrLevel>(
                     groupValue: _level,
                     onChanged: (val) {
@@ -176,7 +223,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => _complete(CefrLevel.a1),
+                          onPressed: () => setState(() => _showQuiz = true),
                           child: const Text('JE NE SAIS PAS'),
                         ),
                       ),
