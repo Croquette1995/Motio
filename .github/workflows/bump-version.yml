@@ -1,0 +1,76 @@
+name: Bump Version
+
+# Incrémente automatiquement la version de pubspec.yaml (déclenchement
+# manuel depuis l'onglet Actions, sur main), crée le commit et le tag v*.
+# Le tag déclenche ensuite le build + release des APKs versionnés.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Composant de version à incrémenter'
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compute new version
+        id: version
+        run: |
+          CURRENT="$(grep -m1 '^version:' pubspec.yaml | sed -E 's/^version:[[:space:]]*//; s/\+.*$//')"
+          read -r MAJOR MINOR PATCH <<< "$(echo "$CURRENT" | awk -F. '{print $1, $2, $3}')"
+
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+            *)
+              echo "Type de bump inconnu : ${{ inputs.bump }}"
+              exit 1
+              ;;
+          esac
+
+          NEW="$MAJOR.$MINOR.$PATCH"
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          echo "Version : $CURRENT -> $NEW"
+
+      - name: Update pubspec.yaml
+        run: |
+          NEW="${{ steps.version.outputs.new }}"
+          sed -i -E "s/^version: .*/version: $NEW+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+          grep '^version:' pubspec.yaml
+
+      - name: Commit and tag
+        run: |
+          NEW="${{ steps.version.outputs.new }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml
+          git commit -m "chore(release): bump version to $NEW"
+          git tag "v$NEW"
+          git push origin "HEAD:main" "v$NEW"
+
+      # Un push effectué avec GITHUB_TOKEN ne déclenche pas les autres
+      # workflows : on lance explicitement le build sur le tag créé.
+      # NB : pour workflow_dispatch, --ref accepte une ref de tag.
+      - name: Trigger APK build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run build-android.yml --ref "v${{ steps.version.outputs.new }}"
