@@ -113,6 +113,10 @@ void main() {
     await container.read(levelUpSuggestionStateProvider.future);
     await container.read(levelUpSuggestionStateProvider.notifier).decline();
 
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
