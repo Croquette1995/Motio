@@ -104,7 +104,7 @@ void main() {
       expect(find.text('dashboard'), findsOneWidget);
     });
 
-    testWidgets('JE NE SAIS PAS skips with default A1 and marks onboarded', (
+    testWidgets('JE NE SAIS PAS opens the placement quiz; PASSER completes with A1', (
       tester,
     ) async {
       useTallViewport(tester);
@@ -121,6 +121,12 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('JE NE SAIS PAS'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('TEST DE POSITIONNEMENT'), findsOneWidget);
+      expect(find.text('hello'), findsOneWidget);
+
+      await tester.tap(find.text('PASSER'));
       await tester.pumpAndSettle();
 
       final prefs = await SharedPreferences.getInstance();

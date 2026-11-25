@@ -7,6 +7,7 @@ import '../../settings/application/level_unlock_controller.dart';
 import '../../settings/application/user_level_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../../settings/presentation/level_unlock_dialog.dart';
+import '../../settings/presentation/level_up_banner.dart';
 import '../../vocabulary/presentation/vocabulary_controller.dart';
 import 'session_controller.dart';
 
@@ -77,6 +78,8 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const LevelUpBanner(),
+
                 // Welcome banner - Bauhaus Pastel Hero Card avec sélecteur de niveau CECRL
                 Container(
                   padding: const EdgeInsets.all(22.0),
