@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_providers.dart';
+import '../../settings/application/user_level_controller.dart';
 import '../data/tatoeba_service.dart';
 import '../data/wiktionary_provider.dart';
 
@@ -49,7 +50,14 @@ class TatoebaExplorerState {
 class TatoebaExplorerNotifier extends Notifier<TatoebaExplorerState> {
   @override
   TatoebaExplorerState build() {
+    // Invalide les candidats affichés si le niveau actif change.
+    ref.watch(userLevelProvider);
     return const TatoebaExplorerState();
+  }
+
+  List<ExtractedCandidateWord> _filterToActiveLevel(List<ExtractedCandidateWord> candidates) {
+    final activeLevel = ref.read(userLevelProvider);
+    return candidates.where((c) => c.estimatedLevel == activeLevel).toList();
   }
 
   Future<void> fetchSentences({String query = '', bool random = true}) async {
@@ -86,7 +94,7 @@ class TatoebaExplorerNotifier extends Notifier<TatoebaExplorerState> {
         isLoading: false,
         sentences: sentences,
         selectedSentence: firstSentence,
-        candidates: candidates,
+        candidates: _filterToActiveLevel(candidates),
       );
     } catch (e) {
       state = state.copyWith(
@@ -110,16 +118,21 @@ class TatoebaExplorerNotifier extends Notifier<TatoebaExplorerState> {
     state = state.copyWith(
       isLoading: false,
       selectedSentence: sentence,
-      candidates: candidates,
+      candidates: _filterToActiveLevel(candidates),
     );
   }
 
-  Future<void> addCandidateWordToDeck({
+  Future<bool> addCandidateWordToDeck({
     required ExtractedCandidateWord candidate,
     required TatoebaSentence sentence,
     String? customTranslation,
     String? category,
   }) async {
+    final activeLevel = ref.read(userLevelProvider);
+    if (candidate.estimatedLevel != activeLevel) {
+      return false;
+    }
+
     final repo = ref.read(wordRepositoryProvider);
     final wiktionary = ref.read(wiktionaryServiceProvider);
 
@@ -171,6 +184,8 @@ class TatoebaExplorerNotifier extends Notifier<TatoebaExplorerState> {
       addedTerms: updatedAdded,
       candidates: updatedCandidates,
     );
+
+    return true;
   }
 }
 
