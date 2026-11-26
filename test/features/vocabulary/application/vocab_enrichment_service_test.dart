@@ -50,6 +50,7 @@ void main() {
 
   // 'dog', 'cat', 'milk' : Zipf A1 (5.5+) hors seeds.
   // 'station' : A2 (4.8) et 'feedback' : B1 (4.3), hors niveau actif.
+  // Les phrases font au moins 4 mots : seuil du filtre qualité A1 (Issue 28).
   TatoebaSentence sentenceOf(String textEn) => TatoebaSentence(
         id: textEn.hashCode,
         textEn: textEn,
@@ -87,7 +88,7 @@ void main() {
         () async {
       final tatoeba = _PagedTatoebaService([
         [sentenceOf('the dog is happy')],
-        [sentenceOf('cat milk dog')],
+        [sentenceOf('the cat drinks milk')],
         [sentenceOf('station feedback water')],
       ]);
       final service = VocabEnrichmentService(
@@ -122,7 +123,7 @@ void main() {
 
     test('ignores words outside the active level', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('station feedback')],
+        [sentenceOf('the station feedback was clear')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -165,7 +166,8 @@ void main() {
 
     test('reports cancellation and keeps incremental additions', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('dog runs fast'), sentenceOf('cat drinks milk')],
+        [sentenceOf('the dog runs very fast')],
+        [sentenceOf('the cat sleeps now')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -177,7 +179,7 @@ void main() {
       final result = await service.runToQuota(
         level: CefrLevel.a1,
         isCancelled: () => cancelled,
-        maxBatches: 1,
+        maxBatches: 2,
         quotaOverride: 22, // 20 seeds + 2 ajoutés attendus
       );
 
@@ -187,7 +189,7 @@ void main() {
       cancelled = false;
       final secondRun = await service.runToQuota(
         level: CefrLevel.a1,
-        maxBatches: 1,
+        maxBatches: 2,
         quotaOverride: 22, // 20 seeds + 2 expectés
       );
 
@@ -199,8 +201,8 @@ void main() {
 
     test('resumes after interruption without duplicated words', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('dog plays')],
-        [sentenceOf('dog plays'), sentenceOf('cat sleeps')],
+        [sentenceOf('the dog plays outside')],
+        [sentenceOf('the dog plays outside'), sentenceOf('the cat sleeps now')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -231,7 +233,7 @@ void main() {
 
     test('stores translation, sentence context and level code', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('milk is good')],
+        [sentenceOf('milk is good today')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -248,17 +250,93 @@ void main() {
       final milk =
           (await repo.getWordsByLevel('A1')).firstWhere((w) => w.term == 'milk');
       expect(milk.translation, 'trad-milk');
-      expect(milk.contextSentence, 'milk is good');
+      expect(milk.contextSentence, 'milk is good today');
       expect(milk.level, 'A1');
       expect(milk.category, isNotEmpty, reason: 'catégorie sémantique déduite');
+    });
+  });
+
+  group('VocabEnrichmentService sentence quality filter (Issue 28)', () {
+    test('drops parasitic sentences before analyzing words', () async {
+      final tatoeba = _PagedTatoebaService([
+        [
+          sentenceOf('visit https://spam.example.com today'),
+          sentenceOf('the cat drinks warm milk'),
+        ],
+      ]);
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 21,
+        maxBatches: 1,
+      );
+
+      expect(result.sentencesAnalyzed, 1,
+          reason: 'la phrase parasite (URL) est rejetée avant analyse');
+      final words = await repo.getWordsByLevel('A1');
+      final terms = words.map((w) => w.term).toList();
+      expect(terms.any((t) => t.contains('example') || t.contains('spam')), isFalse);
+    });
+
+    test('never processes the same sentence twice in a run', () async {
+      final tatoeba = _PagedTatoebaService([
+        [
+          sentenceOf('the dog plays outside'),
+          sentenceOf('The dog plays outside!'),
+        ],
+      ]);
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 22,
+        maxBatches: 1,
+      );
+
+      expect(result.sentencesAnalyzed, 1, reason: 'anti-doublon de phrases');
+      expect(result.addedWords, 1);
+    });
+
+    test('processes the most level-relevant sentence first', () async {
+      final tatoeba = _PagedTatoebaService([
+        [
+          sentenceOf('station feedback things matter'),
+          sentenceOf('the cat drinks warm milk'),
+        ],
+      ]);
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 21, // un seul mot manquant : le meilleur lot gagne
+        maxBatches: 1,
+      );
+
+      final words = await repo.getWordsByLevel('A1');
+      expect(words.map((w) => w.term), contains('cat'),
+          reason: 'la phrase la plus riche en mots A1 est traitée en premier');
+      expect(result.addedWords, 1);
     });
   });
 
   group('VocabEnrichmentService source exhaustion', () {
     test('reports sourceExhausted when batches are used up', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('the moon shines')],
-        [sentenceOf('the sun shines')],
+        [sentenceOf('the moon shines very bright')],
+        [sentenceOf('the big sun shines today')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
