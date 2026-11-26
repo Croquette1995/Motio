@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +38,12 @@ void main() {
   }
 
   testWidgets('LevelDomainsScreen renders level tabs and A1 domains', (WidgetTester tester) async {
+    // Surface plus haute : la carte de couverture du quota ajoute de la
+    // hauteur à la synthèse, poussant les categories sous 800px de haut.
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(buildTestableWidget());
     await tester.pumpAndSettle();
 

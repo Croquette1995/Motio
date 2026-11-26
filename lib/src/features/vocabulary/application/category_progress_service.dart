@@ -66,8 +66,10 @@ class LevelProgressData {
     required this.totalNew,
   });
 
+  /// Remplissage du quota non cumulé du niveau (couverture), pas du volume
+  /// cumulé : cohérent avec `CefrLevel.levelWordQuota`.
   double get levelCompletionRate =>
-      targetWords == 0 ? 0.0 : (totalWords / targetWords).clamp(0.0, 1.0);
+      level.levelWordQuota == 0 ? 0.0 : (totalWords / level.levelWordQuota).clamp(0.0, 1.0);
 
   double get masteryRate =>
       totalWords == 0 ? 0.0 : (totalMastered / totalWords).clamp(0.0, 1.0);

@@ -9,6 +9,8 @@ import '../../settings/application/voice_settings_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../../settings/presentation/level_unlock_dialog.dart';
 import '../application/category_progress_service.dart';
+import '../application/level_coverage_controller.dart';
+import '../domain/level_coverage_service.dart';
 import '../domain/word.dart';
 import 'vocabulary_controller.dart';
 import 'widgets/tatoeba_examples_sheet.dart';
@@ -33,6 +35,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
     final currentLevel = _selectedLevel ?? activeUserLevel;
 
     final progressAsync = ref.watch(levelCategoryProgressProvider(currentLevel));
+    final coverageAsync = ref.watch(levelCoverageProvider(currentLevel));
     final progressMap = ref.watch(wordProgressMapProvider).valueOrNull ?? {};
 
     return Scaffold(
@@ -165,7 +168,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                   padding: const EdgeInsets.all(16),
                   children: [
                     // Synthèse globale du niveau
-                    _buildLevelSummaryCard(context, data, activeUserLevel),
+                    _buildLevelSummaryCard(context, data, activeUserLevel, coverageAsync),
 
                     const SizedBox(height: 20),
 
@@ -245,6 +248,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
     BuildContext context,
     LevelProgressData data,
     CefrLevel activeUserLevel,
+    AsyncValue<LevelCoverage> coverageAsync,
   ) {
     final b = context.bauhaus;
     final t = Theme.of(context).textTheme;
@@ -302,7 +306,7 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                   border: Border.all(color: b.slate, width: 1),
                 ),
                 child: Text(
-                  '${data.totalWords} / ~${data.targetWords} mots',
+                  '${data.totalWords} / ${data.level.levelWordQuota} mots',
                   style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
                 ),
               ),
@@ -314,6 +318,55 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
             style: t.bodySmall?.copyWith(color: b.slate.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 12),
+
+          // Suivi de couverture : remplissage du quota non cumulé du niveau
+          // (langue apprise courante), indépendant de la maîtrise SRS.
+          coverageAsync.when(
+            data: (coverage) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'COUVERTURE ${coverage.languageCode.toUpperCase()}',
+                      style: t.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                        color: b.slate.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    Text(
+                      coverage.isQuotaReached
+                          ? 'Quota atteint'
+                          : 'Reste ${coverage.remainingWords} mots',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: b.slate.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: coverage.coverageRate,
+                    minHeight: 10,
+                    backgroundColor: b.chalk,
+                    valueColor: AlwaysStoppedAnimation<Color>(b.pastelMint),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+            loading: () => const SizedBox.shrink(),
+            error: (err, _) => Text(
+              'Couverture indisponible : $err',
+              style: t.bodySmall?.copyWith(color: b.slate.withValues(alpha: 0.6)),
+            ),
+          ),
 
           // Barre d'avancement du niveau
           ClipRRect(

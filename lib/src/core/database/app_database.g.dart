@@ -5373,6 +5373,376 @@ class LessonProgressTableCompanion
   }
 }
 
+class $LevelCoverageTableTable extends LevelCoverageTable
+    with TableInfo<$LevelCoverageTableTable, LevelCoverageEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LevelCoverageTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _languageMeta = const VerificationMeta(
+    'language',
+  );
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 2,
+      maxTextLength: 10,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<String> level = GeneratedColumn<String>(
+    'level',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 2,
+      maxTextLength: 10,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _wordCountMeta = const VerificationMeta(
+    'wordCount',
+  );
+  @override
+  late final GeneratedColumn<int> wordCount = GeneratedColumn<int>(
+    'word_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quotaMeta = const VerificationMeta('quota');
+  @override
+  late final GeneratedColumn<int> quota = GeneratedColumn<int>(
+    'quota',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    language,
+    level,
+    wordCount,
+    quota,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'level_coverage_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LevelCoverageEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('language')) {
+      context.handle(
+        _languageMeta,
+        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_languageMeta);
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_levelMeta);
+    }
+    if (data.containsKey('word_count')) {
+      context.handle(
+        _wordCountMeta,
+        wordCount.isAcceptableOrUnknown(data['word_count']!, _wordCountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_wordCountMeta);
+    }
+    if (data.containsKey('quota')) {
+      context.handle(
+        _quotaMeta,
+        quota.isAcceptableOrUnknown(data['quota']!, _quotaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_quotaMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {language, level};
+  @override
+  LevelCoverageEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LevelCoverageEntry(
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}level'],
+      )!,
+      wordCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}word_count'],
+      )!,
+      quota: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quota'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LevelCoverageTableTable createAlias(String alias) {
+    return $LevelCoverageTableTable(attachedDatabase, alias);
+  }
+}
+
+class LevelCoverageEntry extends DataClass
+    implements Insertable<LevelCoverageEntry> {
+  final String language;
+  final String level;
+  final int wordCount;
+  final int quota;
+  final DateTime updatedAt;
+  const LevelCoverageEntry({
+    required this.language,
+    required this.level,
+    required this.wordCount,
+    required this.quota,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['language'] = Variable<String>(language);
+    map['level'] = Variable<String>(level);
+    map['word_count'] = Variable<int>(wordCount);
+    map['quota'] = Variable<int>(quota);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  LevelCoverageTableCompanion toCompanion(bool nullToAbsent) {
+    return LevelCoverageTableCompanion(
+      language: Value(language),
+      level: Value(level),
+      wordCount: Value(wordCount),
+      quota: Value(quota),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory LevelCoverageEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LevelCoverageEntry(
+      language: serializer.fromJson<String>(json['language']),
+      level: serializer.fromJson<String>(json['level']),
+      wordCount: serializer.fromJson<int>(json['wordCount']),
+      quota: serializer.fromJson<int>(json['quota']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'language': serializer.toJson<String>(language),
+      'level': serializer.toJson<String>(level),
+      'wordCount': serializer.toJson<int>(wordCount),
+      'quota': serializer.toJson<int>(quota),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  LevelCoverageEntry copyWith({
+    String? language,
+    String? level,
+    int? wordCount,
+    int? quota,
+    DateTime? updatedAt,
+  }) => LevelCoverageEntry(
+    language: language ?? this.language,
+    level: level ?? this.level,
+    wordCount: wordCount ?? this.wordCount,
+    quota: quota ?? this.quota,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  LevelCoverageEntry copyWithCompanion(LevelCoverageTableCompanion data) {
+    return LevelCoverageEntry(
+      language: data.language.present ? data.language.value : this.language,
+      level: data.level.present ? data.level.value : this.level,
+      wordCount: data.wordCount.present ? data.wordCount.value : this.wordCount,
+      quota: data.quota.present ? data.quota.value : this.quota,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LevelCoverageEntry(')
+          ..write('language: $language, ')
+          ..write('level: $level, ')
+          ..write('wordCount: $wordCount, ')
+          ..write('quota: $quota, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(language, level, wordCount, quota, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LevelCoverageEntry &&
+          other.language == this.language &&
+          other.level == this.level &&
+          other.wordCount == this.wordCount &&
+          other.quota == this.quota &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LevelCoverageTableCompanion extends UpdateCompanion<LevelCoverageEntry> {
+  final Value<String> language;
+  final Value<String> level;
+  final Value<int> wordCount;
+  final Value<int> quota;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const LevelCoverageTableCompanion({
+    this.language = const Value.absent(),
+    this.level = const Value.absent(),
+    this.wordCount = const Value.absent(),
+    this.quota = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LevelCoverageTableCompanion.insert({
+    required String language,
+    required String level,
+    required int wordCount,
+    required int quota,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : language = Value(language),
+       level = Value(level),
+       wordCount = Value(wordCount),
+       quota = Value(quota);
+  static Insertable<LevelCoverageEntry> custom({
+    Expression<String>? language,
+    Expression<String>? level,
+    Expression<int>? wordCount,
+    Expression<int>? quota,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (language != null) 'language': language,
+      if (level != null) 'level': level,
+      if (wordCount != null) 'word_count': wordCount,
+      if (quota != null) 'quota': quota,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LevelCoverageTableCompanion copyWith({
+    Value<String>? language,
+    Value<String>? level,
+    Value<int>? wordCount,
+    Value<int>? quota,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return LevelCoverageTableCompanion(
+      language: language ?? this.language,
+      level: level ?? this.level,
+      wordCount: wordCount ?? this.wordCount,
+      quota: quota ?? this.quota,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<String>(level.value);
+    }
+    if (wordCount.present) {
+      map['word_count'] = Variable<int>(wordCount.value);
+    }
+    if (quota.present) {
+      map['quota'] = Variable<int>(quota.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LevelCoverageTableCompanion(')
+          ..write('language: $language, ')
+          ..write('level: $level, ')
+          ..write('wordCount: $wordCount, ')
+          ..write('quota: $quota, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5393,6 +5763,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $GrammarLessonsTableTable(this);
   late final $LessonProgressTableTable lessonProgressTable =
       $LessonProgressTableTable(this);
+  late final $LevelCoverageTableTable levelCoverageTable =
+      $LevelCoverageTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5407,6 +5779,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     declensionsTable,
     grammarLessonsTable,
     lessonProgressTable,
+    levelCoverageTable,
   ];
 }
 
@@ -8083,6 +8456,219 @@ typedef $$LessonProgressTableTableProcessedTableManager =
       LessonProgressEntry,
       PrefetchHooks Function()
     >;
+typedef $$LevelCoverageTableTableCreateCompanionBuilder =
+    LevelCoverageTableCompanion Function({
+      required String language,
+      required String level,
+      required int wordCount,
+      required int quota,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$LevelCoverageTableTableUpdateCompanionBuilder =
+    LevelCoverageTableCompanion Function({
+      Value<String> language,
+      Value<String> level,
+      Value<int> wordCount,
+      Value<int> quota,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$LevelCoverageTableTableFilterComposer
+    extends Composer<_$AppDatabase, $LevelCoverageTableTable> {
+  $$LevelCoverageTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get wordCount => $composableBuilder(
+    column: $table.wordCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quota => $composableBuilder(
+    column: $table.quota,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LevelCoverageTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $LevelCoverageTableTable> {
+  $$LevelCoverageTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get wordCount => $composableBuilder(
+    column: $table.wordCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quota => $composableBuilder(
+    column: $table.quota,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LevelCoverageTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LevelCoverageTableTable> {
+  $$LevelCoverageTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<int> get wordCount =>
+      $composableBuilder(column: $table.wordCount, builder: (column) => column);
+
+  GeneratedColumn<int> get quota =>
+      $composableBuilder(column: $table.quota, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LevelCoverageTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LevelCoverageTableTable,
+          LevelCoverageEntry,
+          $$LevelCoverageTableTableFilterComposer,
+          $$LevelCoverageTableTableOrderingComposer,
+          $$LevelCoverageTableTableAnnotationComposer,
+          $$LevelCoverageTableTableCreateCompanionBuilder,
+          $$LevelCoverageTableTableUpdateCompanionBuilder,
+          (
+            LevelCoverageEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $LevelCoverageTableTable,
+              LevelCoverageEntry
+            >,
+          ),
+          LevelCoverageEntry,
+          PrefetchHooks Function()
+        > {
+  $$LevelCoverageTableTableTableManager(
+    _$AppDatabase db,
+    $LevelCoverageTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LevelCoverageTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LevelCoverageTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LevelCoverageTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> language = const Value.absent(),
+                Value<String> level = const Value.absent(),
+                Value<int> wordCount = const Value.absent(),
+                Value<int> quota = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LevelCoverageTableCompanion(
+                language: language,
+                level: level,
+                wordCount: wordCount,
+                quota: quota,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String language,
+                required String level,
+                required int wordCount,
+                required int quota,
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LevelCoverageTableCompanion.insert(
+                language: language,
+                level: level,
+                wordCount: wordCount,
+                quota: quota,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LevelCoverageTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LevelCoverageTableTable,
+      LevelCoverageEntry,
+      $$LevelCoverageTableTableFilterComposer,
+      $$LevelCoverageTableTableOrderingComposer,
+      $$LevelCoverageTableTableAnnotationComposer,
+      $$LevelCoverageTableTableCreateCompanionBuilder,
+      $$LevelCoverageTableTableUpdateCompanionBuilder,
+      (
+        LevelCoverageEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $LevelCoverageTableTable,
+          LevelCoverageEntry
+        >,
+      ),
+      LevelCoverageEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8105,4 +8691,6 @@ class $AppDatabaseManager {
       $$GrammarLessonsTableTableTableManager(_db, _db.grammarLessonsTable);
   $$LessonProgressTableTableTableManager get lessonProgressTable =>
       $$LessonProgressTableTableTableManager(_db, _db.lessonProgressTable);
+  $$LevelCoverageTableTableTableManager get levelCoverageTable =>
+      $$LevelCoverageTableTableTableManager(_db, _db.levelCoverageTable);
 }
