@@ -2,6 +2,7 @@ import '../../settings/domain/cefr_level.dart';
 import '../data/tatoeba_service.dart';
 import '../data/wiktionary_service.dart';
 import '../domain/i_word_repository.dart';
+import '../domain/sentence_quality_filter.dart';
 import '../domain/tatoeba_sentence.dart';
 
 typedef TranslationResolver = Future<String> Function(String term);
@@ -46,15 +47,18 @@ class VocabEnrichmentService {
   final IWordRepository wordRepository;
   final TatoebaService tatoebaService;
   final WiktionaryService wiktionaryService;
+  final SentenceQualityFilter qualityFilter;
   final TranslationResolver? _externalTranslationResolver;
 
   VocabEnrichmentService({
     required this.wordRepository,
     TatoebaService? tatoebaService,
     WiktionaryService? wiktionaryService,
+    SentenceQualityFilter? qualityFilter,
     TranslationResolver? translationResolver,
   })  : tatoebaService = tatoebaService ?? TatoebaService(),
         wiktionaryService = wiktionaryService ?? WiktionaryService(),
+        qualityFilter = qualityFilter ?? const SentenceQualityFilter(),
         _externalTranslationResolver = translationResolver;
 
   /// Quota de mots propre au niveau (barème CECRL incrémental) :
@@ -137,15 +141,13 @@ class VocabEnrichmentService {
         );
       }
 
-      final sentences = await tatoebaService.searchSentences(
+      final fetched = await tatoebaService.searchSentences(
         random: true,
         pageSize: batchSize,
       );
       batches++;
-      sentencesAnalyzed += sentences.length;
-      report(added, sentencesAnalyzed);
 
-      if (sentences.isEmpty) {
+      if (fetched.isEmpty) {
         emptyFetches++;
         if (emptyFetches >= maxConsecutiveEmptyFetches || batches >= maxBatches) {
           return EnrichmentRunResult(
@@ -161,6 +163,16 @@ class VocabEnrichmentService {
         continue;
       }
       emptyFetches = 0;
+
+      // Toute phrase entrant dans le pipeline passe le filtre qualité :
+      // admission par niveau, classement par pertinence, diversité des domaines.
+      final sentences = qualityFilter.selectDiverseBatch(
+        fetched,
+        level: level,
+        maxSentences: batchSize,
+      );
+      sentencesAnalyzed += sentences.length;
+      report(added, sentencesAnalyzed);
 
       for (final sentence in sentences) {
         if (added >= remaining) break;

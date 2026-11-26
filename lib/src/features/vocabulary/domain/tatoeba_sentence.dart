@@ -5,6 +5,7 @@ class TatoebaSentence {
   final String textEn;
   final String textFr;
   final String? audioUrl;
+  final bool hasAudio;
   final String license;
 
   const TatoebaSentence({
@@ -12,6 +13,7 @@ class TatoebaSentence {
     required this.textEn,
     required this.textFr,
     this.audioUrl,
+    this.hasAudio = false,
     this.license = 'CC BY 2.0 FR',
   });
 }
