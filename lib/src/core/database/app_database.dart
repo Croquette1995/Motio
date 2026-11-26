@@ -10,6 +10,7 @@ import 'tables/conjugations_table.dart';
 import 'tables/declensions_table.dart';
 import 'tables/grammar_lessons_table.dart';
 import 'tables/lesson_progress_table.dart';
+import 'tables/level_coverage_table.dart';
 import '../../features/vocabulary/data/initial_words_seed.dart';
 import '../../features/referentiel/data/referentiel_seed_data.dart';
 
@@ -25,12 +26,13 @@ part 'app_database.g.dart';
   DeclensionsTable,
   GrammarLessonsTable,
   LessonProgressTable,
+  LevelCoverageTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -66,6 +68,9 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(grammarLessonsTable);
             await m.createTable(lessonProgressTable);
             await seedReferentielV13Data();
+          }
+          if (from < 4) {
+            await m.createTable(levelCoverageTable);
           }
         },
       );

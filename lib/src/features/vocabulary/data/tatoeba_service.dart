@@ -1,8 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/i_word_repository.dart';
+import '../domain/sentence_quality_filter.dart';
 import '../domain/tatoeba_sentence.dart';
 import '../domain/word_categorizer_service.dart';
 import '../domain/word_frequency_service.dart';
+
+final tatoebaServiceProvider = Provider<TatoebaService>((ref) {
+  return TatoebaService();
+});
 
 class TatoebaService {
   final Dio _dio;
@@ -12,24 +18,8 @@ class TatoebaService {
   static const String baseUrl = 'https://tatoeba.org/en/api_v0';
   static const String userAgent = 'LexiFlow/1.0 (https://github.com/cchiodo/Motio)';
 
-  static const Set<String> englishStopwords = {
-    'the', 'a', 'an', 'and', 'or', 'but', 'if', 'because', 'as', 'until', 'while',
-    'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through',
-    'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in',
-    'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here',
-    'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few',
-    'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own',
-    'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don',
-    'should', 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren',
-    'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn',
-    'mustn', 'needn', 'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn',
-    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your',
-    'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her',
-    'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs',
-    'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those',
-    'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
-    'having', 'do', 'does', 'did', 'doing', 'would', 'could', 'shall'
-  };
+  /// Stopwords anglais canoniques (définis dans le filtre qualité, Issue 28).
+  static const Set<String> englishStopwords = SentenceQualityFilter.englishStopwords;
 
   TatoebaService({
     Dio? dio,
@@ -107,12 +97,15 @@ class TatoebaService {
             }
           }
 
+          final audio = _parseAudio(item);
           if (textEn.isNotEmpty && textFr.isNotEmpty) {
             sentences.add(
               TatoebaSentence(
                 id: id,
                 textEn: textEn,
                 textFr: textFr,
+                audioUrl: audio.$1,
+                hasAudio: audio.$2,
                 license: license,
               ),
             );
@@ -124,6 +117,22 @@ class TatoebaService {
     } catch (_) {
       return [];
     }
+  }
+
+  /// Extrait la présence d'audio et son URL de téléchargement depuis la
+  /// réponse de l'API Tatoeba (champ `audios`).
+  (String?, bool) _parseAudio(Map<String, dynamic> item) {
+    final audios = item['audios'];
+    if (audios is! List || audios.isEmpty) return (null, false);
+
+    for (final audio in audios) {
+      if (audio is! Map<String, dynamic>) continue;
+      final download = audio['download_url'] as String?;
+      if (download == null || download.isEmpty) continue;
+      final url = download.startsWith('http') ? download : 'https://tatoeba.org$download';
+      return (url, true);
+    }
+    return (null, false);
   }
 
   /// Recherche des phrases d'exemples spécifiques pour un mot donné sur Tatoeba (Zero Clé API)
