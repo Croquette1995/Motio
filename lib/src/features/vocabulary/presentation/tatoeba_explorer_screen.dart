@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/bauhaus_theme.dart';
+import '../../settings/application/user_level_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../domain/tatoeba_sentence.dart';
 import 'tatoeba_explorer_controller.dart';
@@ -491,14 +492,19 @@ class _TatoebaExplorerScreenState extends ConsumerState<TatoebaExplorerScreen> {
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
               ),
               onPressed: () async {
-                await notifier.addCandidateWordToDeck(
+                final added = await notifier.addCandidateWordToDeck(
                   candidate: candidate,
                   sentence: sentence,
                 );
                 if (context.mounted) {
+                  final activeLevel = ref.read(userLevelProvider);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('« ${candidate.term} » ajouté avec succès à votre catalogue !'),
+                      content: Text(
+                        added
+                            ? '« ${candidate.term} » ajouté avec succès à votre catalogue !'
+                            : '« ${candidate.term} » (${candidate.estimatedLevel.code}) est hors du niveau actif (${activeLevel.code}) : ajout refusé.',
+                      ),
                       duration: const Duration(seconds: 2),
                     ),
                   );
