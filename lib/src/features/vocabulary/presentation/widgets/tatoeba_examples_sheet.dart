@@ -4,7 +4,7 @@ import '../../../../core/theme/bauhaus_theme.dart';
 import '../../../settings/application/voice_settings_controller.dart';
 import '../../domain/tatoeba_sentence.dart';
 import '../../domain/word.dart';
-import '../tatoeba_explorer_controller.dart';
+import '../../data/tatoeba_service.dart';
 
 class TatoebaExamplesSheet extends ConsumerStatefulWidget {
   final Word word;

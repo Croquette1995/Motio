@@ -2,9 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:drift/native.dart';
+import 'package:lexiflow/src/core/database/app_database.dart';
+import 'package:lexiflow/src/core/database/database_providers.dart';
 import 'package:lexiflow/src/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:lexiflow/src/features/settings/application/user_level_controller.dart';
+import 'package:lexiflow/src/features/vocabulary/data/tatoeba_service.dart';
+import 'package:lexiflow/src/features/vocabulary/domain/tatoeba_sentence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _TatoebaOfflineStub extends TatoebaService {
+  @override
+  Future<List<TatoebaSentence>> searchSentences({
+    String from = 'eng',
+    String to = 'fra',
+    String query = '',
+    bool random = true,
+    int pageSize = 5,
+    int wordCountMin = 3,
+    int wordCountMax = 12,
+  }) async =>
+      [];
+}
 
 void main() {
   setUp(() {
@@ -79,7 +98,15 @@ void main() {
       tester,
     ) async {
       useTallViewport(tester);
-      final container = ProviderContainer();
+      final testDb = AppDatabase(NativeDatabase.memory());
+      addTearDown(testDb.close);
+      await testDb.seedInitialData();
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(testDb),
+          tatoebaServiceProvider.overrideWithValue(_TatoebaOfflineStub()),
+        ],
+      );
       addTearDown(container.dispose);
       final router = testRouter(container);
 
@@ -108,7 +135,15 @@ void main() {
       tester,
     ) async {
       useTallViewport(tester);
-      final container = ProviderContainer();
+      final testDb = AppDatabase(NativeDatabase.memory());
+      addTearDown(testDb.close);
+      await testDb.seedInitialData();
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(testDb),
+          tatoebaServiceProvider.overrideWithValue(_TatoebaOfflineStub()),
+        ],
+      );
       addTearDown(container.dispose);
       final router = testRouter(container);
 

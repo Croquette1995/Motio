@@ -1,8 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/i_word_repository.dart';
 import '../domain/tatoeba_sentence.dart';
 import '../domain/word_categorizer_service.dart';
 import '../domain/word_frequency_service.dart';
+
+final tatoebaServiceProvider = Provider<TatoebaService>((ref) {
+  return TatoebaService();
+});
 
 class TatoebaService {
   final Dio _dio;
