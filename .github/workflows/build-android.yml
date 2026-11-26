@@ -12,9 +12,10 @@ permissions:
   contents: write
 
 env:
-  # true uniquement sur push de main/master ou tag v* : les APKs et la release
-  # sont alors produits. Sur dev et les PRs : analyse + tests uniquement.
-  RELEASE_ENABLED: ${{ github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+  # true uniquement sur push de main/master, tag v*, ou dispatch manuel/chainé
+  # sur un tag v* (cas du build lancé par bump-version.yml) : les APKs et la
+  # release sont alors produits. Sur dev et les PRs : analyse + tests uniquement.
+  RELEASE_ENABLED: ${{ (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
   # true sur push de dev ou déclenchement manuel : les APKs sont construits et
   # déposés en artifact GitHub Actions, sans créer ni modifier de release.
   DEV_ARTIFACT_ENABLED: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/dev') || github.event_name == 'workflow_dispatch' }}
