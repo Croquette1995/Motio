@@ -8,6 +8,7 @@ import '../../settings/application/user_level_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../../settings/presentation/level_unlock_dialog.dart';
 import '../../settings/presentation/level_up_banner.dart';
+import '../../vocabulary/application/level_coverage_controller.dart';
 import '../../vocabulary/presentation/vocabulary_controller.dart';
 import 'session_controller.dart';
 
@@ -19,6 +20,7 @@ class DashboardScreen extends ConsumerWidget {
     final allWordsAsync = ref.watch(allWordsProvider);
     final progressRepo = ref.watch(progressRepositoryProvider);
     final userLevel = ref.watch(userLevelProvider);
+    final coverageAsync = ref.watch(levelCoverageProvider(userLevel));
     final unlockState = ref.watch(levelUnlockDisplayProvider);
     // Watch wordProgressMapProvider so the dashboard refreshes automatically on progress updates
     ref.watch(wordProgressMapProvider);
@@ -117,7 +119,7 @@ class DashboardScreen extends ConsumerWidget {
                               border: Border.all(color: b.lineGrey, width: 1),
                             ),
                             child: Text(
-                              'Objectif : ~${userLevel.targetWordCount} mots',
+                              'Quota : ${userLevel.levelWordQuota} mots',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -139,6 +141,54 @@ class DashboardScreen extends ConsumerWidget {
                       Text(
                         userLevel.description,
                         style: t.bodyMedium?.copyWith(height: 1.35),
+                      ),
+                      const SizedBox(height: 14),
+                      // Suivi de couverture du quota CECRL du niveau actif,
+                      // pour la langue apprise courante.
+                      coverageAsync.when(
+                        data: (coverage) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'COUVERTURE ${coverage.languageCode.toUpperCase()}',
+                                  style: t.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.2,
+                                    color: b.slate.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                Text(
+                                  '${coverage.wordCount} / ${coverage.quota} mots · reste ${coverage.remainingWords}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: b.slate.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: coverage.coverageRate,
+                                minHeight: 10,
+                                backgroundColor: b.chalk,
+                                valueColor: AlwaysStoppedAnimation<Color>(b.pastelMint),
+                              ),
+                            ),
+                          ],
+                        ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (err, _) => Text(
+                          'Couverture indisponible : $err',
+                          style: t.bodySmall?.copyWith(
+                            color: b.slate.withValues(alpha: 0.6),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 14),
                       // Sélecteur interactif des niveaux CECRL
