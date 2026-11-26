@@ -57,9 +57,9 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.travel_explore),
-            tooltip: 'Explorer Tatoeba',
-            onPressed: () => context.push('/tatoeba'),
+            icon: const Icon(Icons.bolt),
+            tooltip: 'Enrichir mon niveau',
+            onPressed: () => context.push('/enrichment'),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -219,9 +219,9 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                                 backgroundColor: b.slate,
                                 foregroundColor: b.cardSurface,
                               ),
-                              icon: const Icon(Icons.travel_explore, size: 18),
-                              label: const Text('Explorer Tatoeba pour ce niveau'),
-                              onPressed: () => context.push('/tatoeba'),
+                              icon: const Icon(Icons.bolt, size: 18),
+                              label: const Text('Enrichir ce niveau en 1 clic'),
+                              onPressed: () => context.push('/enrichment'),
                             ),
                           ],
                         ),
@@ -504,11 +504,9 @@ class _LevelDomainsScreenState extends ConsumerState<LevelDomainsScreen> {
                       foregroundColor: b.slate,
                       side: BorderSide(color: b.slate, width: 1.2),
                     ),
-                    icon: const Icon(Icons.travel_explore, size: 16),
-                    label: Text('Enrichir "${cat.domain.labelFr}" via Tatoeba'),
-                    onPressed: () {
-                      context.push('/tatoeba');
-                    },
+                    icon: const Icon(Icons.bolt, size: 16),
+                    label: const Text('Enrichir mon niveau en 1 clic'),
+                    onPressed: () => context.push('/enrichment'),
                   ),
                 ],
               ),

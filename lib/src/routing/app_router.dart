@@ -22,7 +22,7 @@ import '../features/settings/application/user_level_controller.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/vocabulary/presentation/category_screen.dart';
 import '../features/vocabulary/presentation/level_domains_screen.dart';
-import '../features/vocabulary/presentation/tatoeba_explorer_screen.dart';
+import '../features/vocabulary/presentation/vocab_enrichment_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -95,10 +95,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
-        path: '/tatoeba',
-        name: 'tatoeba',
+        path: '/enrichment',
+        name: 'vocab-enrichment',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const TatoebaExplorerScreen(),
+        builder: (context, state) => const VocabEnrichmentScreen(),
       ),
       GoRoute(
         path: '/settings',

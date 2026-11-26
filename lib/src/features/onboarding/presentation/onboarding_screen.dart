@@ -6,6 +6,7 @@ import '../../settings/application/user_level_controller.dart';
 import '../../settings/application/voice_settings_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../../settings/domain/voice_settings.dart';
+import '../../vocabulary/presentation/vocab_enrichment_controller.dart';
 import 'placement_quiz_card.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -36,7 +37,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await ref.read(userLevelProvider.notifier).setLevel(level);
     ref.invalidate(isLevelOnboardedProvider);
     await ref.read(isLevelOnboardedProvider.future);
-    if (mounted) context.go('/');
+    if (mounted) {
+      // Pré-remplissage automatique du niveau choisi (idempotent).
+      ref.read(vocabEnrichmentProvider.notifier).startAutoEnrichment();
+      context.go('/');
+    }
   }
 
   @override

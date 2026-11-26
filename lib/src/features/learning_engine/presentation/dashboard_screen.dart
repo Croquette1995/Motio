@@ -47,9 +47,9 @@ class DashboardScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.travel_explore),
-            tooltip: 'Explorer Tatoeba',
-            onPressed: () => context.push('/tatoeba'),
+            icon: const Icon(Icons.bolt),
+            tooltip: 'Enrichir mon niveau',
+            onPressed: () => context.push('/enrichment'),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
