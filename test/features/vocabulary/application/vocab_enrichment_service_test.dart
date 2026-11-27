@@ -6,6 +6,7 @@ import 'package:lexiflow/src/features/vocabulary/application/vocab_enrichment_se
 import 'package:lexiflow/src/features/vocabulary/data/drift_word_repository.dart';
 import 'package:lexiflow/src/features/vocabulary/data/tatoeba_service.dart';
 import 'package:lexiflow/src/features/vocabulary/domain/tatoeba_sentence.dart';
+import 'package:lexiflow/src/features/vocabulary/domain/word_frequency_service.dart';
 
 class _PagedTatoebaService extends TatoebaService {
   _PagedTatoebaService(this.pages);
@@ -33,8 +34,14 @@ class _PagedTatoebaService extends TatoebaService {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late AppDatabase testDb;
   late DriftWordRepository repo;
+
+  setUpAll(() async {
+    await WordFrequencyService.preloadLanguage('en');
+  });
 
   setUp(() async {
     testDb = AppDatabase(NativeDatabase.memory());
@@ -48,8 +55,8 @@ void main() {
 
   Future<String> quickTranslation(String term) async => 'trad-$term';
 
-  // 'dog', 'cat', 'milk' : Zipf A1 (5.5+) hors seeds.
-  // 'station' : A2 (4.8) et 'feedback' : B1 (4.3), hors niveau actif.
+  // 'dog', 'money', 'works' : Zipf wordfreq >= 5.1 (A1) hors seeds.
+  // 'station' : A2 (5.01) et 'feedback' : B1 (4.32), hors niveau actif.
   // Les phrases font au moins 4 mots : seuil du filtre qualité A1 (Issue 28).
   TatoebaSentence sentenceOf(String textEn) => TatoebaSentence(
         id: textEn.hashCode,
@@ -88,7 +95,7 @@ void main() {
         () async {
       final tatoeba = _PagedTatoebaService([
         [sentenceOf('the dog is happy')],
-        [sentenceOf('the cat drinks milk')],
+        [sentenceOf('the money works today')],
         [sentenceOf('station feedback water')],
       ]);
       final service = VocabEnrichmentService(
@@ -107,12 +114,12 @@ void main() {
       final words = await repo.getWordsByLevel('A1');
       final addedTerms = words
           .map((w) => w.term)
-          .where((t) => ['dog', 'cat', 'milk'].contains(t))
+          .where((t) => ['dog', 'money', 'works'].contains(t))
           .toList();
 
       expect(result.status, EnrichmentRunStatus.completed);
       expect(result.addedWords, 3);
-      expect(addedTerms.toSet(), {'dog', 'cat', 'milk'},
+      expect(addedTerms.toSet(), {'dog', 'money', 'works'},
           reason: 'seuls les mots du niveau actif sont ajoutés, sans doublon');
       expect(result.sentencesAnalyzed, 2,
           reason: 'le pipeline s\'arrête dès que le quota est atteint');
@@ -166,8 +173,8 @@ void main() {
 
     test('reports cancellation and keeps incremental additions', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('the dog runs very fast')],
-        [sentenceOf('the cat sleeps now')],
+        [sentenceOf('the dog likes travel feedback')],
+        [sentenceOf('the money likes travel feedback')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -196,13 +203,16 @@ void main() {
       expect(secondRun.status, EnrichmentRunStatus.completed);
       expect(secondRun.addedWords, 2);
       final added = await repo.getWordsByLevel('A1');
-      expect(added.map((w) => w.term), containsAll(['dog', 'cat']));
+      expect(added.map((w) => w.term), containsAll(['dog', 'money']));
     });
 
     test('resumes after interruption without duplicated words', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('the dog plays outside')],
-        [sentenceOf('the dog plays outside'), sentenceOf('the cat sleeps now')],
+        [sentenceOf('the dog likes travel feedback')],
+        [
+          sentenceOf('the dog likes travel feedback'),
+          sentenceOf('the money likes travel feedback'),
+        ],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -228,12 +238,12 @@ void main() {
 
       final words = await repo.getWordsByLevel('A1');
       expect(words.where((w) => w.term == 'dog'), hasLength(1));
-      expect(words.where((w) => w.term == 'cat'), hasLength(1));
+      expect(words.where((w) => w.term == 'money'), hasLength(1));
     });
 
     test('stores translation, sentence context and level code', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('milk is good today')],
+        [sentenceOf('the money is good today')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -247,12 +257,12 @@ void main() {
         maxBatches: 1,
       );
 
-      final milk =
-          (await repo.getWordsByLevel('A1')).firstWhere((w) => w.term == 'milk');
-      expect(milk.translation, 'trad-milk');
-      expect(milk.contextSentence, 'milk is good today');
-      expect(milk.level, 'A1');
-      expect(milk.category, isNotEmpty, reason: 'catégorie sémantique déduite');
+      final money =
+          (await repo.getWordsByLevel('A1')).firstWhere((w) => w.term == 'money');
+      expect(money.translation, 'trad-money');
+      expect(money.contextSentence, 'the money is good today');
+      expect(money.level, 'A1');
+      expect(money.category, isNotEmpty, reason: 'catégorie sémantique déduite');
     });
   });
 
@@ -286,8 +296,8 @@ void main() {
     test('never processes the same sentence twice in a run', () async {
       final tatoeba = _PagedTatoebaService([
         [
-          sentenceOf('the dog plays outside'),
-          sentenceOf('The dog plays outside!'),
+          sentenceOf('the dog plays station feedback'),
+          sentenceOf('The dog plays station feedback!'),
         ],
       ]);
       final service = VocabEnrichmentService(
@@ -310,7 +320,7 @@ void main() {
       final tatoeba = _PagedTatoebaService([
         [
           sentenceOf('station feedback things matter'),
-          sentenceOf('the cat drinks warm milk'),
+          sentenceOf('the dog plays station feedback'),
         ],
       ]);
       final service = VocabEnrichmentService(
@@ -326,7 +336,7 @@ void main() {
       );
 
       final words = await repo.getWordsByLevel('A1');
-      expect(words.map((w) => w.term), contains('cat'),
+      expect(words.map((w) => w.term), contains('things'),
           reason: 'la phrase la plus riche en mots A1 est traitée en premier');
       expect(result.addedWords, 1);
     });

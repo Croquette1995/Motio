@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import '../../settings/domain/cefr_level.dart';
 import '../data/tatoeba_service.dart';
+import '../domain/word_frequency_service.dart';
 import '../data/wiktionary_service.dart';
 import '../domain/i_word_repository.dart';
 import '../domain/sentence_quality_filter.dart';
@@ -101,8 +104,14 @@ class VocabEnrichmentService {
     int maxConsecutiveEmptyFetches = 3,
     int maxBatches = 40,
     int? quotaOverride,
+    String language = 'en',
   }) async {
     final quota = quotaOverride ?? levelQuota(level);
+
+    // Amorce le chargement de la wordlist embarquée de la langue apprise
+    // (Issue 31) ; no-op si déjà en cache. Non bloquant : la lecture d'asset
+    // se termine bien avant la première analyse de phrase (fetch réseau).
+    unawaited(WordFrequencyService.preloadLanguage(language));
     final existing = await wordRepository.getWordsByLevel(level.code);
     final remaining = quota - existing.length;
 
@@ -170,6 +179,7 @@ class VocabEnrichmentService {
         fetched,
         level: level,
         maxSentences: batchSize,
+        language: language,
       );
       sentencesAnalyzed += sentences.length;
       report(added, sentencesAnalyzed);
@@ -181,6 +191,7 @@ class VocabEnrichmentService {
         final candidates = await tatoebaService.analyzeSentenceWords(
           sentence: sentence.textEn,
           wordRepository: wordRepository,
+          language: language,
         );
 
         for (final candidate in candidates) {

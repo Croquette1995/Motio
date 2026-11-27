@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/i_word_repository.dart';
@@ -189,6 +191,9 @@ class TatoebaService {
     required IWordRepository wordRepository,
     String language = 'en',
   }) async {
+    // Amorce le chargement de la wordlist embarquée de la langue apprise
+    // (Issue 31) ; no-op si déjà en cache. Non bloquant (voir runToQuota).
+    unawaited(WordFrequencyService.preloadLanguage(language));
     final tokens = extractCandidateTokens(sentence);
     final List<ExtractedCandidateWord> candidates = [];
 

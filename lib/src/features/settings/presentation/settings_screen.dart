@@ -444,7 +444,10 @@ class SettingsScreen extends ConsumerWidget {
               Text(
                 'Wiktionnaire (CC BY-SA 4.0) · wiktionary.org\n'
                 'Tatoeba (CC BY 2.0 FR) · tatoeba.org\n'
-                'UniMorph (CC BY-SA 4.0) · unimorph.github.io',
+                'UniMorph (CC BY-SA 4.0) · unimorph.github.io\n'
+                'Wordlists de fréquence wordfreq — © Robyn Speer 2022, '
+                'rspeer/wordfreq v3.0.2 (CC BY-SA 4.0) · '
+                'doi.org/10.5281/zenodo.7199437',
                 style: t.bodySmall?.copyWith(
                   height: 1.5,
                   color: b.slate.withValues(alpha: 0.7),
