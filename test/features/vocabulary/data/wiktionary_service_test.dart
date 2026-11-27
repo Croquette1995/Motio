@@ -173,6 +173,125 @@ Finnish etymology
       expect(details.isEmpty, isTrue);
     });
 
+    test('isMarkedObsolete detects obsolete, archaic, dialectal and dated labels', () {
+      expect(
+        WiktionaryService.isMarkedObsolete(
+            '(UK, dialectal or obsolete) A grub or maggot.'),
+        isTrue,
+      );
+      expect(WiktionaryService.isMarkedObsolete('(archaic) A scholar.'), isTrue);
+      expect(WiktionaryService.isMarkedObsolete('(dated) A telephone.'), isTrue);
+      expect(
+        WiktionaryService.isMarkedObsolete('A worm of the family Lumbricidae.'),
+        isFalse,
+      );
+      expect(
+        WiktionaryService.isMarkedObsolete('(usually of a person) A wanderer.'),
+        isFalse,
+      );
+    });
+
+    test('fetchWordDetails drops obsolete senses when current senses exist', () async {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.path.contains('/page/definition/')) {
+              return handler.resolve(
+                Response(
+                  requestOptions: options,
+                  statusCode: 200,
+                  data: {
+                    'en': [
+                      {
+                        'partOfSpeech': 'Noun',
+                        'definitions': [
+                          {
+                            'definition':
+                                '(UK, dialectal or obsolete) A grub or maggot.',
+                          }
+                        ]
+                      },
+                      {
+                        'partOfSpeech': 'Verb',
+                        'definitions': [
+                          {
+                            'definition':
+                                'Simple past and past participle of make.',
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                ),
+              );
+            }
+            return handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: {
+                  'parse': {
+                    'wikitext': {
+                      '*': '==English==\n{{infl of|en|make||ed-form}}'
+                    }
+                  }
+                },
+              ),
+            );
+          },
+        ),
+      );
+
+      final details = await service.fetchWordDetails('made');
+
+      expect(details.definitions, hasLength(1),
+          reason: 'le sens désuet « a grub or maggot » est écarté');
+      expect(details.definitions.first.partOfSpeech, equals('Verb'));
+      expect(details.definitions.first.text,
+          equals('Simple past and past participle of make.'));
+    });
+
+    test('fetchWordDetails keeps obsolete senses when they are the only ones', () async {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.path.contains('/page/definition/')) {
+              return handler.resolve(
+                Response(
+                  requestOptions: options,
+                  statusCode: 200,
+                  data: {
+                    'en': [
+                      {
+                        'partOfSpeech': 'Noun',
+                        'definitions': [
+                          {'definition': '(obsolete) A grub or maggot.'}
+                        ]
+                      }
+                    ]
+                  },
+                ),
+              );
+            }
+            return handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: {
+                  'parse': {'wikitext': {'*': '==English==\nA rare word.'}}
+                },
+              ),
+            );
+          },
+        ),
+      );
+
+      final details = await service.fetchWordDetails('mawd');
+
+      expect(details.definitions, hasLength(1),
+          reason: 'aucun sens courant : le sens désuet est conservé');
+    });
+
     test('extractFrenchBridge returns curated or heuristic French correlation', () {
       final curated = WiktionaryService.extractFrenchBridge('deadline', '');
       expect(curated, contains('ligne de mort'));
