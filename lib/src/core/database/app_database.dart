@@ -12,6 +12,7 @@ import 'tables/grammar_lessons_table.dart';
 import 'tables/lesson_progress_table.dart';
 import 'tables/level_coverage_table.dart';
 import '../../features/vocabulary/data/initial_words_seed.dart';
+import '../../features/vocabulary/domain/lemmatizer.dart';
 import '../../features/referentiel/data/referentiel_seed_data.dart';
 
 part 'app_database.g.dart';
@@ -295,10 +296,21 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
-  /// Déduplication : vérifie si un mot existe déjà dans la base locale (insensible à la casse)
+  /// Déduplication : vérifie si un mot existe déjà dans la base locale
+  /// (insensible à la casse), sur la forme de surface PUIS son lemme (Issue 32).
   Future<bool> wordExists(String term, {String language = 'en'}) async {
+    final clean = term.trim().toLowerCase();
+    final lemma = lemmatize(clean, language: language);
     final query = select(wordsTable)
-      ..where((tbl) => tbl.term.lower().equals(term.trim().toLowerCase()) & tbl.language.equals(language));
+      ..where((tbl) {
+        var condition =
+            tbl.term.lower().equals(clean) & tbl.language.equals(language);
+        if (lemma != clean) {
+          condition = condition |
+              (tbl.term.lower().equals(lemma) & tbl.language.equals(language));
+        }
+        return condition;
+      });
     final result = await query.getSingleOrNull();
     return result != null;
   }

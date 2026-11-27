@@ -5,6 +5,7 @@ import '../data/tatoeba_service.dart';
 import '../domain/word_frequency_service.dart';
 import '../data/wiktionary_service.dart';
 import '../domain/i_word_repository.dart';
+import '../domain/lemmatizer.dart';
 import '../domain/sentence_quality_filter.dart';
 import '../domain/tatoeba_sentence.dart';
 
@@ -200,7 +201,7 @@ class VocabEnrichmentService {
           if (candidate.isAlreadyInDb) continue;
           if (!addedTerms.add(candidate.term)) continue;
 
-          await _addWordFromCandidate(candidate, sentence, level);
+          await _addWordFromCandidate(candidate, sentence, level, language: language);
           added++;
           report(added, sentencesAnalyzed);
         }
@@ -230,8 +231,9 @@ class VocabEnrichmentService {
   Future<void> _addWordFromCandidate(
     ExtractedCandidateWord candidate,
     TatoebaSentence sentence,
-    CefrLevel level,
-  ) async {
+    CefrLevel level, {
+    String language = 'en',
+  }) async {
     var translation = candidate.translation ?? '';
     if (translation.isEmpty) {
       translation = await resolveTranslation(candidate.term);
@@ -246,6 +248,7 @@ class VocabEnrichmentService {
       level: level.code,
       pos: candidate.pos ?? 'noun',
       frequencyScore: candidate.frequencyScore,
+      lemma: lemmatize(candidate.term, language: language),
     );
   }
 }

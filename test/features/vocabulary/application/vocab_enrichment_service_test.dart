@@ -173,8 +173,8 @@ void main() {
 
     test('reports cancellation and keeps incremental additions', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('the dog likes travel feedback')],
-        [sentenceOf('the money likes travel feedback')],
+        [sentenceOf('the dog wandered station feedback')],
+        [sentenceOf('the money wandered station feedback')],
       ]);
       final service = VocabEnrichmentService(
         wordRepository: repo,
@@ -208,10 +208,10 @@ void main() {
 
     test('resumes after interruption without duplicated words', () async {
       final tatoeba = _PagedTatoebaService([
-        [sentenceOf('the dog likes travel feedback')],
+        [sentenceOf('the dog wandered station feedback')],
         [
-          sentenceOf('the dog likes travel feedback'),
-          sentenceOf('the money likes travel feedback'),
+          sentenceOf('the dog wandered station feedback'),
+          sentenceOf('the money wandered station feedback'),
         ],
       ]);
       final service = VocabEnrichmentService(
@@ -296,8 +296,8 @@ void main() {
     test('never processes the same sentence twice in a run', () async {
       final tatoeba = _PagedTatoebaService([
         [
-          sentenceOf('the dog plays station feedback'),
-          sentenceOf('The dog plays station feedback!'),
+          sentenceOf('the dogs wandered station feedback'),
+          sentenceOf('The dogs wandered station feedback!'),
         ],
       ]);
       final service = VocabEnrichmentService(
@@ -320,7 +320,7 @@ void main() {
       final tatoeba = _PagedTatoebaService([
         [
           sentenceOf('station feedback things matter'),
-          sentenceOf('the dog plays station feedback'),
+          sentenceOf('the dogs wandered station feedback'),
         ],
       ]);
       final service = VocabEnrichmentService(

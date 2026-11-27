@@ -47,7 +47,7 @@ void main() {
       expect(frequencyService.determineLevel('troubleshoot'), equals(CefrLevel.b2));
       expect(frequencyService.determineLevel('streamline'), equals(CefrLevel.b2));
       expect(frequencyService.determineLevel('itinerary'), equals(CefrLevel.b2));
-      expect(frequencyService.determineLevel('accommodations'), equals(CefrLevel.b2));
+      expect(frequencyService.determineLevel('workflow'), equals(CefrLevel.b2));
     });
 
     test('Heuristic fallback works gracefully on unlisted words', () {

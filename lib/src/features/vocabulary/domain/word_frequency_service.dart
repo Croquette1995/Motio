@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
 import '../../settings/domain/cefr_level.dart';
+import 'lemmatizer.dart';
 
 /// Service de calcul de fréquence lexicale (Échelle de Zipf 1.0 - 7.0)
 /// et déduction du niveau CECRL (A1, A2, B1, B2) 100% autonome et sans clé API.
@@ -83,18 +84,28 @@ class WordFrequencyService {
   }
 
   /// Zipf de la wordlist embarquée pour [term] : forme de surface d'abord
-  /// (exacte puis dédiacritisée), sinon null (mot absent de la wordlist).
+  /// (exacte puis dédiacritisée), puis lemme (Issue 32) ; une forme fléchie
+  /// hérite au minimum du Zipf de son lemme (max des deux), sinon null.
   double? wordlistZipf(String term, {String language = 'en'}) {
     final clean = term.trim().toLowerCase();
     if (clean.isEmpty) return null;
     final lang = _normalizeLanguage(language);
     final exact = _exactCache[lang];
     if (exact == null) return null;
-    final hit = exact[clean];
-    if (hit != null) return hit;
+
     final plain = _stripDiacritics(clean);
-    if (plain == clean) return null;
-    return _foldedCache[lang]?[plain];
+    final surfaceHit = exact[clean] ??
+        (plain == clean ? null : _foldedCache[lang]?[plain]);
+
+    final lemma = lemmatize(clean, language: lang);
+    if (lemma == clean) return surfaceHit;
+    final lemmaPlain = _stripDiacritics(lemma);
+    final lemmaHit = exact[lemma] ??
+        (lemmaPlain == lemma ? null : _foldedCache[lang]?[lemmaPlain]);
+    if (surfaceHit != null && lemmaHit != null) {
+      return surfaceHit > lemmaHit ? surfaceHit : lemmaHit;
+    }
+    return surfaceHit ?? lemmaHit;
   }
 
   /// Calcule ou estime le score de fréquence Zipf (1.0 à 7.0)

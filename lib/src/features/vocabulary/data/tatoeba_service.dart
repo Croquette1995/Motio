@@ -6,6 +6,7 @@ import '../domain/i_word_repository.dart';
 import '../domain/sentence_quality_filter.dart';
 import '../domain/tatoeba_sentence.dart';
 import '../domain/word_categorizer_service.dart';
+import '../domain/lemmatizer.dart';
 import '../domain/word_frequency_service.dart';
 
 final tatoebaServiceProvider = Provider<TatoebaService>((ref) {
@@ -159,8 +160,9 @@ class TatoebaService {
     );
   }
 
-  /// Découpe une phrase en mots candidats uniques en ignorant les stopwords
-  List<String> extractCandidateTokens(String sentence) {
+  /// Découpe une phrase en mots candidats uniques en ignorant les stopwords ;
+  /// dédoublonnage par lemme (Issue 32) : la première forme de surface gagne.
+  List<String> extractCandidateTokens(String sentence, {String language = 'en'}) {
     if (sentence.isEmpty) return [];
 
     // Normaliser et séparer les mots
@@ -173,10 +175,13 @@ class TatoebaService {
         .toList();
 
     final List<String> candidates = [];
-    final seen = <String>{};
+    final seenLemmas = <String>{};
 
     for (final token in tokens) {
-      if (!englishStopwords.contains(token) && seen.add(token)) {
+      if (englishStopwords.contains(token)) continue;
+      // Dédoublonnage par lemme (« dog » et « dogs » ne comptent qu'une fois) ;
+      // la forme de surface est conservée pour l'affichage.
+      if (seenLemmas.add(lemmatize(token, language: language))) {
         candidates.add(token);
       }
     }
@@ -194,7 +199,7 @@ class TatoebaService {
     // Amorce le chargement de la wordlist embarquée de la langue apprise
     // (Issue 31) ; no-op si déjà en cache. Non bloquant (voir runToQuota).
     unawaited(WordFrequencyService.preloadLanguage(language));
-    final tokens = extractCandidateTokens(sentence);
+    final tokens = extractCandidateTokens(sentence, language: language);
     final List<ExtractedCandidateWord> candidates = [];
 
     for (final token in tokens) {
