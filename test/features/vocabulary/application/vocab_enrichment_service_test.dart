@@ -8,6 +8,52 @@ import 'package:lexiflow/src/features/vocabulary/data/tatoeba_service.dart';
 import 'package:lexiflow/src/features/vocabulary/domain/tatoeba_sentence.dart';
 import 'package:lexiflow/src/features/vocabulary/domain/word_frequency_service.dart';
 
+/// Fake Tatoeba pour la boucle query-first (Issue 33) : chaque requête ciblée
+/// renvoie une phrase contenant le mot demandé ; le tirage aléatoire est
+/// tracé séparément et renvoie un lot fixe (vide par défaut).
+class _QueryFirstTatoebaService extends TatoebaService {
+  final Map<String, int> wordFetches = {};
+  final List<String> parkedWords = [];
+  int randomFetches = 0;
+  int emptyEvery = 0;
+
+  @override
+  Future<List<TatoebaSentence>> searchSentences({
+    String from = 'eng',
+    String to = 'fra',
+    String query = '',
+    bool random = true,
+    int pageSize = 5,
+    int wordCountMin = 3,
+    int wordCountMax = 12,
+  }) async {
+    randomFetches++;
+    return const [];
+  }
+
+  @override
+  Future<List<TatoebaSentence>> getExamplesForWord({
+    required String word,
+    String from = 'eng',
+    String to = 'fra',
+    int limit = 10,
+    bool random = false,
+  }) async {
+    wordFetches[word] = (wordFetches[word] ?? 0) + 1;
+    if (emptyEvery > 0 && wordFetches.length % emptyEvery == 0) {
+      parkedWords.add(word);
+      return [];
+    }
+    return [sentenceOf('the $word wandered station feedback')];
+  }
+
+  TatoebaSentence sentenceOf(String textEn) => TatoebaSentence(
+        id: textEn.hashCode,
+        textEn: textEn,
+        textFr: 'traduction $textEn',
+      );
+}
+
 class _PagedTatoebaService extends TatoebaService {
   _PagedTatoebaService(this.pages);
 
@@ -339,6 +385,80 @@ void main() {
       expect(words.map((w) => w.term), contains('things'),
           reason: 'la phrase la plus riche en mots A1 est traitée en premier');
       expect(result.addedWords, 1);
+    });
+  });
+
+  group('VocabEnrichmentService query-first loop (Issue 33)', () {
+    test('completes the full A1 quota of 500 without sourceExhausted', () async {
+      final tatoeba = _QueryFirstTatoebaService();
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(level: CefrLevel.a1);
+
+      expect(result.status, EnrichmentRunStatus.completed,
+          reason: 'le pool A1 de la wordlist couvre tout le quota sans épuisement');
+      expect(result.addedWords, 480, reason: '500 - 20 seeds A1');
+      expect(result.targetWords, 500);
+      expect(tatoeba.randomFetches, greaterThan(0),
+          reason: 'la part de tirage aléatoire est conservée');
+      expect(tatoeba.wordFetches.values.every((c) => c == 1), isTrue,
+          reason: 'chaque mot-cible est interrogé au plus une fois par run');
+    });
+
+    test('parks target words without an acceptable sentence and moves on',
+        () async {
+      final tatoeba = _QueryFirstTatoebaService()..emptyEvery = 7;
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 40, // 20 seeds + 20 ajoutés attendus
+      );
+
+      expect(result.status, EnrichmentRunStatus.completed);
+      expect(result.addedWords, 20);
+      expect(tatoeba.parkedWords, isNotEmpty,
+          reason: 'des mots-cibles tombent sur une requête vide');
+      for (final parked in tatoeba.parkedWords) {
+        expect(tatoeba.wordFetches[parked], 1,
+            reason: 'un mot garé est essayé une seule fois puis passé');
+        final inDb = await repo.wordExists(parked);
+        expect(inDb, isFalse,
+            reason: 'un mot garé sans phrase acceptable n\'est jamais ajouté');
+      }
+    });
+
+    test('never adds a card without a sentence and a translation', () async {
+      final tatoeba = _QueryFirstTatoebaService()..emptyEvery = 5;
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 40,
+      );
+
+      expect(result.status, EnrichmentRunStatus.completed);
+      final added = await repo.getWordsByLevel('A1');
+      final fresh = added.where((w) => !tatoeba.parkedWords.contains(w.term));
+      expect(fresh, isNotEmpty);
+      for (final word in fresh) {
+        expect(word.contextSentence, isNotEmpty,
+            reason: 'règle #58 : toute carte a une phrase source');
+        expect(word.translation, isNotEmpty,
+            reason: 'règle #58 : toute carte a une traduction');
+      }
     });
   });
 
