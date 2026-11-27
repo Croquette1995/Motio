@@ -73,20 +73,27 @@ class VocabEnrichmentService {
     return level.targetWordCount - CefrLevel.values[level.index - 1].targetWordCount;
   }
 
+  /// Traduction française d'un terme, résolue sur le Wiktionnaire : forme de
+  /// surface puis lemme (« made » → « make »). Sans traduction française, le
+  /// mot reste à préciser plutôt que d'enregistrer une définition anglaise.
   Future<String> resolveTranslation(String term) async {
     final external = _externalTranslationResolver;
     if (external != null) return external(term);
 
-    try {
-      final details = await wiktionaryService.fetchWordDetails(term);
-      if (details.translations.isNotEmpty) {
-        return details.translations.first.term;
+    final clean = term.trim().toLowerCase();
+    final lemma = lemmatize(clean);
+    final lookups =
+        lemma.isNotEmpty && lemma != clean ? [clean, lemma] : [clean];
+    for (final lookup in lookups) {
+      try {
+        final details = await wiktionaryService.fetchWordDetails(lookup);
+        for (final translation in details.translations) {
+          final fr = translation.term.trim();
+          if (fr.isNotEmpty) return fr;
+        }
+      } catch (_) {
+        // La traduction sera complétée manuellement plus tard.
       }
-      if (details.definitions.isNotEmpty) {
-        return details.definitions.first.text;
-      }
-    } catch (_) {
-      // La traduction sera complétée manuellement plus tard.
     }
     return 'Traduction à préciser';
   }
@@ -149,6 +156,7 @@ class VocabEnrichmentService {
     var batches = 0;
     var batchesSinceRandom = 0;
     final addedTerms = <String>{};
+    final storedTerms = <String>{};
 
     report(added, sentencesAnalyzed);
 
@@ -240,7 +248,14 @@ class VocabEnrichmentService {
           if (candidate.isAlreadyInDb) continue;
           if (!addedTerms.add(candidate.term)) continue;
 
-          await _addWordFromCandidate(candidate, sentence, level, language: language);
+          final stored = await _addWordFromCandidate(
+            candidate,
+            sentence,
+            level,
+            storedTerms: storedTerms,
+            language: language,
+          );
+          if (!stored) continue;
           added++;
           report(added, sentencesAnalyzed);
         }
@@ -277,12 +292,16 @@ class VocabEnrichmentService {
     const frequencyService = WordFrequencyService();
     // Les contractions (it's, don't…) sont exclues : l'extraction de candidats
     // sépare l'apostrophe, elles ne seraient jamais retrouvées dans une phrase.
+    final seenLemmas = <String>{};
     final candidates = frequencyService.wordsAtLevel(level, language: language)
         .where((word) => !SentenceQualityFilter.englishStopwords.contains(word))
         .where((word) => !word.contains("'") && !word.contains("’"))
         .where((word) =>
             !knownForms.contains(word) &&
             !knownForms.contains(lemmatize(word, language: language)))
+        // Une seule cible par lemme : la fiche est de toute façon créée sur
+        // le lemme, « make » et « made » ne valent qu'une requête.
+        .where((word) => seenLemmas.add(lemmatize(word, language: language)))
         .toList();
 
     final byDomain = <String, List<String>>{};
@@ -301,27 +320,37 @@ class VocabEnrichmentService {
     return ordered;
   }
 
-  Future<void> _addWordFromCandidate(
+  /// Crée la fiche d'un candidat sur son lemme (« made » → « make ») : la
+  /// forme fléchie reste visible dans la phrase d'exemple de la carte.
+  /// Renvoie false si une fiche du même lemme a déjà été créée pendant le run.
+  Future<bool> _addWordFromCandidate(
     ExtractedCandidateWord candidate,
     TatoebaSentence sentence,
     CefrLevel level, {
+    required Set<String> storedTerms,
     String language = 'en',
   }) async {
+    final term = candidate.term.trim().toLowerCase();
+    final lemma = lemmatize(term, language: language);
+    final cardTerm = lemma != term ? lemma : term;
+    if (!storedTerms.add(cardTerm)) return false;
+
     var translation = candidate.translation ?? '';
     if (translation.isEmpty) {
-      translation = await resolveTranslation(candidate.term);
+      translation = await resolveTranslation(cardTerm);
     }
     if (translation.isEmpty) translation = 'Traduction à préciser';
 
     await wordRepository.addWord(
-      term: candidate.term,
+      term: cardTerm,
       translation: translation,
       contextSentence: sentence.textEn,
       category: candidate.suggestedCategory ?? 'Daily Life & Home',
       level: level.code,
       pos: candidate.pos ?? 'noun',
       frequencyScore: candidate.frequencyScore,
-      lemma: lemmatize(candidate.term, language: language),
+      lemma: lemma,
     );
+    return true;
   }
 }

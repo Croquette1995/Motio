@@ -212,6 +212,17 @@ class WiktionaryService {
         .toList();
   }
 
+  /// Détecte les sens marqués désuets, archaïques ou dialectaux dans une
+  /// définition Wiktionary, ex. « (UK, dialectal or obsolete) A grub or maggot ».
+  static bool isMarkedObsolete(String definitionText) {
+    return _obsoleteLabelRegExp.hasMatch(definitionText);
+  }
+
+  static final RegExp _obsoleteLabelRegExp = RegExp(
+    r'\([a-zA-Z, \-]*\b(?:obsolete|archaic|dialect(?:al)?|dated)\b[a-zA-Z, \-]*\)',
+    caseSensitive: false,
+  );
+
   /// Helper to parse REST API definition list.
   List<WordDefinition> _parseRestDefinitions(Map<String, dynamic> data) {
     final List<WordDefinition> defs = [];
@@ -256,7 +267,11 @@ class WiktionaryService {
         }
       }
     }
-    return defs;
+
+    // Écarter les sens désuets/dialectaux tant qu'il reste des sens courants
+    // (ex. « made » : le nom vieilli « a grub or maggot » passe avant le verbe).
+    final current = defs.where((d) => !isMarkedObsolete(d.text)).toList();
+    return current.isNotEmpty ? current : defs;
   }
 
   /// Fetch word details from Wiktionary API with cache & error handling.

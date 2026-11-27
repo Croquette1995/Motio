@@ -5,7 +5,9 @@ import 'package:lexiflow/src/features/settings/domain/cefr_level.dart';
 import 'package:lexiflow/src/features/vocabulary/application/vocab_enrichment_service.dart';
 import 'package:lexiflow/src/features/vocabulary/data/drift_word_repository.dart';
 import 'package:lexiflow/src/features/vocabulary/data/tatoeba_service.dart';
+import 'package:lexiflow/src/features/vocabulary/data/wiktionary_service.dart';
 import 'package:lexiflow/src/features/vocabulary/domain/tatoeba_sentence.dart';
+import 'package:lexiflow/src/features/vocabulary/domain/word_details.dart';
 import 'package:lexiflow/src/features/vocabulary/domain/word_frequency_service.dart';
 
 /// Fake Tatoeba pour la boucle query-first (Issue 33) : chaque requête ciblée
@@ -76,6 +78,32 @@ class _PagedTatoebaService extends TatoebaService {
     final page = pages[_page];
     _page++;
     return page;
+  }
+}
+
+/// Wiktionary factice (Issue 34) : seule la page du lemme « make » porte une
+/// traduction française ; « obsoleteword » n'a qu'une définition anglaise.
+class _FakeWiktionaryService extends WiktionaryService {
+  @override
+  Future<WordDetails> fetchWordDetails(String rawTerm) async {
+    final word = rawTerm.trim().toLowerCase();
+    if (word == 'make') {
+      return const WordDetails(
+        term: 'make',
+        translations: [
+          WordTranslation(language: 'Français', term: 'faire'),
+        ],
+      );
+    }
+    if (word == 'obsoleteword') {
+      return const WordDetails(
+        term: 'obsoleteword',
+        definitions: [
+          WordDefinition(partOfSpeech: 'Noun', text: 'A grub or maggot.'),
+        ],
+      );
+    }
+    return WordDetails(term: word);
   }
 }
 
@@ -160,13 +188,14 @@ void main() {
       final words = await repo.getWordsByLevel('A1');
       final addedTerms = words
           .map((w) => w.term)
-          .where((t) => ['dog', 'money', 'works'].contains(t))
+          .where((t) => ['dog', 'money', 'work'].contains(t))
           .toList();
 
       expect(result.status, EnrichmentRunStatus.completed);
       expect(result.addedWords, 3);
-      expect(addedTerms.toSet(), {'dog', 'money', 'works'},
-          reason: 'seuls les mots du niveau actif sont ajoutés, sans doublon');
+      expect(addedTerms.toSet(), {'dog', 'money', 'work'},
+          reason: 'seuls les mots du niveau actif sont ajoutés, sur le lemme '
+              '« works » → « work » (Issue 34), sans doublon');
       expect(result.sentencesAnalyzed, 2,
           reason: 'le pipeline s\'arrête dès que le quota est atteint');
       expect(progressUpdates, isNotEmpty);
@@ -382,7 +411,7 @@ void main() {
       );
 
       final words = await repo.getWordsByLevel('A1');
-      expect(words.map((w) => w.term), contains('things'),
+      expect(words.map((w) => w.term), contains('thing'),
           reason: 'la phrase la plus riche en mots A1 est traitée en premier');
       expect(result.addedWords, 1);
     });
@@ -459,6 +488,87 @@ void main() {
         expect(word.translation, isNotEmpty,
             reason: 'règle #58 : toute carte a une traduction');
       }
+    });
+  });
+
+  group('VocabEnrichmentService card quality (Issue 34)', () {
+    test('stores the lemma as the card term, not the inflected form', () async {
+      final tatoeba = _PagedTatoebaService([
+        [sentenceOf('she made a cake yesterday')],
+      ]);
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 21,
+        maxBatches: 1,
+      );
+
+      expect(result.addedWords, 1);
+      final terms =
+          (await repo.getWordsByLevel('A1')).map((w) => w.term).toList();
+      expect(terms, contains('make'),
+          reason: 'la fiche est créée sur le verbe, pas sur la forme conjuguée');
+      expect(terms, isNot(contains('made')));
+      final make = (await repo.getWordsByLevel('A1'))
+          .firstWhere((w) => w.term == 'make');
+      expect(make.translation, 'trad-make',
+          reason: 'la traduction est résolue sur le lemme');
+      expect(make.contextSentence, 'she made a cake yesterday',
+          reason: 'la forme fléchie reste visible dans la phrase source');
+    });
+
+    test('adds only one card per lemma within a run', () async {
+      final tatoeba = _PagedTatoebaService([
+        [
+          sentenceOf('she made a cake yesterday'),
+          sentenceOf('he makes good cakes'),
+        ],
+      ]);
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        tatoebaService: tatoeba,
+        translationResolver: quickTranslation,
+      );
+
+      final result = await service.runToQuota(
+        level: CefrLevel.a1,
+        quotaOverride: 21,
+        maxBatches: 1,
+      );
+
+      expect(result.addedWords, 1);
+      final words = await repo.getWordsByLevel('A1');
+      expect(words.where((w) => w.term == 'make'), hasLength(1));
+      expect(words.map((w) => w.term), isNot(contains('makes')));
+    });
+
+    test('resolves the translation from the lemma of an inflected form',
+        () async {
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        wiktionaryService: _FakeWiktionaryService(),
+      );
+
+      expect(await service.resolveTranslation('made'), 'faire',
+          reason: '« made » n\'a pas de traduction propre : le lemme « make » '
+              'la fournit');
+    });
+
+    test('never stores an English definition as the translation', () async {
+      final service = VocabEnrichmentService(
+        wordRepository: repo,
+        wiktionaryService: _FakeWiktionaryService(),
+      );
+
+      expect(await service.resolveTranslation('obsoleteword'),
+          'Traduction à préciser',
+          reason: 'sans traduction française, la définition anglaise '
+              '(« a grub or maggot ») n\'est jamais enregistrée');
     });
   });
 
