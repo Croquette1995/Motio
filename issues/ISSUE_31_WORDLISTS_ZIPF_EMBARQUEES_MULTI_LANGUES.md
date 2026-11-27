@@ -44,8 +44,11 @@ Atouts décisifs de wordfreq :
 ## Périmètre
 
 1. **Script générateur one-off (Python, hors app)** : exporte par langue un asset embarqué
-   `wordlist_<lang>.json` (ou CSV compressé) : `word → zipf`, lemmes uniquement, top N
-   (cible ~10 000 entrées/langue, Zipf ≥ 2.0 ; calibrer le poids APK, objectif < 1 Mo/langue).
+   `wordlist_<lang>.json` (ou CSV compressé) : `word → zipf`, **formes de surface telles quelles**
+   — wordfreq liste « dogs » et « dog » séparément : ne PAS tenter de lemmatiser la wordlist à la
+   génération ; c'est au moment du lookup que le lemme (sous-issue #32) résout l'inflection
+   (forme de surface testée d'abord, puis lemme). Top N (cible ~10 000 entrées/langue, Zipf ≥ 2.0 ;
+   calibrer le poids APK, objectif < 1 Mo/langue).
 2. **`WordFrequencyService` multilingue** : charge la wordlist de la langue apprise
    (asset loader + cache), `getFrequencyScore`/`determineLevel` interrogent la wordlist **avant**
    la carte curated ; la carte `_curatedEnglishZipf` est conservée comme override de secours puis
