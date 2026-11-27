@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/database_providers.dart';
 import '../../settings/application/user_level_controller.dart';
+import '../../settings/application/voice_settings_controller.dart';
 import '../../settings/domain/cefr_level.dart';
 import '../application/category_progress_service.dart';
 import '../application/vocab_enrichment_service.dart';
@@ -106,6 +107,7 @@ class VocabEnrichmentNotifier extends Notifier<VocabEnrichmentState> {
     if (state.phase == VocabEnrichmentPhase.running) return;
 
     final level = ref.read(userLevelProvider);
+    final language = ref.read(voiceSettingsProvider).languageCode;
     _cancelRequested = false;
 
     final wordRepository = ref.read(wordRepositoryProvider);
@@ -130,6 +132,7 @@ class VocabEnrichmentNotifier extends Notifier<VocabEnrichmentState> {
           );
         },
         isCancelled: isCancelledNow,
+        language: language,
       );
 
       _refreshVocabularyProviders();

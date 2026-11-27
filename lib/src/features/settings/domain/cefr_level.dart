@@ -18,6 +18,11 @@
 /// `levelWordQuota` est la seule r\u00e9f\u00e9rence \u00e0 utiliser pour le suivi de
 /// couverture et l'arr\u00eat des pipelines d'enrichissement : ne pas r\u00e9introduire
 /// de constantes de quota ailleurs.
+///
+/// Seuils Zipf : alignés sur les wordlists de fréquence wordfreq embarquées
+/// (Issue 31). A1 = 5.1 pour que le pool A1 extractible depuis la wordlist
+/// couvre le quota de 500 mots (les données wordfreq réelles ne comptent que
+/// ~170 mots pleins à Zipf >= 5.5, contre ~670 à Zipf >= 5.1).
 enum CefrLevel {
   a1(
     code: 'A1',
@@ -26,7 +31,7 @@ enum CefrLevel {
     description: 'Vocabulaire de base du quotidien (salutations, chiffres, nourriture, verbes courants).',
     targetWordCount: 500,
     levelWordQuota: 500,
-    minZipf: 5.5,
+    minZipf: 5.1,
   ),
   a2(
     code: 'A2',

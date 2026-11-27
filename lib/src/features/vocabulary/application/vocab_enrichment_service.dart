@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import '../../settings/domain/cefr_level.dart';
 import '../data/tatoeba_service.dart';
+import '../domain/word_frequency_service.dart';
 import '../data/wiktionary_service.dart';
 import '../domain/i_word_repository.dart';
+import '../domain/lemmatizer.dart';
 import '../domain/sentence_quality_filter.dart';
 import '../domain/tatoeba_sentence.dart';
+import '../domain/word_categorizer_service.dart';
 
 typedef TranslationResolver = Future<String> Function(String term);
 
@@ -86,9 +91,17 @@ class VocabEnrichmentService {
     return 'Traduction à préciser';
   }
 
-  /// Pipeline automatique d'enrichissement : récupération de phrases Tatoeba ->
-  /// extraction des mots -> déduction du niveau (Zipf) -> catégorisation ->
-  /// ajout sans doublon -> progression remontée en continu, jusqu'au quota.
+  /// Pipeline automatique d'enrichissement, boucle query-first (Issue 33) :
+  /// les mots-cibles manquants du niveau actif (wordlist embarquée Issue 31,
+  /// round-robin par domaine) sont servis en priorité via des requêtes Tatoeba
+  /// ciblées, avec une part de tirage aléatoire conservée (1 lot aléatoire
+  /// tous les [randomBatchEvery] lots ciblés). Extraction des mots ->
+  /// déduction du niveau (Zipf) -> ajout sans doublon -> progression remontée
+  /// en continu, jusqu'au quota.
+  ///
+  /// Parking : un mot-cible sans phrase acceptable est essayé une fois puis
+  /// mis de côté ; [EnrichmentRunStatus.sourceExhausted] n'arrive qu'une fois
+  /// toutes les cibles du run essayées (ou [maxBatches] lots consommés).
   ///
   /// Idempotent : les mots déjà en base (seeds, runs précédents, run en cours)
   /// ne sont jamais re-traités. Résilient : les ajouts sont incrémentaux et
@@ -99,10 +112,17 @@ class VocabEnrichmentService {
     bool Function()? isCancelled,
     int batchSize = 20,
     int maxConsecutiveEmptyFetches = 3,
-    int maxBatches = 40,
+    int maxBatches = 800,
+    int randomBatchEvery = 5,
     int? quotaOverride,
+    String language = 'en',
   }) async {
     final quota = quotaOverride ?? levelQuota(level);
+
+    // Amorce le chargement de la wordlist embarquée de la langue apprise
+    // (Issue 31) ; no-op si déjà en cache. Non bloquant : la lecture d'asset
+    // se termine bien avant la première analyse de phrase (fetch réseau).
+    unawaited(WordFrequencyService.preloadLanguage(language));
     final existing = await wordRepository.getWordsByLevel(level.code);
     final remaining = quota - existing.length;
 
@@ -127,9 +147,12 @@ class VocabEnrichmentService {
     var sentencesAnalyzed = 0;
     var emptyFetches = 0;
     var batches = 0;
+    var batchesSinceRandom = 0;
     final addedTerms = <String>{};
 
     report(added, sentencesAnalyzed);
+
+    final targetQueue = await _buildTargetQueue(level, language: language);
 
     while (added < remaining) {
       if (isCancelled?.call() ?? false) {
@@ -140,11 +163,37 @@ class VocabEnrichmentService {
           sentencesAnalyzed: sentencesAnalyzed,
         );
       }
+      if (batches >= maxBatches) {
+        return EnrichmentRunResult(
+          status: EnrichmentRunStatus.sourceExhausted,
+          addedWords: added,
+          targetWords: quota,
+          sentencesAnalyzed: sentencesAnalyzed,
+          errorMessage:
+              'Le volume de phrases disponibles a été atteint sans couvrir tout le '
+              'quota. Les ajouts sont conservés : relance plus tard pour compléter.',
+        );
+      }
 
-      final fetched = await tatoebaService.searchSentences(
-        random: true,
-        pageSize: batchSize,
-      );
+      // Query-first : priorité aux mots-cibles manquants du niveau actif ;
+      // un lot aléatoire est glissé périodiquement (tirage conservé).
+      final useRandomBatch =
+          randomBatchEvery > 0 && batchesSinceRandom >= randomBatchEvery;
+      List<TatoebaSentence> fetched;
+      if (!useRandomBatch && targetQueue.isNotEmpty) {
+        final target = targetQueue.removeAt(0);
+        fetched = await tatoebaService.getExamplesForWord(
+          word: target,
+          limit: batchSize,
+        );
+        batchesSinceRandom++;
+      } else {
+        fetched = await tatoebaService.searchSentences(
+          random: true,
+          pageSize: batchSize,
+        );
+        batchesSinceRandom = 0;
+      }
       batches++;
 
       if (fetched.isEmpty) {
@@ -170,6 +219,7 @@ class VocabEnrichmentService {
         fetched,
         level: level,
         maxSentences: batchSize,
+        language: language,
       );
       sentencesAnalyzed += sentences.length;
       report(added, sentencesAnalyzed);
@@ -181,6 +231,7 @@ class VocabEnrichmentService {
         final candidates = await tatoebaService.analyzeSentenceWords(
           sentence: sentence.textEn,
           wordRepository: wordRepository,
+          language: language,
         );
 
         for (final candidate in candidates) {
@@ -189,23 +240,12 @@ class VocabEnrichmentService {
           if (candidate.isAlreadyInDb) continue;
           if (!addedTerms.add(candidate.term)) continue;
 
-          await _addWordFromCandidate(candidate, sentence, level);
+          await _addWordFromCandidate(candidate, sentence, level, language: language);
           added++;
           report(added, sentencesAnalyzed);
         }
       }
 
-      if (batches >= maxBatches && added < remaining) {
-        return EnrichmentRunResult(
-          status: EnrichmentRunStatus.sourceExhausted,
-          addedWords: added,
-          targetWords: quota,
-          sentencesAnalyzed: sentencesAnalyzed,
-          errorMessage:
-              'Le volume de phrases disponibles a été atteint sans couvrir tout le '
-              'quota. Les ajouts sont conservés : relance plus tard pour compléter.',
-        );
-      }
     }
 
     return EnrichmentRunResult(
@@ -216,11 +256,57 @@ class VocabEnrichmentService {
     );
   }
 
+  /// File de mots-cibles query-first (Issue 33) : mots du niveau actif dans la
+  /// wordlist embarquée, absents de la base (forme de surface ou lemme), hors
+  /// mots vides, ordonnés en round-robin par domaine sémantique pour garder la
+  /// diversité thématique des lots.
+  Future<List<String>> _buildTargetQueue(
+    CefrLevel level, {
+    required String language,
+  }) async {
+    final knownForms = <String>{};
+    for (final word in await wordRepository.getAllWords()) {
+      final term = word.term.trim().toLowerCase();
+      if (term.isEmpty) continue;
+      knownForms.add(term);
+      knownForms.add(lemmatize(term, language: language));
+      final lemma = word.lemma?.trim().toLowerCase();
+      if (lemma != null && lemma.isNotEmpty) knownForms.add(lemma);
+    }
+
+    const frequencyService = WordFrequencyService();
+    // Les contractions (it's, don't…) sont exclues : l'extraction de candidats
+    // sépare l'apostrophe, elles ne seraient jamais retrouvées dans une phrase.
+    final candidates = frequencyService.wordsAtLevel(level, language: language)
+        .where((word) => !SentenceQualityFilter.englishStopwords.contains(word))
+        .where((word) => !word.contains("'") && !word.contains("’"))
+        .where((word) =>
+            !knownForms.contains(word) &&
+            !knownForms.contains(lemmatize(word, language: language)))
+        .toList();
+
+    final byDomain = <String, List<String>>{};
+    const categorizer = WordCategorizerService();
+    for (final word in candidates) {
+      byDomain.putIfAbsent(categorizer.categorizeWord(word), () => []).add(word);
+    }
+
+    final domainQueues = byDomain.values.toList(growable: false);
+    final ordered = <String>[];
+    for (var rank = 0; ordered.length < candidates.length; rank++) {
+      for (final queue in domainQueues) {
+        if (rank < queue.length) ordered.add(queue[rank]);
+      }
+    }
+    return ordered;
+  }
+
   Future<void> _addWordFromCandidate(
     ExtractedCandidateWord candidate,
     TatoebaSentence sentence,
-    CefrLevel level,
-  ) async {
+    CefrLevel level, {
+    String language = 'en',
+  }) async {
     var translation = candidate.translation ?? '';
     if (translation.isEmpty) {
       translation = await resolveTranslation(candidate.term);
@@ -235,6 +321,7 @@ class VocabEnrichmentService {
       level: level.code,
       pos: candidate.pos ?? 'noun',
       frequencyScore: candidate.frequencyScore,
+      lemma: lemmatize(candidate.term, language: language),
     );
   }
 }
