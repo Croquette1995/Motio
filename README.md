@@ -44,6 +44,18 @@
 
 ---
 
+## Sources & Crédits / Data Sources & Credits
+
+Les contenus embarqués ou consommés proviennent de sources ouvertes :
+
+- **Wiktionnaire** (CC BY-SA 4.0) · wiktionary.org
+- **Tatoeba** (CC BY 2.0 FR) · tatoeba.org
+- **UniMorph** (CC BY-SA 4.0) · unimorph.github.io
+- **Wordlists de fréquence [wordfreq](https://github.com/rspeer/wordfreq)** — © Robyn Speer (2022), wordfreq v3.0.2, données **CC BY-SA 4.0**, Zenodo DOI [10.5281/zenodo.7199437](https://doi.org/10.5281/zenodo.7199437). Wordlists embarquées `assets/wordlists/wordlist_<lang>.json` (en, fr, de, es, it, pt, nl, sv, pl, ro), régénérables via `python3 tool/generate_wordlists.py`.
+
+---
+
+
 ## Installation & Commandes / Setup & Commands
 
 ### Prérequis / Prerequisites

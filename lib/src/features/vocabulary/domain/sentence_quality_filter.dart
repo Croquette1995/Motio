@@ -86,7 +86,7 @@ class SentenceQualityFilter {
   List<String> contentWords(String text) {
     return text
         .toLowerCase()
-        .replaceAll(RegExp(r"[^a-z\s\-]"), ' ')
+        .replaceAll(RegExp(r"[^a-z\u00c0-\u024f\s\-]"), ' ')
         .split(RegExp(r'\s+'))
         .map((w) => w.replaceAll(RegExp(r'^-+|-+$'), ''))
         .where((w) => w.length >= 2 && !englishStopwords.contains(w))
@@ -97,7 +97,7 @@ class SentenceQualityFilter {
   double stopwordRatio(String text) {
     final tokens = text
         .toLowerCase()
-        .replaceAll(RegExp(r"[^a-z\s']"), ' ')
+        .replaceAll(RegExp(r"[^a-z\u00c0-\u024f\s']"), ' ')
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
         .toList();
@@ -154,17 +154,27 @@ class SentenceQualityFilter {
 
   /// Score de pertinence niveau : proportion de mots pleins du niveau cible
   /// versus hors niveau (échelle Zipf), entre 0.0 et 1.0.
-  double relevanceScore(TatoebaSentence sentence, {required CefrLevel targetLevel}) {
+  double relevanceScore(
+    TatoebaSentence sentence, {
+    required CefrLevel targetLevel,
+    String language = 'en',
+  }) {
     final words = contentWords(sentence.textEn);
     if (words.isEmpty) return 0;
-    final inLevel =
-        words.where((w) => _frequencyService.determineLevel(w) == targetLevel).length;
+    final inLevel = words
+        .where((w) =>
+            _frequencyService.determineLevel(w, language: language) == targetLevel)
+        .length;
     return inLevel / words.length;
   }
 
   /// Score de classement : pertinence niveau + bonus audio.
-  double rankScore(TatoebaSentence sentence, {required CefrLevel targetLevel}) =>
-      relevanceScore(sentence, targetLevel: targetLevel) +
+  double rankScore(
+    TatoebaSentence sentence, {
+    required CefrLevel targetLevel,
+    String language = 'en',
+  }) =>
+      relevanceScore(sentence, targetLevel: targetLevel, language: language) +
       (sentence.hasAudio ? audioRankBonus : 0);
 
   /// Domaine sémantique dominant d'une phrase (par son premier mot plein).
@@ -202,13 +212,14 @@ class SentenceQualityFilter {
   List<TatoebaSentence> filterAndRank(
     List<TatoebaSentence> sentences, {
     required CefrLevel level,
+    String language = 'en',
   }) {
     final accepted = deduplicate(sentences)
         .where((s) => isAcceptable(s, level: level))
         .toList()
       ..sort((a, b) {
-        final byScore = rankScore(b, targetLevel: level)
-            .compareTo(rankScore(a, targetLevel: level));
+        final byScore = rankScore(b, targetLevel: level, language: language)
+            .compareTo(rankScore(a, targetLevel: level, language: language));
         if (byScore != 0) return byScore;
         return a.id.compareTo(b.id);
       });
@@ -222,8 +233,9 @@ class SentenceQualityFilter {
     List<TatoebaSentence> sentences, {
     required CefrLevel level,
     int? maxSentences,
+    String language = 'en',
   }) {
-    final ranked = filterAndRank(sentences, level: level);
+    final ranked = filterAndRank(sentences, level: level, language: language);
     final limit = maxSentences ?? ranked.length;
     if (limit <= 0) return const [];
 

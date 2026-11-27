@@ -1,15 +1,173 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:unorm_dart/unorm_dart.dart' as unorm;
+
 import '../../settings/domain/cefr_level.dart';
+import 'lemmatizer.dart';
 
 /// Service de calcul de fréquence lexicale (Échelle de Zipf 1.0 - 7.0)
 /// et déduction du niveau CECRL (A1, A2, B1, B2) 100% autonome et sans clé API.
+///
+/// Sources consultées dans l'ordre (Issue 31) :
+/// 1. la wordlist de fréquence embarquée de la langue apprise
+///    (`assets/wordlists/wordlist_<lang>.json`, données wordfreq CC BY-SA 4.0,
+///    Robyn Speer 2022 — DOI 10.5281/zenodo.7199437), formes de surface telles
+///    quelles puis lemme ;
+/// 2. la carte curated anglaise, conservée comme override de secours ;
+/// 3. l'heuristique de longueur, en tout dernier recours (mot absent de tout).
 class WordFrequencyService {
   const WordFrequencyService();
 
   /// Échelle de Zipf :
-  /// Score >= 5.5 -> A1 (Mots vitaux / hyper-fréquents)
-  /// Score 4.5 - 5.4 -> A2 (Mots quotidiens usuels)
+  /// Score >= 5.1 -> A1 (Mots vitaux / hyper-fréquents)
+  /// Score 4.5 - 5.0 -> A2 (Mots quotidiens usuels)
   /// Score 3.5 - 4.4 -> B1 (Mots indépendants / intermédiaires)
   /// Score < 3.5 -> B2/C1 (Mots techniques / spécialisés)
+
+  static const String _assetBasePath = 'assets/wordlists/wordlist_';
+
+  /// Caches statiques des wordlists embarquées par code langue (ex: 'en') :
+  /// formes de surface exactes, et alias dédiacritisés (comparaison seule).
+  /// Partagés entre toutes les instances (le service est typiquement const).
+  static final Map<String, Map<String, double>> _exactCache = {};
+  static final Map<String, Map<String, double>> _foldedCache = {};
+
+  static String _normalizeLanguage(String language) =>
+      language.trim().toLowerCase();
+
+  /// Charge (une fois) la wordlist embarquée de [language] dans le cache.
+  /// Sans effet si la langue est déjà chargée ; en cas d'absence d'asset,
+  /// un cache vide est mémorisé : la consultation retombe sur la carte
+  /// curated puis l'heuristique, sans re-tenter de chargement.
+  static Future<void> preloadLanguage(String language) async {
+    final lang = _normalizeLanguage(language);
+    if (lang.isEmpty || _exactCache.containsKey(lang)) return;
+    try {
+      final raw = await rootBundle.loadString('$_assetBasePath$lang.json');
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) {
+        _exactCache[lang] = const {};
+        _foldedCache[lang] = const {};
+        return;
+      }
+      final exact = <String, double>{};
+      final folded = <String, double>{};
+      decoded.forEach((key, value) {
+        final zipf = (value as num?)?.toDouble();
+        if (zipf == null) return;
+        final word = key.trim().toLowerCase();
+        if (word.isEmpty) return;
+        exact.putIfAbsent(word, () => zipf);
+        final plain = _stripDiacritics(word);
+        if (plain != word && plain.isNotEmpty) {
+          folded.putIfAbsent(plain, () => zipf);
+        }
+      });
+      _exactCache[lang] = exact;
+      _foldedCache[lang] = folded;
+    } catch (_) {
+      _exactCache[lang] = const {};
+      _foldedCache[lang] = const {};
+    }
+  }
+
+  /// Dédiacritisation réservée à la comparaison (jamais à l'affichage).
+  static String _stripDiacritics(String word) {
+    final nfd = unorm.nfd(word);
+    return nfd.replaceAll(RegExp(r'[\u0300-\u036f]'), '');
+  }
+
+  /// Nombre d'entrées chargées pour [language] (0 si non chargée/absente).
+  static int wordlistSize(String language) {
+    return _exactCache[_normalizeLanguage(language)]?.length ?? 0;
+  }
+
+  /// Zipf de la wordlist embarquée pour [term] : forme de surface d'abord
+  /// (exacte puis dédiacritisée), puis lemme (Issue 32) ; une forme fléchie
+  /// hérite au minimum du Zipf de son lemme (max des deux), sinon null.
+  double? wordlistZipf(String term, {String language = 'en'}) {
+    final clean = term.trim().toLowerCase();
+    if (clean.isEmpty) return null;
+    final lang = _normalizeLanguage(language);
+    final exact = _exactCache[lang];
+    if (exact == null) return null;
+
+    final plain = _stripDiacritics(clean);
+    final surfaceHit = exact[clean] ??
+        (plain == clean ? null : _foldedCache[lang]?[plain]);
+
+    final lemma = lemmatize(clean, language: lang);
+    if (lemma == clean) return surfaceHit;
+    final lemmaPlain = _stripDiacritics(lemma);
+    final lemmaHit = exact[lemma] ??
+        (lemmaPlain == lemma ? null : _foldedCache[lang]?[lemmaPlain]);
+    if (surfaceHit != null && lemmaHit != null) {
+      return surfaceHit > lemmaHit ? surfaceHit : lemmaHit;
+    }
+    return surfaceHit ?? lemmaHit;
+  }
+
+  /// Calcule ou estime le score de fréquence Zipf (1.0 à 7.0)
+  double getFrequencyScore(String term, {String language = 'en'}) {
+    final clean = term.trim().toLowerCase();
+    final zipf = wordlistZipf(clean, language: language);
+    if (zipf != null) return zipf;
+
+    if (_curatedEnglishZipf.containsKey(clean)) {
+      return _curatedEnglishZipf[clean]!;
+    }
+
+    // Heuristique linguistique universelle si le mot n'est ni dans la wordlist
+    // ni dans le dictionnaire de base : la longueur du mot et sa composition
+    // morphologique sont fortement corrélées à sa rareté.
+    final len = clean.length;
+    if (len <= 4) {
+      // Plafonné sous le seuil A1 : l'heuristique ne doit jamais produire d'A1.
+      return 5.0; // Mot court non répertorié : souvent A2
+    } else if (len <= 7) {
+      return 4.2; // Mot moyen : B1
+    } else if (len <= 10) {
+      return 3.6; // Mot plus long : B1-B2
+    } else {
+      return 3.1; // Mot complexe/long : B2
+    }
+  }
+
+  /// Détermine le niveau CECRL (A1, A2, B1, B2) à partir du score de fréquence
+  CefrLevel determineLevel(String term, {String language = 'en'}) {
+    final score = getFrequencyScore(term, language: language);
+    if (score >= CefrLevel.a1.minZipf) {
+      return CefrLevel.a1;
+    } else if (score >= CefrLevel.a2.minZipf) {
+      return CefrLevel.a2;
+    } else if (score >= CefrLevel.b1.minZipf) {
+      return CefrLevel.b1;
+    } else {
+      return CefrLevel.b2;
+    }
+  }
+
+  /// Mots de la wordlist embarquée classés au niveau [level], triés par Zipf
+  /// décroissant. Utilisé par le ciblage query-first (Issue 33) : la fenêtre
+  /// du niveau est [minZipf(level), minZipf(niveau précédent)) — A1 n'a pas
+  /// de borne haute. Les clés dédiacritisées (alias de comparaison) sont
+  /// exclues : seules les formes de surface authentiques sont ciblées.
+  List<String> wordsAtLevel(CefrLevel level, {String language = 'en'}) {
+    final exact = _exactCache[_normalizeLanguage(language)];
+    if (exact == null) return const [];
+    final maxZipf =
+        level.index == 0 ? null : CefrLevel.values[level.index - 1].minZipf;
+
+    final words = <String>[];
+    exact.forEach((word, zipf) {
+      if (zipf < level.minZipf) return;
+      if (maxZipf != null && zipf >= maxZipf) return;
+      words.add(word);
+    });
+    words.sort((a, b) => exact[b]!.compareTo(exact[a]!));
+    return List.unmodifiable(words);
+  }
 
   static final Map<String, double> _curatedEnglishZipf = {
     // A1 - Hyper-fréquents (Zipf >= 5.5)
@@ -77,39 +235,4 @@ class WordFrequencyService {
     'perception': 3.4, 'principle': 3.4, 'reputation': 3.4, 'responsibility': 3.4,
     'sincerity': 3.2, 'solidarity': 3.3, 'tolerance': 3.4,
   };
-
-  /// Calcule ou estime le score de fréquence Zipf (1.0 à 7.0)
-  double getFrequencyScore(String term, {String language = 'en'}) {
-    final clean = term.trim().toLowerCase();
-    if (_curatedEnglishZipf.containsKey(clean)) {
-      return _curatedEnglishZipf[clean]!;
-    }
-
-    // Heuristique linguistique universelle si le mot n'est pas dans le dictionnaire de base :
-    // La longueur du mot et sa composition morphologique sont fortement corrélées à sa rareté.
-    final len = clean.length;
-    if (len <= 4) {
-      return 5.2; // Mot court non répertorié : souvent A2
-    } else if (len <= 7) {
-      return 4.2; // Mot moyen : B1
-    } else if (len <= 10) {
-      return 3.6; // Mot plus long : B1-B2
-    } else {
-      return 3.1; // Mot complexe/long : B2
-    }
-  }
-
-  /// Détermine le niveau CECRL (A1, A2, B1, B2) à partir du score de fréquence
-  CefrLevel determineLevel(String term, {String language = 'en'}) {
-    final score = getFrequencyScore(term, language: language);
-    if (score >= CefrLevel.a1.minZipf) {
-      return CefrLevel.a1;
-    } else if (score >= CefrLevel.a2.minZipf) {
-      return CefrLevel.a2;
-    } else if (score >= CefrLevel.b1.minZipf) {
-      return CefrLevel.b1;
-    } else {
-      return CefrLevel.b2;
-    }
-  }
 }

@@ -95,7 +95,7 @@ void main() {
       gates.add(completer);
       callIndex++;
       if (callIndex == 1) {
-        completer.complete([sentenceOf('the dog runs fast', 1)]);
+        completer.complete([sentenceOf('the dog likes station', 1)]);
       }
       return completer.future;
     });
@@ -155,7 +155,7 @@ void main() {
     final tatoeba = _ScriptedTatoebaService(() {
       fetchCalls++;
       return fetchCalls == 1
-          ? Future.value([sentenceOf('the dog runs fast', 9)])
+          ? Future.value([sentenceOf('the dog likes station', 9)])
           : Future.value([]);
     });
 
